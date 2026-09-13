@@ -4,6 +4,8 @@ import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_POSITIONING, SITE_URL } from "@/lib/public/site";
 
+const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT || "ca-pub-1291926480694364";
+
 // Body/UI/navigation — highly readable humanist sans, stays legible at small
 // sizes on mobile.
 const bodySans = Inter({
@@ -28,18 +30,14 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
-  const adsenseClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT;
-
   return (
     <html lang="en" className={`${bodySans.variable} ${displaySerif.variable} h-full antialiased`}>
-      {adsenseClient && (
-        <Script
-          async
-          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClient}`}
-          crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
-      )}
+      <Script
+        async
+        src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
+        crossOrigin="anonymous"
+        strategy="afterInteractive"
+      />
       <body className="flex min-h-full flex-col font-sans">{children}</body>
     </html>
   );
