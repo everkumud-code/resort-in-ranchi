@@ -7,13 +7,13 @@
   /* Brand tokens — from the Resort In Ranchi logo. Keep hex values only
    * here; components should reference the semantic utility classes
    * (bg-brand, text-brand-orange, ...) rather than hard-coding hex. */
-  --color-brand: #064b3a; /* Forest Green — primary nav, headings, buttons */
-  --color-brand-dark: #003d2e; /* Deep Forest Green — hover/pressed states, footer */
-  --color-brand-cream: #f7f3e8; /* Warm Ivory — page background, cards */
-  --color-brand-orange: #f36b21; /* Terracotta/Sunset Orange — CTAs, highlights */
-  --color-brand-teal: #2697a0; /* Teal — secondary accents */
-  --color-brand-olive: #6b7f42; /* Olive Green — nature/outdoor accents */
-  --color-brand-gold: #d89016; /* Earthy Gold — subtle highlights only */
+  --color-brand: #064b3a;
+  --color-brand-dark: #003d2e;
+  --color-brand-cream: #f7f3e8;
+  --color-brand-orange: #f36b21;
+  --color-brand-teal: #2697a0;
+  --color-brand-olive: #6b7f42;
+  --color-brand-gold: #d89016;
 }
 
 @theme inline {
@@ -33,4 +33,84 @@
 body {
   background: var(--background);
   color: var(--foreground);
+}
+
+/* Premium, image-first property galleries. The existing data model remains
+ * the source of truth; this only changes presentation. */
+.mx-auto.max-w-4xl > .mt-6:has(> img.aspect-video) {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) repeat(2, minmax(0, 1fr));
+  grid-auto-rows: minmax(150px, 1fr);
+  gap: 12px;
+  padding: 6px;
+  border: 1px solid rgb(6 75 58 / 10%);
+  border-radius: 24px;
+  background: #fffdf8;
+  box-shadow: 0 18px 50px rgb(0 61 46 / 9%);
+  overflow: hidden;
+}
+
+.mx-auto.max-w-4xl > .mt-6:has(> img.aspect-video) > img:first-child {
+  grid-column: span 2;
+  grid-row: span 2;
+  width: 100%;
+  height: 100%;
+  min-height: 330px;
+  border-radius: 18px;
+  object-fit: cover;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 8%);
+  transition: transform 300ms ease;
+}
+
+.mx-auto.max-w-4xl > .mt-6:has(> img.aspect-video) > img:first-child:hover {
+  transform: scale(1.01);
+}
+
+.mx-auto.max-w-4xl > .mt-6:has(> img.aspect-video) > p:first-of-type {
+  display: none;
+}
+
+.mx-auto.max-w-4xl > .mt-6:has(> img.aspect-video) > div {
+  display: contents;
+}
+
+.mx-auto.max-w-4xl > .mt-6:has(> img.aspect-video) > div > img {
+  width: 100%;
+  height: 100%;
+  min-height: 150px;
+  border-radius: 16px;
+  object-fit: cover;
+  box-shadow: 0 6px 18px rgb(0 0 0 / 7%);
+  transition: transform 250ms ease, box-shadow 250ms ease;
+}
+
+.mx-auto.max-w-4xl > .mt-6:has(> img.aspect-video) > div > img:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px rgb(0 0 0 / 12%);
+}
+
+.mx-auto.max-w-4xl > .mt-6:has(> img.aspect-video) > div > p {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .mx-auto.max-w-4xl > .mt-6:has(> img.aspect-video) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: 150px;
+    gap: 8px;
+    padding: 4px;
+    border-radius: 18px;
+  }
+
+  .mx-auto.max-w-4xl > .mt-6:has(> img.aspect-video) > img:first-child {
+    grid-column: 1 / -1;
+    grid-row: span 2;
+    min-height: 260px;
+    border-radius: 14px;
+  }
+
+  .mx-auto.max-w-4xl > .mt-6:has(> img.aspect-video) > div > img {
+    min-height: 130px;
+    border-radius: 12px;
+  }
 }
