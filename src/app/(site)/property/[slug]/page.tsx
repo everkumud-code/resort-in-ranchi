@@ -18,8 +18,6 @@ import PropertyCard from "@/components/site/PropertyCard";
 import TrustBadge from "@/components/site/TrustBadge";
 import JsonLd from "@/components/site/JsonLd";
 import AnalyticsBeacon from "@/components/site/AnalyticsBeacon";
-import AdSlot from "@/components/site/ads/AdSlot";
-import { getAanganResortAdCreative } from "@/lib/ads/adCreative";
 
 interface PageParams {
   slug: string;
@@ -79,10 +77,6 @@ export default async function PropertyPage({
   if (!property) notFound();
 
   const related = await getRelatedProperties(property, 3);
-  const adCreativeRaw = await getAanganResortAdCreative();
-  // Never promote a property on its own page — that would be a redundant,
-  // odd "self-ad" rather than a genuine cross-sell.
-  const adCreative = adCreativeRaw && adCreativeRaw.href !== `/property/${slug}` ? adCreativeRaw : null;
   const jsonLd = localBusinessJsonLd(property, `/property/${slug}`);
   const fullAddress = [property.address, property.locality?.name, property.city, property.pincode]
     .filter(Boolean)
@@ -353,12 +347,6 @@ export default async function PropertyPage({
               >
                 Claim this listing
               </Link>
-            </div>
-          )}
-
-          {adCreative && (
-            <div className="mt-4">
-              <AdSlot ladder="card" creative={adCreative} />
             </div>
           )}
         </div>
