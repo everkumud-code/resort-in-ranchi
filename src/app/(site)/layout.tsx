@@ -1,9 +1,13 @@
 import Header from "@/components/site/Header";
 import Footer from "@/components/site/Footer";
+import GoogleAdSlot from "@/components/site/GoogleAdSlot";
 import { CompareProvider } from "@/components/site/CompareProvider";
 import CompareTray from "@/components/site/CompareTray";
 
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
+  const topAdSlot = process.env.NEXT_PUBLIC_ADSENSE_TOP_SLOT;
+  const bottomAdSlot = process.env.NEXT_PUBLIC_ADSENSE_BOTTOM_SLOT;
+
   return (
     <CompareProvider>
       {/* Visually hidden until focused — lets keyboard/screen-reader visitors jump past the header nav instead of tabbing through it on every page. */}
@@ -15,9 +19,11 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       </a>
       <div className="flex min-h-screen flex-col bg-brand-cream">
         <Header />
+        <GoogleAdSlot slot={topAdSlot} label="Advertisement" />
         <main id="main-content" className="flex-1">
           {children}
         </main>
+        <GoogleAdSlot slot={bottomAdSlot} label="Advertisement" />
         <Footer />
       </div>
       <CompareTray />
