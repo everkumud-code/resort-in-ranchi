@@ -56,13 +56,7 @@ export interface ItemListEntry {
   path: string;
 }
 
-/**
- * A listing page's ItemList — helps search engines understand a category/
- * location page as a real list of distinct businesses. Only ever built from
- * the page's genuine exact matches (never supplemented "More Places to
- * Explore" recommendations), so it can never imply a property belongs to a
- * category/location it doesn't.
- */
+/** A listing page's ItemList built only from its genuine exact matches. */
 export function itemListJsonLd(items: ItemListEntry[]) {
   return {
     "@context": "https://schema.org",
@@ -76,8 +70,7 @@ export function itemListJsonLd(items: ItemListEntry[]) {
   };
 }
 
-/** Maps a category slug to the closest schema.org business type. Falls back
- * to the generic LocalBusiness type for anything not explicitly listed. */
+/** Maps a category slug to the closest schema.org business type. */
 const CATEGORY_SCHEMA_TYPE: Record<string, string> = {
   hotels: "Hotel",
   resorts: "Resort",
@@ -90,27 +83,42 @@ const CATEGORY_SCHEMA_TYPE: Record<string, string> = {
 };
 
 /**
- * Only returns a LocalBusiness/appropriate-subtype JSON-LD block when there
- * is enough real data to justify it (name + at least one of address/phone/
- * website) — never fabricated to satisfy a schema requirement.
+ * Only returns business structured data when there is enough real data to
+ * justify it. Every optional field below is sourced directly from the public
+ * listing record; nothing is generated merely to satisfy a schema field.
  */
 export function localBusinessJsonLd(property: PublicProperty, path: string): Record<string, unknown> | null {
   const hasEnoughData = Boolean(property.address || property.phone || property.website);
   if (!hasEnoughData) return null;
 
   const type = CATEGORY_SCHEMA_TYPE[property.category.slug] ?? "LocalBusiness";
-  // Only ever a real PHOTO — never an ILLUSTRATIVE (generated, non-property-
-  // specific) image, for the same reason the page itself never presents one
-  // as a genuine photo of this property.
   const photos = property.images.filter((image) => image.kind === "PHOTO").map((image) => image.url);
+  const description =
+    property.shortDescription ||
+    property.fullDescription ||
+    `${property.name} is listed in ${property.locality?.name ?? property.city ?? "Ranchi"}, Ranchi, under the ${property.category.name} category.`;
+  const businessUrl = absoluteUrl(path);
 
   return {
     "@context": "https://schema.org",
     "@type": type,
+    "@id": `${businessUrl}#business`,
     name: property.name,
-    url: absoluteUrl(path),
+    url: businessUrl,
+    description,
     ...(photos.length > 0 ? { image: photos } : {}),
-    ...(property.address ? { address: { "@type": "PostalAddress", streetAddress: property.address, addressLocality: property.city, addressRegion: property.state, postalCode: property.pincode ?? undefined, addressCountry: "IN" } } : {}),
+    ...(property.address
+      ? {
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: property.address,
+            addressLocality: property.city,
+            addressRegion: property.state,
+            postalCode: property.pincode ?? undefined,
+            addressCountry: "IN",
+          },
+        }
+      : {}),
     ...(property.latitude !== null && property.longitude !== null
       ? { geo: { "@type": "GeoCoordinates", latitude: property.latitude, longitude: property.longitude } }
       : {}),
