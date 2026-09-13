@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "resort-dev",
+      "runtimeExecutable": "cmd.exe",
+      "runtimeArgs": ["/c", "C:\\Users\\ASUS\\Desktop\\resort-in-ranchi\\dev.cmd"],
+      "port": 3000
+    }
+  ]
+}

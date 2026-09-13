@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f7f3e8;
+  --foreground: #0f2a20;
+
+  /* Brand tokens — from the Resort In Ranchi logo. Keep hex values only
+   * here; components should reference the semantic utility classes
+   * (bg-brand, text-brand-orange, ...) rather than hard-coding hex. */
+  --color-brand: #064b3a; /* Forest Green — primary nav, headings, buttons */
+  --color-brand-dark: #003d2e; /* Deep Forest Green — hover/pressed states, footer */
+  --color-brand-cream: #f7f3e8; /* Warm Ivory — page background, cards */
+  --color-brand-orange: #f36b21; /* Terracotta/Sunset Orange — CTAs, highlights */
+  --color-brand-teal: #2697a0; /* Teal — secondary accents */
+  --color-brand-olive: #6b7f42; /* Olive Green — nature/outdoor accents */
+  --color-brand-gold: #d89016; /* Earthy Gold — subtle highlights only */
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-brand: var(--color-brand);
+  --color-brand-dark: var(--color-brand-dark);
+  --color-brand-cream: var(--color-brand-cream);
+  --color-brand-orange: var(--color-brand-orange);
+  --color-brand-teal: var(--color-brand-teal);
+  --color-brand-olive: var(--color-brand-olive);
+  --color-brand-gold: var(--color-brand-gold);
+  --font-sans: var(--font-sans-body);
+  --font-serif: var(--font-serif-display);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}

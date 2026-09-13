@@ -1,0 +1,653 @@
+// ResortInRanchi.com — Prisma schema
+// See RESORTINRANCHI_PRODUCT_SPEC_v1.md for the product/data model this implements.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum PropertyStatus {
+  DRAFT // imported / not yet reviewed — never shown publicly
+  PUBLISHED // live on the public site
+  ARCHIVED // hidden, kept for records
+  CLOSED // business confirmed closed
+}
+
+/// The vendor's commercial relationship with the platform — a plain, extensible
+/// label an admin sets explicitly. Never changed automatically by any other
+/// action (publishing, featuring, verifying, becoming a LeadPartner, etc.),
+/// and carries no billing/pricing logic of its own — it's a foundation for a
+/// future paid-plan system, not a live one.
+enum CommercialTier {
+  FREE // the default for every listing — no commercial relationship beyond the free directory
+  PREMIUM // reserved for a future paid plan — no billing exists yet, this is a label only
+  LEAD_PARTNER // this vendor's commercial relationship is via the lead-referral marketplace (see LeadPartner) — set independently by an admin, never inferred from a LeadPartner row's mere existence
+}
+
+enum VerificationStatus {
+  DISCOVERED // found via research, not yet checked
+  VERIFIED // checked by an admin against a real source
+  OWNER_CLAIMED // an owner has submitted a claim, pending approval
+  OWNER_VERIFIED // claim approved, owner-confirmed details
+  CLOSED // business confirmed closed
+  NEEDS_REVIEW // flagged (e.g. duplicate candidate, unresolved parent)
+}
+
+enum EnquiryStatus {
+  NEW
+  CONTACTED
+  CONVERTED
+  CLOSED
+  SPAM
+}
+
+enum ClaimStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+/// Vendor self-submission review lifecycle — mirrors ClaimStatus exactly on
+/// purpose, since a submission is reviewed the same way a claim is: PENDING
+/// until an admin explicitly approves or rejects it, never auto-published.
+enum PropertySubmissionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+/// "Delivery" here means the lead became visible to the partner (in their
+/// owner dashboard) and to admins — there is no email/SMS provider in this
+/// codebase, so DELIVERED is set the moment the row is created. PENDING is
+/// kept for a future async delivery mechanism; nothing in this phase leaves
+/// a lead in PENDING.
+enum PartnerLeadDeliveryStatus {
+  PENDING
+  DELIVERED
+}
+
+/// The partner's own working status on a referred lead — entirely separate
+/// from the source Enquiry's own EnquiryStatus. Updating this never touches
+/// the original Enquiry row.
+enum PartnerLeadStatus {
+  NEW
+  CONTACTED
+  CONVERTED
+  CLOSED_LOST
+}
+
+enum GuideStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  EDITOR
+}
+
+/// Distinguishes what a PropertyImage row actually depicts, so a generated
+/// visual asset can never be silently mistaken for a genuine photograph.
+enum PropertyImageKind {
+  PHOTO // a real, first-party photograph of this specific property
+  ILLUSTRATIVE // a generated, category-appropriate placeholder — never property-specific, never photorealistic
+  LOGO // a generated listing identity mark — never presented as the business's official logo
+}
+
+// ---------------------------------------------------------------------------
+// Taxonomy
+// ---------------------------------------------------------------------------
+
+model Category {
+  id             String   @id @default(cuid())
+  name           String
+  slug           String   @unique
+  parentId       String?
+  parent         Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children       Category[] @relation("CategoryHierarchy")
+  description    String?
+  seoTitle       String?
+  seoDescription String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  properties Property[]
+  submissions PropertySubmission[]
+
+  @@index([parentId])
+}
+
+model Location {
+  id             String   @id @default(cuid())
+  name           String
+  slug           String   @unique
+  parentId       String?
+  parent         Location?  @relation("LocationHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children       Location[] @relation("LocationHierarchy")
+  description    String?
+  seoTitle       String?
+  seoDescription String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  properties Property[]
+  submissions PropertySubmission[]
+
+  @@index([parentId])
+}
+
+model Facility {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  properties PropertyFacility[]
+}
+
+// ---------------------------------------------------------------------------
+// Core listing
+// ---------------------------------------------------------------------------
+
+model Property {
+  id     String @id @default(cuid())
+  slug   String @unique
+  name   String
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+  // Original, un-normalized category text from the source spreadsheet
+  // (e.g. "Hotel/Banquet"). Preserved for traceability — never discarded.
+  rawCategory String?
+
+  localityId String?
+  locality   Location? @relation(fields: [localityId], references: [id])
+  // Original, un-normalized locality text from the source spreadsheet.
+  rawLocality String?
+
+  shortDescription String?
+  fullDescription  String?
+
+  address  String?
+  city     String  @default("Ranchi")
+  state    String  @default("Jharkhand")
+  pincode  String?
+  latitude  Float?
+  longitude Float?
+
+  phone         String?
+  whatsapp      String?
+  email         String?
+  website       String?
+  googleMapsUrl String?
+
+  googleRating Float?
+  reviewCount  Int?
+
+  priceMin   Int?
+  priceMax   Int?
+  priceLabel String?
+
+  rooms             Int?
+  eventCapacityMin  Int?
+  eventCapacityMax  Int?
+
+  status             PropertyStatus      @default(DRAFT)
+  verificationStatus VerificationStatus  @default(DISCOVERED)
+  claimed            Boolean             @default(false)
+  ownerVerified      Boolean             @default(false)
+  featured           Boolean             @default(false)
+
+  // Vendor commercial status — see the CommercialTier enum's own doc comment.
+  // Deliberately independent of `featured`/`verificationStatus`: nothing in
+  // this codebase sets it automatically, and setting it never touches those.
+  commercialTier CommercialTier @default(FREE)
+
+  // Provenance — required by the import rules in the product spec:
+  // "Maintain source record ID" / "Preserve source and last-checked fields".
+  sourceRecordId    String?   @unique // ID column from the research spreadsheet
+  source            String?           // e.g. "Current web research"
+  sourceUrl         String?
+  sourceLastCheckedAt DateTime?       // date the *research row* was last checked
+                                       // (NOT a claim that the business itself was verified)
+  // sourceRecordIds of other spreadsheet rows that were merged into this
+  // Property as confirmed duplicates (e.g. two rows for the same business).
+  // Preserves provenance instead of silently discarding the merged row.
+  mergedFromSourceRecordIds String[] @default([])
+
+  lastVerifiedAt DateTime? // set only when an admin actually verifies the listing
+
+  // A generated visual identity mark (initials/category-based), used only
+  // when no genuine official logo is available. Deliberately named and
+  // typed apart from any future "official logo" field — never presented to
+  // visitors as the business's real logo or as evidence of endorsement.
+  generatedIdentityMarkUrl String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  facilities     PropertyFacility[]
+  images         PropertyImage[]
+  venueSpaces    VenueSpace[]
+  enquiries      Enquiry[]
+  claimRequests  ClaimRequest[]
+  ownerAccesses  PropertyOwnerAccess[]
+  /// Set only when this property was created by approving a PropertySubmission — traces a listing back to its vendor self-submission, never used for anything else.
+  fromSubmission PropertySubmission?
+  /// Present only when this property has been configured as a Lead Partner (see LeadPartner) — never assumed, always an explicit admin-configured record.
+  leadPartner    LeadPartner?
+
+  @@index([categoryId])
+  @@index([localityId])
+  @@index([status])
+  @@index([verificationStatus])
+  @@index([city])
+  @@index([name])
+}
+
+model PropertyFacility {
+  propertyId String
+  facilityId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  facility   Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@id([propertyId, facilityId])
+  @@index([facilityId])
+}
+
+model PropertyImage {
+  id         String            @id @default(cuid())
+  propertyId String
+  property   Property          @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  url        String
+  altText    String?
+  caption    String?
+  sortOrder  Int               @default(0)
+  // Existing rows all predate this field and are genuine first-party
+  // photographs, so PHOTO is the correct default/backfill value — not an
+  // assumption, a fact about how every current row was actually added.
+  kind       PropertyImageKind @default(PHOTO)
+  createdAt  DateTime          @default(now())
+
+  @@index([propertyId])
+}
+
+model VenueSpace {
+  id          String   @id @default(cuid())
+  propertyId  String
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  name        String
+  type        String?
+  capacityMin Int?
+  capacityMax Int?
+  description String?
+
+  // Provenance, mirroring Property, since venue spaces are imported rows too.
+  sourceRecordId String?   @unique
+  rawParentName  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([propertyId])
+}
+
+// ---------------------------------------------------------------------------
+// Leads / owner interactions
+// ---------------------------------------------------------------------------
+
+model Enquiry {
+  id          String        @id @default(cuid())
+  propertyId  String
+  property    Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  name        String
+  phone       String
+  email       String?
+  eventDate   DateTime?
+  guests      Int?
+  requirement String?
+  budget      String?
+  sourcePage  String?
+  status      EnquiryStatus @default(NEW)
+  createdAt   DateTime      @default(now())
+
+  /// Referred copies of this SAME enquiry sent to eligible lead partners — the original Enquiry row above is never modified by this.
+  partnerLeads PartnerLead[]
+
+  @@index([propertyId])
+  @@index([status])
+}
+
+/// A visitor's claim that they own/represent a listed business. Submitting a
+/// claim is public and requires no proof up front — it only ever creates a
+/// PENDING row. Approving a claim (admin-only, see claimActions.ts) sets
+/// Property.claimed = true; it deliberately never touches verificationStatus
+/// — OWNER_VERIFIED remains a separate, explicit admin action.
+model ClaimRequest {
+  id             String      @id @default(cuid())
+  propertyId     String
+  property       Property    @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  ownerName      String
+  email          String
+  phone          String
+  // The claimant's relationship to the business (e.g. "Owner", "Manager",
+  // "Authorized representative") — free text, not an enum, since this is
+  // self-reported and never used to grant trust by itself.
+  businessRole   String
+  message        String?
+  proofReference String?
+  status         ClaimStatus @default(PENDING)
+  createdAt      DateTime    @default(now())
+  reviewedAt     DateTime?
+  reviewedById   String?
+  reviewedBy     AdminUser?  @relation(fields: [reviewedById], references: [id], onDelete: SetNull)
+  ownerAccess    PropertyOwnerAccess?
+
+  @@index([propertyId])
+  @@index([status])
+}
+
+/// Passwordless owner access, mirroring AdminSession's approach exactly
+/// (random token, only its SHA-256 hash stored, expiry) — created once, when
+/// an admin approves a ClaimRequest. The raw token is shown to the admin
+/// exactly once (as a one-time link) and never stored in plaintext. Every
+/// owner mutation re-derives propertyId from THIS row (via the token), never
+/// from the URL or a form field, so the property being edited can't be
+/// spoofed by an owner who edits the URL.
+model PropertyOwnerAccess {
+  id             String       @id @default(cuid())
+  propertyId     String       @unique
+  property       Property     @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  claimRequestId String       @unique
+  claimRequest   ClaimRequest @relation(fields: [claimRequestId], references: [id], onDelete: Cascade)
+  tokenHash      String       @unique
+  expiresAt      DateTime
+  createdAt      DateTime     @default(now())
+  consumedAt     DateTime?
+  revokedAt      DateTime?
+  sessions       PropertyOwnerSession[]
+
+}
+
+/// A browser session established after a valid initial owner-access token is
+/// exchanged. It has its own random token/hash, so consuming the initial link
+/// cannot invalidate the owner's active browser session. Revoking the parent
+/// access immediately invalidates every session linked to it.
+model PropertyOwnerSession {
+  id            String              @id @default(cuid())
+  ownerAccessId String
+  ownerAccess   PropertyOwnerAccess @relation(fields: [ownerAccessId], references: [id], onDelete: Cascade)
+  tokenHash     String              @unique
+  expiresAt     DateTime
+  createdAt     DateTime            @default(now())
+
+  @@index([ownerAccessId])
+}
+
+// ---------------------------------------------------------------------------
+// Content
+// ---------------------------------------------------------------------------
+
+model Guide {
+  id             String      @id @default(cuid())
+  title          String
+  slug           String      @unique
+  excerpt        String?
+  content        String?
+  coverImage     String?
+  seoTitle       String?
+  seoDescription String?
+  status         GuideStatus @default(DRAFT)
+  publishedAt    DateTime?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  @@index([status])
+}
+
+// ---------------------------------------------------------------------------
+// Admin
+// ---------------------------------------------------------------------------
+
+model AdminUser {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  role         AdminRole @default(EDITOR)
+  active       Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  sessions      AdminSession[]
+  claimsReviewed ClaimRequest[]
+  submissionsReviewed PropertySubmission[]
+}
+
+/// Server-verified admin login sessions. Only a SHA-256 hash of the session
+/// token is stored — the raw token lives only in the client's httpOnly
+/// cookie, so a database read alone can't be used to forge a valid session.
+model AdminSession {
+  id          String    @id @default(cuid())
+  tokenHash   String    @unique
+  adminUserId String
+  adminUser   AdminUser @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+
+  @@index([adminUserId])
+}
+
+// ---------------------------------------------------------------------------
+// Import data-quality tracking
+// ---------------------------------------------------------------------------
+
+/// Venue-space rows from the research spreadsheet whose parent property
+/// could not be confidently resolved (or was explicitly pinned unresolved
+/// by human review). Never linked to a guessed parent and never used to
+/// fabricate a parent Property — tracked here purely so the admin
+/// data-quality view can surface them for manual research, repeatably
+/// across re-imports.
+model UnresolvedVenueSpace {
+  id             String   @id @default(cuid())
+  sourceRecordId String   @unique
+  name           String
+  rawParentName  String
+  reason         String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Analytics (anonymous, minimal)
+// ---------------------------------------------------------------------------
+
+enum AnalyticsEventType {
+  SEARCH
+  PROPERTY_VIEW
+  COMPARE
+  ENQUIRY_START
+  ENQUIRY_SUBMIT
+  CLAIM_START
+  CLAIM_SUBMIT
+}
+
+/// A minimal, anonymous, append-only event log — no IP, user agent,
+/// cookie/session id, or any other visitor-identifying field exists on this
+/// model, by design. `propertyId` is deliberately a plain string, not a
+/// foreign key relation to Property — this table exists purely to give
+/// admins real usage counts and must never affect Property's own queries,
+/// migrations, or deletion behavior.
+model AnalyticsEvent {
+  id         String             @id @default(cuid())
+  type       AnalyticsEventType
+  propertyId String?
+  path       String?
+  createdAt  DateTime           @default(now())
+
+  @@index([type])
+  @@index([createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Vendor self-submission ("Add Your Property")
+// ---------------------------------------------------------------------------
+
+/// A vendor's own submission of a business missing from the directory.
+/// Mirrors ClaimRequest's philosophy exactly: public, no proof required up
+/// front, and it never touches the public Property table by itself — it
+/// only ever creates a PENDING row here. An admin must explicitly approve
+/// it (see submissions/actions.ts) before a real Property is created; a
+/// rejection leaves no public trace at all. Category/Location are always
+/// picked from the real existing taxonomy (never free text), so an approved
+/// submission can never introduce an invented category or area.
+model PropertySubmission {
+  id         String   @id @default(cuid())
+  name       String
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+  localityId String?
+  locality   Location? @relation(fields: [localityId], references: [id])
+
+  address     String?
+  phone       String?
+  email       String?
+  website     String?
+  description String?
+
+  // The person submitting on the business's behalf — same shape as
+  // ClaimRequest's ownerName/email/phone/businessRole, named distinctly
+  // here only because this submission has no existing owner yet.
+  contactName  String
+  contactRole  String
+  contactEmail String
+  contactPhone String
+
+  // Real Facility ids only (validated server-side against the Facility
+  // table before use) — never free-text amenities.
+  facilityIds  String[] @default([])
+  venueDetails String?
+  logoUrl      String?
+  photoUrls    String[] @default([])
+
+  status PropertySubmissionStatus @default(PENDING)
+
+  // Set when an obvious duplicate (same name + same locality) was detected
+  // at submission time — surfaced to the admin, never used to silently
+  // reject or to auto-merge anything.
+  duplicateOfPropertyId String?
+
+  createdAt    DateTime  @default(now())
+  reviewedAt   DateTime?
+  reviewedById String?
+  reviewedBy   AdminUser? @relation(fields: [reviewedById], references: [id], onDelete: SetNull)
+  rejectionNote String?
+
+  // Set only on approval — the real Property this submission became.
+  approvedPropertyId String?   @unique
+  approvedProperty   Property? @relation(fields: [approvedPropertyId], references: [id])
+
+  @@index([status])
+  @@index([categoryId])
+  @@index([localityId])
+}
+
+// ---------------------------------------------------------------------------
+// Lead Partner (neutral referral configuration)
+// ---------------------------------------------------------------------------
+
+/// An existing, real Property configured to receive referred enquiry
+/// opportunities for eligible categories. Deliberately data/config-driven —
+/// no property id is ever hardcoded in application logic; eligibility is
+/// evaluated purely from `enabled` + `eligibleCategorySlugs` at read time
+/// (see leadPartner.ts). Aangan Resort becomes "the initial partner" only by
+/// having a row here, created the same way any future partner would be.
+model LeadPartner {
+  id         String   @id @default(cuid())
+  propertyId String   @unique
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  enabled Boolean @default(true)
+
+  // Real Category.slug values only (validated server-side) — e.g.
+  // ["wedding-venues", "banquet-halls", "resorts"]. An enquiry is only ever
+  // referred to this partner when the enquired property's own category slug
+  // appears in this list.
+  eligibleCategorySlugs String[] @default([])
+
+  // Real Location.slug values only (validated server-side). Empty (the
+  // default) means "no location restriction" — deliberately open by default
+  // so adding this field never silently narrows an already-configured
+  // partner (e.g. Aangan Resort) without an admin explicitly choosing to
+  // restrict it. Guest-capacity matching has no equivalent field here — it
+  // reuses this partner's own Property.eventCapacityMin/Max, since that's
+  // already real, non-fabricated data rather than a number re-entered here.
+  eligibleLocationSlugs String[] @default([])
+
+  // Higher ranks first when multiple partners are eligible for the same
+  // enquiry — purely an ordering/audit signal (see eligibilityReason on
+  // PartnerLead); it never reduces how many eligible partners get a lead.
+  priority Int @default(0)
+
+  // Maximum PartnerLeads this partner may receive in the current calendar
+  // month (UTC). null (the default) means unlimited. Once reached, the
+  // partner is excluded from new referrals until the month rolls over —
+  // existing leads are never touched by this.
+  monthlyLeadCap Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  leads PartnerLead[]
+
+  @@index([enabled])
+}
+
+/// A referred copy of one enquiry, sent to one eligible partner. Always
+/// additional to — never a replacement for, or mutation of — the original
+/// Enquiry row: sourceEnquiryId only ever points at it, nothing here can
+/// change its fields or status. Never exposed on any public route; visible
+/// only to admins and to the partner's own authenticated owner session.
+model PartnerLead {
+  id              String                    @id @default(cuid())
+  partnerId       String
+  partner         LeadPartner               @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  sourceEnquiryId String
+  sourceEnquiry   Enquiry                   @relation(fields: [sourceEnquiryId], references: [id], onDelete: Cascade)
+  deliveryStatus  PartnerLeadDeliveryStatus @default(DELIVERED)
+  // The partner's own tracking of this lead (NEW/CONTACTED/CONVERTED/CLOSED_LOST)
+  // — set by the partner from their owner dashboard only, never by editing
+  // the source Enquiry.
+  status          PartnerLeadStatus         @default(NEW)
+  statusUpdatedAt DateTime?
+  // A short, human-readable record of exactly why this partner was judged
+  // eligible at the moment this lead was created (category/location/
+  // capacity/priority/monthly-usage) — an internal audit trail, never shown
+  // publicly. Regenerated on reassignment to reflect the new partner.
+  eligibilityReason String   @default("")
+  // Bumped by the admin "Resend" action to nudge a lead back to the top of
+  // the partner's dashboard without creating a second row or touching the
+  // source Enquiry. Equal to createdAt until a resend happens.
+  lastDeliveredAt DateTime                  @default(now())
+  createdAt       DateTime                  @default(now())
+
+  // A single enquiry can only ever create one referred lead per partner —
+  // enforced at the database level, not just by application logic, so a
+  // retried/duplicated createMany call can never double-refer the same
+  // enquiry to the same partner.
+  @@unique([partnerId, sourceEnquiryId])
+  @@index([partnerId])
+  @@index([sourceEnquiryId])
+}
