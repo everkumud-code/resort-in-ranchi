@@ -24,8 +24,6 @@ import PropertyCard from "@/components/site/PropertyCard";
 import EmptyState from "@/components/site/EmptyState";
 import Pagination from "@/components/site/Pagination";
 import FacilityTrustFilterPanel from "@/components/site/FacilityTrustFilterPanel";
-import AdSlot from "@/components/site/ads/AdSlot";
-import { getAanganResortAdCreative } from "@/lib/ads/adCreative";
 import JsonLd from "@/components/site/JsonLd";
 import Link from "next/link";
 
@@ -56,7 +54,6 @@ async function loadCategoryPage(
   if (!category) return null;
 
   const categoryIds = await getCategoryIdsForPage(category);
-  const page = parsePage(sp.page);
   const where = {
     categoryId: { in: categoryIds },
     ...(sp.location ? { locality: { slug: sp.location } } : {}),
@@ -68,12 +65,6 @@ async function loadCategoryPage(
   const { skip, take, page: safePage, totalPages } = computePagination(page, totalCount);
   const { items } = await listPublicProperties({ where, orderBy, skip, take });
 
-  // "30+ density" supplementation only ever applies to the default, unfiltered
-  // first page — a deliberate narrowing (?location=/?facility=/?trust=) is
-  // the visitor asking for exactly those exact matches, not an invitation to
-  // pad the results with unrelated properties. Deep pagination pages don't
-  // need padding either; the density goal is about the page someone actually
-  // lands on by default.
   const filtersActive = Boolean(sp.location) || facilitySlugs.length > 0 || Boolean(trust);
   let supplemented: PublicPropertyCard[] = [];
   if (safePage === 1 && !filtersActive) {
@@ -105,18 +96,13 @@ export async function generateMetadata({
 
   const categoryIds = await getCategoryIdsForPage(category);
   const { totalCount } = await listPublicProperties({ where: { categoryId: { in: categoryIds } } });
-
-  // Filtered/sorted variants (?location=..., ?sort=..., ?facility=..., ?trust=...)
-  // are never indexed and always canonicalize back to the bare category URL
-  // — `path` below never includes the query string, so the canonical link is
-  // already the clean base URL; this just adds noindex for those variants.
   const hasFilterOrSort = hasAnyFilterOrSort({ scoping: sp.location, sort: sp.sort, facility: sp.facility, trust: sp.trust });
 
   return buildPageMetadata({
     title: `${category.name} in Ranchi`,
     description:
       category.description ??
-      `Browse ${category.name.toLowerCase()} in and around Ranchi — ${totalCount} listing${totalCount === 1 ? "" : "s"} on ${"ResortInRanchi"}.`,
+      `Browse ${category.name.toLowerCase()} in and around Ranchi — ${totalCount} listing${totalCount === 1 ? "" : "s"} on ResortInRanchi.`,
     path: `/${categorySlug}`,
     noindex: totalCount === 0 || hasFilterOrSort,
   });
@@ -135,10 +121,7 @@ export default async function CategoryPage({
   const activeFacilitySlugs = sanitizeFacilitySlugs(sp.facility, facilities.map((f) => f.slug));
   const activeTrust = sanitizeTrustParam(sp.trust);
 
-  const [result, adCreative] = await Promise.all([
-    loadCategoryPage(categorySlug, sp, activeFacilitySlugs, activeTrust),
-    getAanganResortAdCreative(),
-  ]);
+  const result = await loadCategoryPage(categorySlug, sp, activeFacilitySlugs, activeTrust);
   if (!result) notFound();
 
   const { category, items, totalCount, page, totalPages, supplemented } = result;
@@ -213,13 +196,7 @@ export default async function CategoryPage({
         buildHref={buildHref}
       />
 
-      {adCreative && (
-        <div className="mt-6">
-          <AdSlot ladder="banner" creative={adCreative} />
-        </div>
-      )}
-
-      <div className="mt-6 lg:grid lg:grid-cols-[1fr_280px] lg:items-start lg:gap-8">
+      <div className="mt-6 lg:grid lg:grid-cols-1 lg:items-start">
         <div>
           {items.length === 0 ? (
             <EmptyState
@@ -273,14 +250,6 @@ export default async function CategoryPage({
             </div>
           )}
         </div>
-
-        {adCreative && (
-          <aside className="hidden lg:block">
-            <div className="sticky top-6">
-              <AdSlot ladder="rail" creative={adCreative} />
-            </div>
-          </aside>
-        )}
       </div>
 
       {relevantLocations.length > 0 && (
