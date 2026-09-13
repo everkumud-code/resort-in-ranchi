@@ -5,9 +5,18 @@ export function organizationJsonLd() {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
+    "@id": `${SITE_URL}/#organization`,
     name: SITE_NAME,
     url: SITE_URL,
     description: SITE_DESCRIPTION,
+    areaServed: {
+      "@type": "City",
+      name: "Ranchi",
+      containedInPlace: {
+        "@type": "State",
+        name: "Jharkhand",
+      },
+    },
   };
 }
 
@@ -15,8 +24,12 @@ export function websiteJsonLd() {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
+    "@id": `${SITE_URL}/#website`,
     name: SITE_NAME,
     url: SITE_URL,
+    description: SITE_DESCRIPTION,
+    inLanguage: "en-IN",
+    publisher: { "@id": `${SITE_URL}/#organization` },
   };
 }
 
