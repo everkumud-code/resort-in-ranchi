@@ -162,3 +162,45 @@ describe("localBusinessJsonLd", () => {
     expect(localBusinessJsonLd(property, "/x")?.geo).toBeUndefined();
   });
 });
+
+describe("localBusinessJsonLd — richer details, only when the listing really has them", () => {
+  it("adds price range, map link, rooms, amenities and area from real fields", () => {
+    const data = localBusinessJsonLd(
+      mockProperty({
+        phone: "123",
+        priceLabel: "₹3,000–6,000 per night",
+        googleMapsUrl: "https://maps.example/x",
+        rooms: 24,
+        facilities: [{ facility: { name: "Parking", slug: "parking" } }, { facility: { name: "Lawn", slug: "lawn" } }],
+      }),
+      "/x"
+    );
+    expect(data?.priceRange).toBe("₹3,000–6,000 per night");
+    expect(data?.hasMap).toBe("https://maps.example/x");
+    expect(data?.numberOfRooms).toBe(24);
+    expect(data?.amenityFeature).toEqual([
+      { "@type": "LocationFeatureSpecification", name: "Parking", value: true },
+      { "@type": "LocationFeatureSpecification", name: "Lawn", value: true },
+    ]);
+    expect(data?.containedInPlace).toEqual({ "@type": "Place", name: "Ranchi, Ranchi" });
+  });
+
+  it("uses venue capacity only for event venues, and rooms only for lodging", () => {
+    const venue = localBusinessJsonLd(
+      mockProperty({ phone: "1", rooms: 10, eventCapacityMax: 500, category: { id: "c", name: "Banquet Halls", slug: "banquet-halls" } }),
+      "/x"
+    );
+    expect(venue?.maximumAttendeeCapacity).toBe(500);
+    expect(venue?.numberOfRooms).toBeUndefined();
+    const resort = localBusinessJsonLd(mockProperty({ phone: "1", rooms: 10, eventCapacityMax: 500 }), "/x");
+    expect(resort?.numberOfRooms).toBe(10);
+    expect(resort?.maximumAttendeeCapacity).toBeUndefined();
+  });
+
+  it("omits every optional detail when the listing has none", () => {
+    const data = localBusinessJsonLd(mockProperty({ phone: "1", locality: null }), "/x");
+    for (const key of ["priceRange", "hasMap", "numberOfRooms", "maximumAttendeeCapacity", "amenityFeature", "containedInPlace"]) {
+      expect(data).not.toHaveProperty(key);
+    }
+  });
+});

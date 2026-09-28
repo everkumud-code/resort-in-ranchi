@@ -8,12 +8,18 @@ import EmptyState from "@/components/site/EmptyState";
 
 export const revalidate = 300;
 
-export const metadata: Metadata = buildPageMetadata({
+const base = buildPageMetadata({
   title: "Ranchi Travel, Dining & Events Blog",
   description:
     "Guides, tips and ideas for resorts, hotels, restaurants, wedding venues and things to do in and around Ranchi.",
   path: "/blog",
 });
+
+// The RSS feed is advertised in the page head so feed readers and crawlers find it.
+export const metadata: Metadata = {
+  ...base,
+  alternates: { ...base.alternates, types: { "application/rss+xml": "/blog/feed.xml" } },
+};
 
 export default async function BlogIndexPage() {
   const [posts, tags] = await Promise.all([listPublishedPosts(), listBlogTags()]);

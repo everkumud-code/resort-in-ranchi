@@ -20,6 +20,8 @@ import PropertyHeroFallback from "@/components/site/PropertyHeroFallback";
 import { getImageTagLabel } from "@/lib/validation/propertyImage";
 import JsonLd from "@/components/site/JsonLd";
 import AnalyticsBeacon from "@/components/site/AnalyticsBeacon";
+import ShareButtons from "@/components/site/ShareButtons";
+import { absoluteUrl } from "@/lib/public/site";
 
 interface PageParams {
   slug: string;
@@ -180,6 +182,15 @@ export default async function PropertyPage({
         )}
       </div>
 
+      <ShareButtons url={absoluteUrl(`/property/${slug}`)} title={property.name} />
+      {property.locality && (
+        <p className="mt-2 text-xs text-brand/60">
+          <Link href={`/${property.category.slug}/${property.locality.slug}`} className="text-brand-teal hover:underline">
+            More {property.category.name.toLowerCase()} in {property.locality.name}
+          </Link>
+        </p>
+      )}
+
       {property.googleRating && (
         <p className="mt-2 text-sm text-brand-gold">
           ★ {property.googleRating.toFixed(1)}
@@ -214,6 +225,7 @@ export default async function PropertyPage({
           <img
             src={photoImages[0].url}
             alt={photoImages[0].altText ?? property.name}
+            fetchPriority="high"
             className="aspect-video w-full rounded-lg object-cover"
           />
           {(photoImages[0].caption || getImageTagLabel(photoImages[0].tag)) && (
@@ -235,6 +247,8 @@ export default async function PropertyPage({
                   <img
                     src={image.url}
                     alt={image.altText ?? property.name}
+                    loading="lazy"
+                    decoding="async"
                     className="aspect-square w-full rounded-md object-cover"
                   />
                   {(image.caption || getImageTagLabel(image.tag)) && (

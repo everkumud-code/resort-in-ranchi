@@ -82,6 +82,8 @@ const CATEGORY_SCHEMA_TYPE: Record<string, string> = {
   "party-halls": "EventVenue",
 };
 
+const LODGING_TYPES = new Set(["Hotel", "Resort", "LodgingBusiness"]);
+
 /**
  * Only returns business structured data when there is enough real data to
  * justify it. Every optional field below is sourced directly from the public
@@ -98,6 +100,7 @@ export function localBusinessJsonLd(property: PublicProperty, path: string): Rec
     property.fullDescription ||
     `${property.name} is listed in ${property.locality?.name ?? property.city ?? "Ranchi"}, Ranchi, under the ${property.category.name} category.`;
   const businessUrl = absoluteUrl(path);
+  const amenities = property.facilities.map((f) => f.facility.name);
 
   return {
     "@context": "https://schema.org",
@@ -124,6 +127,17 @@ export function localBusinessJsonLd(property: PublicProperty, path: string): Rec
       : {}),
     ...(property.phone ? { telephone: property.phone } : {}),
     ...(property.website ? { sameAs: [property.website] } : {}),
+    // Richer, still fully factual details — each only when the listing really has it.
+    ...(property.priceLabel ? { priceRange: property.priceLabel } : {}),
+    ...(property.googleMapsUrl ? { hasMap: property.googleMapsUrl } : {}),
+    ...(LODGING_TYPES.has(type) && property.rooms ? { numberOfRooms: property.rooms } : {}),
+    ...(type === "EventVenue" && property.eventCapacityMax ? { maximumAttendeeCapacity: property.eventCapacityMax } : {}),
+    ...(amenities.length > 0
+      ? { amenityFeature: amenities.map((name) => ({ "@type": "LocationFeatureSpecification", name, value: true })) }
+      : {}),
+    ...(property.locality
+      ? { containedInPlace: { "@type": "Place", name: `${property.locality.name}, ${property.city}` } }
+      : {}),
     ...(property.googleRating && property.reviewCount
       ? {
           aggregateRating: {

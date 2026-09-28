@@ -23,7 +23,7 @@ export default function CardImage({
     return (
       <div className="aspect-[4/3] w-full overflow-hidden rounded-t-lg bg-brand-cream">
         {/* eslint-disable-next-line @next/next/no-img-element -- first-party external URL, not a Next-optimized local asset */}
-        <img src={image.url!} alt={image.alt} className="h-full w-full object-cover" />
+        <img src={image.url!} alt={image.alt} loading="lazy" decoding="async" className="h-full w-full object-cover" />
       </div>
     );
   }
@@ -32,7 +32,7 @@ export default function CardImage({
     return (
       <div className="relative aspect-[4/3] w-full overflow-hidden rounded-t-lg bg-brand-cream">
         {/* eslint-disable-next-line @next/next/no-img-element -- first-party external URL, not a Next-optimized local asset */}
-        <img src={image.url!} alt={image.alt} className="h-full w-full object-cover" />
+        <img src={image.url!} alt={image.alt} loading="lazy" decoding="async" className="h-full w-full object-cover" />
         <span className="absolute left-2 top-2 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-medium tracking-wide text-brand-dark/70 uppercase shadow-sm">
           Illustrative
         </span>
@@ -44,7 +44,7 @@ export default function CardImage({
     return (
       <div className="flex aspect-[4/3] w-full items-center justify-center overflow-hidden rounded-t-lg bg-brand-cream p-8">
         {/* eslint-disable-next-line @next/next/no-img-element -- first-party external URL, not a Next-optimized local asset */}
-        <img src={image.url!} alt={image.alt} className="max-h-full max-w-full object-contain" />
+        <img src={image.url!} alt={image.alt} loading="lazy" decoding="async" className="max-h-full max-w-full object-contain" />
       </div>
     );
   }

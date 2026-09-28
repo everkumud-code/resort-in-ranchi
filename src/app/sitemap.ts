@@ -18,7 +18,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }),
     prisma.property.findMany({
       where: { status: "PUBLISHED" },
-      select: { slug: true, updatedAt: true, address: true, phone: true, website: true, shortDescription: true, fullDescription: true },
+      select: {
+        slug: true,
+        updatedAt: true,
+        address: true,
+        phone: true,
+        website: true,
+        shortDescription: true,
+        fullDescription: true,
+        // Real photos only (hero first) so search engines can index the listing's pictures.
+        images: { where: { kind: "PHOTO" }, orderBy: [{ isHero: "desc" }, { sortOrder: "asc" }], take: 3, select: { url: true } },
+      },
     }),
   ]);
 
@@ -52,7 +62,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
   for (const p of properties) {
     if (isThinPublicListing(p)) continue;
-    entries.push({ url: `${SITE_URL}/property/${p.slug}`, lastModified: p.updatedAt, changeFrequency: "weekly", priority: 0.6 });
+    entries.push({
+      url: `${SITE_URL}/property/${p.slug}`,
+      lastModified: p.updatedAt,
+      changeFrequency: "weekly",
+      priority: 0.6,
+      ...(p.images.length > 0 ? { images: p.images.map((i) => i.url) } : {}),
+    });
   }
 
   // Published, indexable blog posts. Never lets a blog query failure take the whole sitemap down.
