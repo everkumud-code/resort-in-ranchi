@@ -93,12 +93,14 @@ describe("PHASE 5B — admin activity summary shows real event counts only", () 
 describe("PHASE 5B — internal linking: category ↔ location cross-links use real indexable URLs, not filter query params", () => {
   it("category page links to /locations/[slug] (the real page), not /{category}?location=... (a noindexed filter view)", () => {
     const src = read("src/app/(site)/[categorySlug]/page.tsx");
-    expect(src).toMatch(/href=\{`\/locations\/\$\{l\.slug\}`\}/);
+    // Real, indexable pages only: the category-in-area page when it exists, otherwise the area page.
+    expect(src).toMatch(/`\/\$\{category\.slug\}\/\$\{l\.slug\}` : `\/locations\/\$\{l\.slug\}`/);
   });
 
   it("location page links to /{categorySlug} (the real page), not /locations/{loc}?category=... (a noindexed filter view)", () => {
     const src = read("src/app/(site)/locations/[locationSlug]/page.tsx");
-    expect(src).toMatch(/href=\{`\/\$\{c\.slug\}`\}/);
+    // The category-in-area landing page — a real, indexable URL, never a ?category= filter view.
+    expect(src).toMatch(/href=\{`\/\$\{c\.slug\}\/\$\{location\.slug\}`\}/);
   });
 });
 

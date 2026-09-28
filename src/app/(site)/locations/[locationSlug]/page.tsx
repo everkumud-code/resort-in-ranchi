@@ -292,7 +292,7 @@ export default async function LocationPage({
             {categoryBreakdown.map((c) => (
               <Link
                 key={c.slug}
-                href={`/${c.slug}`}
+                href={`/${c.slug}/${location.slug}`}
                 className="rounded-full border border-brand/20 px-3 py-1 text-brand-dark hover:border-brand/50"
               >
                 {c.name}

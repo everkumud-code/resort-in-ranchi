@@ -27,6 +27,7 @@ import { computePagination, parsePage } from "@/lib/queries/properties";
 import Breadcrumbs from "@/components/site/Breadcrumbs";
 import PropertyCardGrid from "@/components/site/PropertyCardGrid";
 import { getSponsoredListings } from "@/lib/public/sponsoredListings";
+import { getComboIndex } from "@/lib/public/comboQueries";
 import { pinListing } from "@/lib/public/pinnedListing";
 import EmptyState from "@/components/site/EmptyState";
 import Pagination from "@/components/site/Pagination";
@@ -135,6 +136,8 @@ export default async function CategoryPage({
   const { category, items, totalCount, page, totalPages, supplemented } = result;
   const locations = await getLocationsWithPublishedCounts();
   const relevantLocations = locations.filter((l) => l.publishedCount > 0).slice(0, 12);
+  // Areas where this category genuinely has listings link to their own landing page.
+  const comboSlugs = new Set((await getComboIndex()).map((e) => `${e.categorySlug}|${e.locationSlug}`));
   const activeSort = sp.sort ?? "recommended";
   const filtersActive = hasActiveFacilityOrTrustFilter({ facilitySlugs: activeFacilitySlugs, trust: activeTrust });
   const displayedCount = items.length + supplemented.length;
@@ -260,12 +263,12 @@ export default async function CategoryPage({
 
       {relevantLocations.length > 0 && (
         <div className="mt-10 border-t border-brand/10 pt-6">
-          <h2 className="text-sm font-semibold tracking-wide text-brand-dark uppercase">Explore Ranchi by area</h2>
+          <h2 className="text-sm font-semibold tracking-wide text-brand-dark uppercase">{category.name} by area in Ranchi</h2>
           <div className="mt-3 flex flex-wrap gap-2 text-sm">
             {relevantLocations.map((l) => (
               <Link
                 key={l.slug}
-                href={`/locations/${l.slug}`}
+                href={comboSlugs.has(`${category.slug}|${l.slug}`) ? `/${category.slug}/${l.slug}` : `/locations/${l.slug}`}
                 className="rounded-full border border-brand/20 px-3 py-1 text-brand-dark hover:border-brand/50"
               >
                 {l.name}

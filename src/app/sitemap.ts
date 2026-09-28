@@ -5,6 +5,8 @@ import { UMBRELLA_CATEGORY_ROUTES } from "@/lib/public/categoryRoutes";
 import { isThinPublicListing } from "@/lib/public/properties";
 import { publishedPostWhere } from "@/lib/blog/queries";
 import { tagSlug } from "@/lib/blog/blog";
+import { getComboIndex } from "@/lib/public/comboQueries";
+import { comboPath } from "@/lib/public/comboPages";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [categories, locations, properties] = await Promise.all([
@@ -39,6 +41,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const categorySlugSet = new Set(route.categorySlugs);
     const populated = categories.some((c) => categorySlugSet.has(c.slug) && c._count.properties > 0);
     if (populated) entries.push({ url: `${SITE_URL}/${route.slug}`, changeFrequency: "weekly", priority: 0.6 });
+  }
+  // "Category in area" landing pages — only combinations with at least one real listing.
+  try {
+    for (const combo of await getComboIndex()) {
+      entries.push({ url: `${SITE_URL}${comboPath(combo.categorySlug, combo.locationSlug)}`, changeFrequency: "weekly", priority: 0.7 });
+    }
+  } catch {
+    // Never let the combo index take the whole sitemap down.
   }
   for (const p of properties) {
     if (isThinPublicListing(p)) continue;
