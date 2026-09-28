@@ -19,17 +19,35 @@ export const blogCardSelect = {
   content: true,
 } as const;
 
+/**
+ * Public blog reads never throw: if the blog table is unavailable (for
+ * example a deploy that runs before the BlogPost migration), the blog simply
+ * shows as empty instead of failing the page or the whole build.
+ */
+async function safely<T>(read: () => Promise<T>, fallback: T): Promise<T> {
+  try {
+    return await read();
+  } catch (error) {
+    console.error("[blog] read failed:", error instanceof Error ? error.message.split("\n").pop() : error);
+    return fallback;
+  }
+}
+
 export async function listPublishedPosts(options: { take?: number; tag?: string } = {}) {
-  return prisma.blogPost.findMany({
-    where: { ...publishedPostWhere(), ...(options.tag ? { tags: { has: options.tag } } : {}) },
-    select: blogCardSelect,
-    orderBy: { publishedAt: "desc" },
-    take: options.take ?? 60,
-  });
+  return safely(
+    () =>
+      prisma.blogPost.findMany({
+        where: { ...publishedPostWhere(), ...(options.tag ? { tags: { has: options.tag } } : {}) },
+        select: blogCardSelect,
+        orderBy: { publishedAt: "desc" },
+        take: options.take ?? 60,
+      }),
+    []
+  );
 }
 
 export async function getPublishedPost(slug: string) {
-  return prisma.blogPost.findFirst({ where: { slug, ...publishedPostWhere() } });
+  return safely(() => prisma.blogPost.findFirst({ where: { slug, ...publishedPostWhere() } }), null);
 }
 
 export interface BlogTag {
@@ -40,7 +58,10 @@ export interface BlogTag {
 
 /** Every tag used by a published post, most-used first. Tag pages are keyed by the tag's slug. */
 export async function listBlogTags(): Promise<BlogTag[]> {
-  const posts = await prisma.blogPost.findMany({ where: publishedPostWhere(), select: { tags: true } });
+  const posts = await safely(
+    () => prisma.blogPost.findMany({ where: publishedPostWhere(), select: { tags: true } }),
+    [] as { tags: string[] }[]
+  );
   const counts = new Map<string, BlogTag>();
   for (const post of posts) {
     for (const tag of post.tags) {
