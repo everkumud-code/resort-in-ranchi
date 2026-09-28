@@ -399,6 +399,33 @@ model PropertyOwnerSession {
 // Content
 // ---------------------------------------------------------------------------
 
+/// A blog article written in the admin CMS. Content is Markdown, rendered
+/// HTML-safe on the public site. Only PUBLISHED posts with a publishedAt in
+/// the past are ever shown or listed in the sitemap.
+model BlogPost {
+  id              String      @id @default(cuid())
+  title           String
+  slug            String      @unique
+  excerpt         String?
+  content         String      @default("")
+  authorName      String?
+  coverImageUrl   String?
+  coverImageAlt   String?
+  focusKeyword    String?
+  keywords        String[]    @default([])
+  tags            String[]    @default([])
+  metaTitle       String?
+  metaDescription String?
+  canonicalUrl    String?
+  noindex         Boolean     @default(false)
+  status          GuideStatus @default(DRAFT)
+  publishedAt     DateTime?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([status, publishedAt])
+}
+
 model Guide {
   id             String      @id @default(cuid())
   title          String

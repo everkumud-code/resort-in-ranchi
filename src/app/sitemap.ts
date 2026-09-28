@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { SITE_URL } from "@/lib/public/site";
 import { UMBRELLA_CATEGORY_ROUTES } from "@/lib/public/categoryRoutes";
 import { isThinPublicListing } from "@/lib/public/properties";
+import { publishedPostWhere } from "@/lib/blog/queries";
+import { tagSlug } from "@/lib/blog/blog";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [categories, locations, properties] = await Promise.all([
@@ -41,6 +43,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   for (const p of properties) {
     if (isThinPublicListing(p)) continue;
     entries.push({ url: `${SITE_URL}/property/${p.slug}`, lastModified: p.updatedAt, changeFrequency: "weekly", priority: 0.6 });
+  }
+
+  // Published, indexable blog posts. Never lets a blog query failure take the whole sitemap down.
+  try {
+    const posts = await prisma.blogPost.findMany({
+      where: { ...publishedPostWhere(), noindex: false },
+      select: { slug: true, updatedAt: true, tags: true },
+      orderBy: { publishedAt: "desc" },
+    });
+    if (posts.length > 0) {
+      entries.push({ url: `${SITE_URL}/blog`, changeFrequency: "weekly", priority: 0.6 });
+      const tagSlugs = new Set<string>();
+      for (const post of posts) {
+        entries.push({ url: `${SITE_URL}/blog/${post.slug}`, lastModified: post.updatedAt, changeFrequency: "monthly", priority: 0.6 });
+        for (const tag of post.tags) {
+          const slug = tagSlug(tag);
+          if (slug) tagSlugs.add(slug);
+        }
+      }
+      for (const slug of tagSlugs) entries.push({ url: `${SITE_URL}/blog/tag/${slug}`, changeFrequency: "weekly", priority: 0.4 });
+    }
+  } catch {
+    // Blog table unavailable — omit blog URLs rather than failing the sitemap.
   }
 
   return entries;

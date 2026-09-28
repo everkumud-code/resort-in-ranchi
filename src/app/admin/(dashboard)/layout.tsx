@@ -14,6 +14,7 @@ const NAV_ITEMS = [
   { href: "/admin/partners", label: "Partners" },
   { href: "/admin/vendors", label: "Vendors" },
   { href: "/admin/enquiries", label: "Enquiries" },
+  { href: "/admin/blog", label: "Blog" },
   { href: "/admin/data-quality", label: "Data Quality" },
 ];
 
