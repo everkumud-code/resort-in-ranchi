@@ -27,7 +27,8 @@ export default async function EnquiriesPage({ searchParams }: { searchParams: Pr
 
   return (
     <div className="space-y-6">
-      <div>
+      <div className="flex items-start justify-between gap-4">
+        <div>
         <h1 className="text-xl font-semibold text-slate-900">Enquiries</h1>
         <p className="mt-1 text-sm text-slate-500">
           Leads submitted through property pages. Most recent 100 shown.
@@ -37,6 +38,13 @@ export default async function EnquiriesPage({ searchParams }: { searchParams: Pr
             </span>
           )}
         </p>
+        </div>
+        <a
+          href={validStatus ? `/admin/enquiries/export?status=${validStatus}` : "/admin/enquiries/export"}
+          className="shrink-0 rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-700"
+        >
+          Export CSV{validStatus ? ` (${ENQUIRY_STATUS_LABELS[validStatus as (typeof ENQUIRY_STATUS_VALUES)[number]]})` : ""}
+        </a>
       </div>
 
       <div className="flex flex-wrap gap-2 text-sm">
