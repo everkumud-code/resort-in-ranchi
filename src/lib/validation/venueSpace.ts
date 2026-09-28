@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { optionalInt, optionalText, requiredText } from "./shared";
+import { optionalHttpUrl, optionalInt, optionalText, requiredText } from "./shared";
 
 /**
  * Fields intentionally match the existing VenueSpace model exactly — no
@@ -14,6 +14,7 @@ export const venueSpaceSchema = z
     capacityMin: optionalInt,
     capacityMax: optionalInt,
     description: optionalText,
+    imageUrl: optionalHttpUrl,
   })
   .refine((v) => v.capacityMin === null || v.capacityMin >= 0, {
     message: "Must be 0 or more",
@@ -46,5 +47,6 @@ export function buildVenueSpaceData(input: VenueSpaceInput) {
     capacityMin: input.capacityMin,
     capacityMax: input.capacityMax,
     description: input.description,
+    imageUrl: input.imageUrl,
   };
 }

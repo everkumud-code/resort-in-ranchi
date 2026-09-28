@@ -11,6 +11,20 @@ export const optionalText = z.preprocess((v) => {
 export const requiredText = (label: string) =>
   z.preprocess((v) => (typeof v === "string" ? v.trim() : v), z.string().min(1, `${label} is required`));
 
+/** A FormData URL field: "" -> null, otherwise must be a valid http(s) URL. */
+export const optionalHttpUrl = z.preprocess(
+  (v) => {
+    if (typeof v !== "string") return null;
+    const trimmed = v.trim();
+    return trimmed === "" ? null : trimmed;
+  },
+  z
+    .string()
+    .url("Must be a valid URL (including https://)")
+    .refine((u) => /^https?:\/\//i.test(u), "Must start with http:// or https://")
+    .nullable()
+);
+
 /** A FormData email field that must be present and a plausible email address. */
 export const requiredEmail = z.preprocess(
   (v) => (typeof v === "string" ? v.trim().toLowerCase() : v),

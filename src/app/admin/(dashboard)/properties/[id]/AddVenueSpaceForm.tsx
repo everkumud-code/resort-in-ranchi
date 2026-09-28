@@ -47,6 +47,11 @@ export default function AddVenueSpaceForm({ propertyId }: { propertyId: string }
         <label className="block text-xs font-medium text-slate-500">Description</label>
         <textarea name="description" rows={2} className={inputClass} />
       </div>
+      <div>
+        <label className="block text-xs font-medium text-slate-500">Image URL (optional — a direct link ending in .jpg / .png / .webp)</label>
+        <input name="imageUrl" placeholder="https://…" className={inputClass} />
+        {errors.imageUrl && <p className="mt-1 text-xs text-red-600">{errors.imageUrl}</p>}
+      </div>
       <button
         type="submit"
         disabled={pending}

@@ -58,6 +58,17 @@ export default function VenueSpaceRow({ venueSpace }: { venueSpace: VenueSpace }
             <label className="block text-xs font-medium text-slate-500">Description</label>
             <textarea name="description" defaultValue={venueSpace.description ?? ""} rows={2} className={inputClass} />
           </div>
+          <div className="flex items-start gap-3">
+            {venueSpace.imageUrl && (
+              // eslint-disable-next-line @next/next/no-img-element -- admin-pasted external URL, not a Next-optimized local asset
+              <img src={venueSpace.imageUrl} alt={venueSpace.name} className="h-16 w-24 shrink-0 rounded-md border border-slate-200 object-cover" />
+            )}
+            <div className="flex-1">
+              <label className="block text-xs font-medium text-slate-500">Image URL (direct link to a picture of this space)</label>
+              <input name="imageUrl" defaultValue={venueSpace.imageUrl ?? ""} placeholder="https://…" className={inputClass} />
+              {errors.imageUrl && <p className="mt-1 text-xs text-red-600">{errors.imageUrl}</p>}
+            </div>
+          </div>
           <button
             type="submit"
             disabled={pending}

@@ -84,6 +84,7 @@ export async function addOwnerVenueSpace(
     capacityMin: formData.get("capacityMin"),
     capacityMax: formData.get("capacityMax"),
     description: formData.get("description"),
+    imageUrl: formData.get("imageUrl"),
   });
   if (!parsed.success) {
     const fieldErrors: Record<string, string> = {};

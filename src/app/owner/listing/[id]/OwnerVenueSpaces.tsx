@@ -29,8 +29,12 @@ export default function OwnerVenueSpaces({ propertyId, venueSpaces }: { property
       {venueSpaces.length > 0 && (
         <ul className="mt-3 space-y-2">
           {venueSpaces.map((vs) => (
-            <li key={vs.id} className="flex items-center justify-between rounded-md border border-slate-100 px-3 py-2 text-sm">
-              <span>
+            <li key={vs.id} className="flex items-center justify-between gap-3 rounded-md border border-slate-100 px-3 py-2 text-sm">
+              {vs.imageUrl && (
+                // eslint-disable-next-line @next/next/no-img-element -- owner-pasted external URL, not a Next-optimized local asset
+                <img src={vs.imageUrl} alt={vs.name} className="h-12 w-16 shrink-0 rounded-md border border-slate-200 object-cover" />
+              )}
+              <span className="min-w-0 flex-1">
                 <span className="font-medium text-slate-900">{vs.name}</span>
                 {vs.type && <span className="text-slate-500"> · {vs.type}</span>}
                 {(vs.capacityMin || vs.capacityMax) && (
@@ -60,6 +64,8 @@ export default function OwnerVenueSpaces({ propertyId, venueSpaces }: { property
         </div>
         {errors.name && <p className="text-xs text-red-600">{errors.name}</p>}
         <textarea name="description" placeholder="Description (optional)" rows={2} className={inputClass} />
+        <input name="imageUrl" placeholder="Picture of this space — direct image URL (optional)" className={inputClass} />
+        {errors.imageUrl && <p className="text-xs text-red-600">{errors.imageUrl}</p>}
         <button
           type="submit"
           disabled={pending}

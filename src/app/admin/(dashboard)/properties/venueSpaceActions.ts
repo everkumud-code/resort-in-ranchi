@@ -18,6 +18,7 @@ function parseForm(formData: FormData) {
     capacityMin: formData.get("capacityMin"),
     capacityMax: formData.get("capacityMax"),
     description: formData.get("description"),
+    imageUrl: formData.get("imageUrl"),
   });
 }
 

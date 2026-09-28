@@ -1,20 +1,6 @@
 import { z } from "zod";
-import { checkbox, optionalText, requiredText, slugField } from "./shared";
+import { checkbox, optionalHttpUrl, optionalText, requiredText, slugField } from "./shared";
 import { parseList } from "@/lib/blog/blog";
-
-/** A FormData URL field: "" -> null, otherwise must be a valid http(s) URL. */
-const optionalHttpUrl = z.preprocess(
-  (v) => {
-    if (typeof v !== "string") return null;
-    const trimmed = v.trim();
-    return trimmed === "" ? null : trimmed;
-  },
-  z
-    .string()
-    .url("Must be a valid URL (including https://)")
-    .refine((u) => /^https?:\/\//i.test(u), "Must start with http:// or https://")
-    .nullable()
-);
 
 const listField = (label: string, max: number) =>
   z.preprocess(

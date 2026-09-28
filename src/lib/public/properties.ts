@@ -51,7 +51,7 @@ export const publicPropertySelect = {
   locality: { select: { id: true, name: true, slug: true } },
   facilities: { select: { facility: { select: { name: true, slug: true } } } },
   venueSpaces: {
-    select: { id: true, name: true, type: true, capacityMin: true, capacityMax: true, description: true },
+    select: { id: true, name: true, type: true, capacityMin: true, capacityMax: true, description: true, imageUrl: true },
   },
   images: {
     select: { id: true, url: true, altText: true, caption: true, sortOrder: true, kind: true, tag: true, isHero: true },

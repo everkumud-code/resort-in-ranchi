@@ -298,6 +298,8 @@ model VenueSpace {
   capacityMin Int?
   capacityMax Int?
   description String?
+  // A picture of this space (lawn, hall, ...) — a direct https image URL.
+  imageUrl    String?
 
   // Provenance, mirroring Property, since venue spaces are imported rows too.
   sourceRecordId String?   @unique

@@ -393,7 +393,12 @@ export default async function PropertyPage({
               <h2 className="text-sm font-semibold tracking-wide text-brand-dark uppercase">Venue spaces</h2>
               <ul className="mt-3 space-y-3">
                 {property.venueSpaces.map((vs) => (
-                  <li key={vs.id} className="rounded-lg border border-brand/10 bg-white p-3">
+                  <li key={vs.id} className="overflow-hidden rounded-lg border border-brand/10 bg-white">
+                    {vs.imageUrl && (
+                      // eslint-disable-next-line @next/next/no-img-element -- first-party external URL, not a Next-optimized local asset
+                      <img src={vs.imageUrl} alt={`${vs.name} at ${property.name}`} loading="lazy" className="aspect-video w-full object-cover" />
+                    )}
+                    <div className="p-3">
                     <p className="font-medium text-brand-dark">{vs.name}</p>
                     {(vs.capacityMin || vs.capacityMax) && (
                       <p className="mt-0.5 text-xs text-brand/60">
@@ -401,6 +406,7 @@ export default async function PropertyPage({
                       </p>
                     )}
                     {vs.description && <p className="mt-1 text-sm text-brand-dark/70">{vs.description}</p>}
+                    </div>
                   </li>
                 ))}
               </ul>

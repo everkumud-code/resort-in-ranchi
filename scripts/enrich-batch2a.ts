@@ -302,6 +302,7 @@ async function main() {
             capacityMin: vs.capacityMin,
             capacityMax: vs.capacityMax,
             description: null,
+            imageUrl: null,
           });
           await tx.venueSpace.create({ data: { propertyId: cs.id, ...data } });
         }
