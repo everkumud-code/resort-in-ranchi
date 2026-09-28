@@ -23,6 +23,8 @@ const FOOTER_ABOUT_LINKS = [
   { href: "/list-your-business", label: "Add Your Business" },
   { href: "/contact", label: "Contact" },
   { href: "/privacy", label: "Privacy Policy" },
+  { href: "/owner", label: "Vendor Login" },
+  { href: "/admin/login", label: "Admin Login" },
 ];
 
 export default function Footer() {

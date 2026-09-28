@@ -18,6 +18,12 @@ const MOBILE_ONLY_LINKS = [
   { href: "/contact", label: "Contact" },
 ];
 
+/** Sign-in entry points: vendors (business owners) use their one-time access page, admins the email + password form. */
+const LOGIN_LINKS = [
+  { href: "/owner", label: "Vendor Login" },
+  { href: "/admin/login", label: "Admin Login" },
+];
+
 export default function Header() {
   return (
     <header className="relative border-b border-brand/10 bg-white">
@@ -42,9 +48,18 @@ export default function Header() {
           >
             Search
           </Link>
+          {LOGIN_LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="rounded-full border border-brand/30 px-3.5 py-1.5 text-brand hover:border-brand hover:text-brand-dark"
+            >
+              {link.label}
+            </Link>
+          ))}
         </nav>
 
-        <MobileNav links={[...NAV_LINKS, { href: "/search", label: "Search" }, ...MOBILE_ONLY_LINKS]} />
+        <MobileNav links={[...NAV_LINKS, { href: "/search", label: "Search" }, ...MOBILE_ONLY_LINKS, ...LOGIN_LINKS]} />
       </div>
     </header>
   );
