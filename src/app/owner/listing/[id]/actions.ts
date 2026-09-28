@@ -7,6 +7,7 @@ import { ownerPropertyUpdateSchema, buildOwnerPropertyUpdateData } from "@/lib/v
 import { venueSpaceSchema, buildVenueSpaceData } from "@/lib/validation/venueSpace";
 import { propertyImageSchema, resolveImageSortOrder } from "@/lib/validation/propertyImage";
 import { setPropertyHero } from "@/lib/propertyImageHero";
+import { saveExtraCategoriesForProperty } from "@/lib/propertyPlan";
 import { dedupeFacilityIds } from "@/lib/validation/facility";
 
 export interface OwnerActionState {
@@ -143,6 +144,24 @@ export async function addOwnerImage(
   });
   if (parsed.data.isHero) await setPropertyHero(propertyId, created.id);
   revalidateOwnerPaths(propertyId);
+  return { success: true };
+}
+
+/**
+ * A vendor's extra categories, checked against their plan (Free 1 category,
+ * Premium 3, Lead Partner all) by the same helper the admin uses. Scoped to the
+ * session's own property; sponsored placement stays admin-only.
+ */
+export async function saveOwnerExtraCategories(
+  propertyId: string,
+  _prevState: OwnerActionState,
+  formData: FormData
+): Promise<OwnerActionState> {
+  await assertOwnerAccess(propertyId);
+  const result = await saveExtraCategoriesForProperty(propertyId, formData.getAll("extraCategoryIds").map(String));
+  if (!result.ok) return { error: result.error };
+  revalidateOwnerPaths(propertyId);
+  revalidatePath("/", "layout");
   return { success: true };
 }
 

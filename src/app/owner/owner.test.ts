@@ -181,8 +181,9 @@ describe("owner listing editor — save/update feedback (Phase 3C)", () => {
 
   it("every mutating owner action returns an explicit { success: true } on its happy path", () => {
     const successReturns = actionsSrc.match(/return \{ success: true \};/g) ?? [];
-    // updateOwnerProperty, updateOwnerFacilities, addOwnerVenueSpace, addOwnerImage
-    expect(successReturns.length).toBe(4);
+    // updateOwnerProperty, updateOwnerFacilities, addOwnerVenueSpace, addOwnerImage,
+    // saveOwnerExtraCategories
+    expect(successReturns.length).toBe(5);
   });
 
   it("updateOwnerFacilities now follows the useActionState shape (accepts prevState, returns OwnerActionState) like every other owner form action", () => {
@@ -198,8 +199,8 @@ describe("owner listing editor — save/update feedback (Phase 3C)", () => {
     const calls = actionsSrc.match(/revalidateOwnerPaths\(propertyId\);/g) ?? [];
     // updateOwnerProperty, updateOwnerFacilities, addOwnerVenueSpace,
     // deleteOwnerVenueSpace, addOwnerImage, setOwnerHeroImage, setOwnerImageTag,
-    // deleteOwnerImage — every mutation.
-    expect(calls.length).toBe(8);
+    // deleteOwnerImage, saveOwnerExtraCategories — every mutation.
+    expect(calls.length).toBe(9);
   });
 
   it("on a validation failure, updateOwnerProperty echoes back exactly what was submitted so a re-render doesn't silently wipe other, valid fields", () => {

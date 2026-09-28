@@ -6,6 +6,7 @@ import OwnerDetailsForm from "./OwnerDetailsForm";
 import OwnerFacilitiesForm from "./OwnerFacilitiesForm";
 import OwnerVenueSpaces from "./OwnerVenueSpaces";
 import OwnerImages from "./OwnerImages";
+import OwnerCategories from "./OwnerCategories";
 
 export const dynamic = "force-dynamic";
 
@@ -15,12 +16,19 @@ export default async function OwnerListingPage({ params }: { params: Promise<{ i
   const authorized = await requireOwnerAccessForProperty(id);
   if (!authorized) redirect("/owner");
 
-  const [property, allFacilities] = await Promise.all([
+  const [property, allFacilities, allCategories] = await Promise.all([
     prisma.property.findUnique({
       where: { id },
-      include: { images: { orderBy: [{ isHero: "desc" }, { sortOrder: "asc" }] }, venueSpaces: true, facilities: true },
+      include: {
+        images: { orderBy: [{ isHero: "desc" }, { sortOrder: "asc" }] },
+        venueSpaces: true,
+        facilities: true,
+        category: { select: { id: true, name: true } },
+        extraCategories: { select: { categoryId: true } },
+      },
     }),
     prisma.facility.findMany({ orderBy: { name: "asc" } }),
+    prisma.category.findMany({ select: { id: true, name: true }, orderBy: { name: "asc" } }),
   ]);
   if (!property) notFound();
 
@@ -44,6 +52,16 @@ export default async function OwnerListingPage({ params }: { params: Promise<{ i
           propertyId={property.id}
           allFacilities={allFacilities}
           selectedFacilityIds={property.facilities.map((f) => f.facilityId)}
+        />
+      </div>
+      <div id="categories" className="scroll-mt-24">
+        <OwnerCategories
+          propertyId={property.id}
+          tier={property.commercialTier}
+          primaryCategoryName={property.category.name}
+          primaryCategoryId={property.category.id}
+          categories={allCategories}
+          extraCategoryIds={property.extraCategories.map((e) => e.categoryId)}
         />
       </div>
       <div id="venue-spaces" className="scroll-mt-24">

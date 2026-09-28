@@ -7,6 +7,7 @@ import PropertyFacilitiesPanel from "./PropertyFacilitiesPanel";
 import PropertyImagesPanel from "./PropertyImagesPanel";
 import PropertyVenueSpacesPanel from "./PropertyVenueSpacesPanel";
 import CommercialTierSelect from "./CommercialTierSelect";
+import PaidPlanPanel from "./PaidPlanPanel";
 import { StatusBadge, VerificationBadge, CommercialTierBadge } from "@/components/admin/LifecycleBadges";
 import ConfirmForm from "@/components/admin/ConfirmForm";
 import { markNeedsReview, markVerified, unpublishProperty, closeListing } from "../lifecycleActions";
@@ -51,6 +52,8 @@ export default async function AdminPropertyDetailPage({
         facilities: { include: { facility: true } },
         images: { orderBy: [{ isHero: "desc" }, { sortOrder: "asc" }] },
         leadPartner: { select: { id: true, enabled: true } },
+        extraCategories: { select: { categoryId: true } },
+        sponsoredPlacement: true,
       },
     }),
     prisma.category.findMany({ orderBy: { name: "asc" } }),
@@ -190,6 +193,15 @@ export default async function AdminPropertyDetailPage({
               )}
             </p>
           </div>
+
+          <PaidPlanPanel
+            propertyId={property.id}
+            tier={property.commercialTier}
+            primaryCategoryId={property.categoryId}
+            categories={categories.map((c) => ({ id: c.id, name: c.name, slug: c.slug }))}
+            extraCategoryIds={property.extraCategories.map((e) => e.categoryId)}
+            placement={property.sponsoredPlacement}
+          />
 
           <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
             <PropertyEditForm property={property} categories={categories} locations={locations} />
