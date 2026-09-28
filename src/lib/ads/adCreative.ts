@@ -31,7 +31,7 @@ export async function getAanganResortAdCreative(): Promise<AdCreative | null> {
       locality: { select: { name: true } },
       images: {
         where: { kind: "PHOTO" },
-        orderBy: { sortOrder: "asc" },
+        orderBy: [{ isHero: "desc" }, { sortOrder: "asc" }],
         take: 1,
         select: { url: true, altText: true },
       },

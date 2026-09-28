@@ -53,12 +53,12 @@ describe("publicPropertySelect (property detail page)", () => {
     expect(venueSpaceFields).not.toContain("rawParentName");
   });
 
-  it("selects only the intended public image fields, ordered by sortOrder", () => {
+  it("selects only the intended public image fields, hero image first then by sortOrder", () => {
     const imageFields = Object.keys(publicPropertySelect.images.select);
-    expect(imageFields.sort()).toEqual(["altText", "caption", "id", "kind", "sortOrder", "url"].sort());
+    expect(imageFields.sort()).toEqual(["altText", "caption", "id", "isHero", "kind", "sortOrder", "tag", "url"].sort());
     expect(imageFields).not.toContain("propertyId");
     expect(imageFields).not.toContain("createdAt");
-    expect(publicPropertySelect.images.orderBy).toEqual({ sortOrder: "asc" });
+    expect(publicPropertySelect.images.orderBy).toEqual([{ isHero: "desc" }, { sortOrder: "asc" }]);
   });
 });
 
@@ -78,13 +78,13 @@ describe("claimed (deliberate exception, owner-claim architecture)", () => {
 });
 
 describe("publicPropertyCardSelect images (Phase 2B visual discovery)", () => {
-  it("selects only what's needed to pick a thumbnail, ordered by sortOrder", () => {
+  it("selects only what's needed to pick a thumbnail, hero image first then by sortOrder", () => {
     const imageFields = Object.keys(publicPropertyCardSelect.images.select);
     expect(imageFields.sort()).toEqual(["altText", "kind", "url"].sort());
     expect(imageFields).not.toContain("id");
     expect(imageFields).not.toContain("caption");
     expect(imageFields).not.toContain("sortOrder");
-    expect(publicPropertyCardSelect.images.orderBy).toEqual({ sortOrder: "asc" });
+    expect(publicPropertyCardSelect.images.orderBy).toEqual([{ isHero: "desc" }, { sortOrder: "asc" }]);
   });
 });
 

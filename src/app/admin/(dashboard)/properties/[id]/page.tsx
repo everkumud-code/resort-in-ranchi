@@ -49,7 +49,7 @@ export default async function AdminPropertyDetailPage({
         locality: true,
         venueSpaces: { orderBy: { name: "asc" } },
         facilities: { include: { facility: true } },
-        images: { orderBy: { sortOrder: "asc" } },
+        images: { orderBy: [{ isHero: "desc" }, { sortOrder: "asc" }] },
         leadPartner: { select: { id: true, enabled: true } },
       },
     }),

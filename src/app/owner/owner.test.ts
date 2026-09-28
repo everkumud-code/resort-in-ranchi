@@ -197,8 +197,9 @@ describe("owner listing editor — save/update feedback (Phase 3C)", () => {
     expect(actionsSrc).toMatch(/revalidatePath\("\/owner"\)/);
     const calls = actionsSrc.match(/revalidateOwnerPaths\(propertyId\);/g) ?? [];
     // updateOwnerProperty, updateOwnerFacilities, addOwnerVenueSpace,
-    // deleteOwnerVenueSpace, addOwnerImage, deleteOwnerImage — every mutation.
-    expect(calls.length).toBe(6);
+    // deleteOwnerVenueSpace, addOwnerImage, setOwnerHeroImage, setOwnerImageTag,
+    // deleteOwnerImage — every mutation.
+    expect(calls.length).toBe(8);
   });
 
   it("on a validation failure, updateOwnerProperty echoes back exactly what was submitted so a re-render doesn't silently wipe other, valid fields", () => {

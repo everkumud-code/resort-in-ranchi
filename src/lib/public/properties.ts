@@ -54,8 +54,9 @@ export const publicPropertySelect = {
     select: { id: true, name: true, type: true, capacityMin: true, capacityMax: true, description: true },
   },
   images: {
-    select: { id: true, url: true, altText: true, caption: true, sortOrder: true, kind: true },
-    orderBy: { sortOrder: "asc" },
+    select: { id: true, url: true, altText: true, caption: true, sortOrder: true, kind: true, tag: true, isHero: true },
+    // The hero image always comes first, so it is the page's main picture.
+    orderBy: [{ isHero: "desc" }, { sortOrder: "asc" }],
   },
 } satisfies Prisma.PropertySelect;
 
@@ -82,7 +83,8 @@ export const publicPropertyCardSelect = {
   // caption/sortOrder/id-for-editing noise a card view never uses.
   images: {
     select: { url: true, altText: true, kind: true },
-    orderBy: { sortOrder: "asc" },
+    // Hero first: selectCardImage takes the first PHOTO, so the hero becomes the thumbnail.
+    orderBy: [{ isHero: "desc" }, { sortOrder: "asc" }],
   },
 } satisfies Prisma.PropertySelect;
 

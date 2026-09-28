@@ -6,6 +6,7 @@ import { requireOwnerAccessForProperty } from "@/lib/auth/ownerAccess";
 import { ownerPropertyUpdateSchema, buildOwnerPropertyUpdateData } from "@/lib/validation/ownerEdit";
 import { venueSpaceSchema, buildVenueSpaceData } from "@/lib/validation/venueSpace";
 import { propertyImageSchema, resolveImageSortOrder } from "@/lib/validation/propertyImage";
+import { setPropertyHero } from "@/lib/propertyImageHero";
 import { dedupeFacilityIds } from "@/lib/validation/facility";
 
 export interface OwnerActionState {
@@ -118,6 +119,8 @@ export async function addOwnerImage(
     caption: formData.get("caption"),
     sortOrder: "",
     kind,
+    tag: formData.get("tag"),
+    isHero: formData.get("isHero"),
   });
   if (!parsed.success) {
     const fieldErrors: Record<string, string> = {};
@@ -126,7 +129,7 @@ export async function addOwnerImage(
   }
 
   const existingCount = await prisma.propertyImage.count({ where: { propertyId } });
-  await prisma.propertyImage.create({
+  const created = await prisma.propertyImage.create({
     data: {
       propertyId,
       url: parsed.data.url,
@@ -134,10 +137,28 @@ export async function addOwnerImage(
       caption: parsed.data.caption,
       sortOrder: resolveImageSortOrder(null, existingCount),
       kind: parsed.data.kind,
+      tag: parsed.data.tag,
     },
   });
+  if (parsed.data.isHero) await setPropertyHero(propertyId, created.id);
   revalidateOwnerPaths(propertyId);
   return { success: true };
+}
+
+/** Owner picks which of their own photos is the hero/thumbnail — scoped to their property, and only real photos qualify. */
+export async function setOwnerHeroImage(propertyId: string, imageId: string): Promise<void> {
+  await assertOwnerAccess(propertyId);
+  await setPropertyHero(propertyId, imageId);
+  revalidateOwnerPaths(propertyId);
+}
+
+/** Owner changes the tag (lawn, rooms, hall, ...) of one of their own images. */
+export async function setOwnerImageTag(propertyId: string, imageId: string, formData: FormData): Promise<void> {
+  await assertOwnerAccess(propertyId);
+  const parsed = propertyImageSchema.shape.tag.safeParse(formData.get("tag"));
+  if (!parsed.success) return;
+  await prisma.propertyImage.updateMany({ where: { id: imageId, propertyId }, data: { tag: parsed.data } });
+  revalidateOwnerPaths(propertyId);
 }
 
 export async function deleteOwnerImage(propertyId: string, imageId: string): Promise<void> {

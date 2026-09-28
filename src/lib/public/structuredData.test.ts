@@ -132,8 +132,8 @@ describe("localBusinessJsonLd", () => {
     const property = mockProperty({
       phone: "123",
       images: [
-        { id: "i1", url: "https://x/a.jpg", altText: null, caption: null, sortOrder: 1, kind: "PHOTO" },
-        { id: "i2", url: "https://x/b.jpg", altText: null, caption: null, sortOrder: 2, kind: "PHOTO" },
+        { id: "i1", url: "https://x/a.jpg", altText: null, caption: null, sortOrder: 1, kind: "PHOTO", tag: null, isHero: false },
+        { id: "i2", url: "https://x/b.jpg", altText: null, caption: null, sortOrder: 2, kind: "PHOTO", tag: null, isHero: false },
       ],
     });
     expect(localBusinessJsonLd(property, "/x")?.image).toEqual(["https://x/a.jpg", "https://x/b.jpg"]);
@@ -142,7 +142,7 @@ describe("localBusinessJsonLd", () => {
   it("never includes a generated ILLUSTRATIVE image as if it were a real photo of the business", () => {
     const property = mockProperty({
       phone: "123",
-      images: [{ id: "i1", url: "https://x/illustrative.jpg", altText: null, caption: null, sortOrder: 1, kind: "ILLUSTRATIVE" }],
+      images: [{ id: "i1", url: "https://x/illustrative.jpg", altText: null, caption: null, sortOrder: 1, kind: "ILLUSTRATIVE", tag: null, isHero: false }],
     });
     expect(localBusinessJsonLd(property, "/x")?.image).toBeUndefined();
   });

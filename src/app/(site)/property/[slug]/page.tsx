@@ -17,6 +17,7 @@ import Breadcrumbs from "@/components/site/Breadcrumbs";
 import PropertyCard from "@/components/site/PropertyCard";
 import TrustBadge from "@/components/site/TrustBadge";
 import PropertyHeroFallback from "@/components/site/PropertyHeroFallback";
+import { getImageTagLabel } from "@/lib/validation/propertyImage";
 import JsonLd from "@/components/site/JsonLd";
 import AnalyticsBeacon from "@/components/site/AnalyticsBeacon";
 
@@ -215,8 +216,15 @@ export default async function PropertyPage({
             alt={photoImages[0].altText ?? property.name}
             className="aspect-video w-full rounded-lg object-cover"
           />
-          {photoImages[0].caption && (
-            <p className="mt-1 text-xs text-brand/60">{photoImages[0].caption}</p>
+          {(photoImages[0].caption || getImageTagLabel(photoImages[0].tag)) && (
+            <p className="mt-1 text-xs text-brand/60">
+              {getImageTagLabel(photoImages[0].tag) && (
+                <span className="mr-2 rounded-full bg-brand/10 px-2 py-0.5 font-medium text-brand-dark/70">
+                  {getImageTagLabel(photoImages[0].tag)}
+                </span>
+              )}
+              {photoImages[0].caption}
+            </p>
           )}
 
           {photoImages.length > 1 && (
@@ -229,7 +237,16 @@ export default async function PropertyPage({
                     alt={image.altText ?? property.name}
                     className="aspect-square w-full rounded-md object-cover"
                   />
-                  {image.caption && <p className="mt-1 text-xs text-brand/60">{image.caption}</p>}
+                  {(image.caption || getImageTagLabel(image.tag)) && (
+                    <p className="mt-1 text-xs text-brand/60">
+                      {getImageTagLabel(image.tag) && (
+                        <span className="mr-1 rounded-full bg-brand/10 px-2 py-0.5 font-medium text-brand-dark/70">
+                          {getImageTagLabel(image.tag)}
+                        </span>
+                      )}
+                      {image.caption}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>

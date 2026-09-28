@@ -278,6 +278,12 @@ model PropertyImage {
   // photographs, so PHOTO is the correct default/backfill value — not an
   // assumption, a fact about how every current row was actually added.
   kind       PropertyImageKind @default(PHOTO)
+  // What the picture shows (lawn, rooms, hall, parking, ...) — a slug from
+  // PROPERTY_IMAGE_TAG_VALUES, validated in code. null = untagged.
+  tag        String?
+  // The one photo chosen as the listing's hero/thumbnail; at most one per
+  // property (enforced when saving). Public queries order hero first.
+  isHero     Boolean           @default(false)
   createdAt  DateTime          @default(now())
 
   @@index([propertyId])

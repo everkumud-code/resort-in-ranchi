@@ -18,7 +18,7 @@ export default async function OwnerListingPage({ params }: { params: Promise<{ i
   const [property, allFacilities] = await Promise.all([
     prisma.property.findUnique({
       where: { id },
-      include: { images: { orderBy: { sortOrder: "asc" } }, venueSpaces: true, facilities: true },
+      include: { images: { orderBy: [{ isHero: "desc" }, { sortOrder: "asc" }] }, venueSpaces: true, facilities: true },
     }),
     prisma.facility.findMany({ orderBy: { name: "asc" } }),
   ]);

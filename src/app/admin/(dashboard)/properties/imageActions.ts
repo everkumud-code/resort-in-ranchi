@@ -4,7 +4,8 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth/session";
-import { propertyImageSchema, resolveImageSortOrder } from "@/lib/validation/propertyImage";
+import { canBeHero, propertyImageSchema, resolveImageSortOrder } from "@/lib/validation/propertyImage";
+import { clearPropertyHero, setPropertyHero } from "@/lib/propertyImageHero";
 
 export interface PropertyImageFormState {
   error?: string;
@@ -18,6 +19,8 @@ function parseForm(formData: FormData) {
     caption: formData.get("caption"),
     sortOrder: formData.get("sortOrder"),
     kind: formData.get("kind"),
+    tag: formData.get("tag"),
+    isHero: formData.get("isHero"),
   });
 }
 
@@ -49,7 +52,7 @@ export async function addPropertyImage(
 
   const existingCount = await prisma.propertyImage.count({ where: { propertyId } });
 
-  await prisma.propertyImage.create({
+  const created = await prisma.propertyImage.create({
     data: {
       propertyId,
       url: parsed.data.url,
@@ -57,10 +60,13 @@ export async function addPropertyImage(
       caption: parsed.data.caption,
       sortOrder: resolveImageSortOrder(parsed.data.sortOrder, existingCount),
       kind: parsed.data.kind,
+      tag: parsed.data.tag,
     },
   });
+  if (parsed.data.isHero) await setPropertyHero(propertyId, created.id);
 
   revalidatePath(`/admin/properties/${propertyId}`);
+  revalidatePath("/", "layout");
   redirect(`/admin/properties/${propertyId}?saved=1`);
 }
 
@@ -89,10 +95,14 @@ export async function updatePropertyImage(
       caption: parsed.data.caption,
       sortOrder: resolveImageSortOrder(parsed.data.sortOrder, existing.sortOrder),
       kind: parsed.data.kind,
+      tag: parsed.data.tag,
     },
   });
+  if (parsed.data.isHero && canBeHero(parsed.data.kind)) await setPropertyHero(existing.propertyId, imageId);
+  else await clearPropertyHero(existing.propertyId, imageId);
 
   revalidatePath(`/admin/properties/${existing.propertyId}`);
+  revalidatePath("/", "layout");
   redirect(`/admin/properties/${existing.propertyId}?saved=1`);
 }
 
