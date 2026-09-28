@@ -77,14 +77,23 @@ export function rollUpCategoryCounts(
  * listings (including via children) still exists but won't be promoted on
  * the homepage. */
 export async function getCategoriesWithPublishedCounts(): Promise<CategoryWithCount[]> {
-  const [categories, rawCounts] = await Promise.all([
+  const [categories, rawCounts, extraCounts] = await Promise.all([
     prisma.category.findMany({
       select: { id: true, name: true, slug: true, parentId: true },
       orderBy: { name: "asc" },
     }),
     prisma.property.groupBy({ by: ["categoryId"], where: { status: "PUBLISHED" }, _count: { _all: true } }),
+    // Listings that appear here as a paid extra category (never the property's own primary one).
+    prisma.propertyCategory.groupBy({
+      by: ["categoryId"],
+      where: { property: { status: "PUBLISHED" } },
+      _count: { _all: true },
+    }),
   ]);
   const directCountById = new Map(rawCounts.map((r) => [r.categoryId, r._count._all]));
+  for (const extra of extraCounts) {
+    directCountById.set(extra.categoryId, (directCountById.get(extra.categoryId) ?? 0) + extra._count._all);
+  }
   return rollUpCategoryCounts(categories, directCountById);
 }
 

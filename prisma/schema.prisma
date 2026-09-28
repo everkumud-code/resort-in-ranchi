@@ -122,6 +122,8 @@ model Category {
 
   properties Property[]
   submissions PropertySubmission[]
+  /// Listings that appear here as an additional (paid-plan) category, not as their primary one.
+  extraProperties PropertyCategory[]
 
   @@index([parentId])
 }
@@ -246,6 +248,10 @@ model Property {
   fromSubmission PropertySubmission?
   /// Present only when this property has been configured as a Lead Partner (see LeadPartner) — never assumed, always an explicit admin-configured record.
   leadPartner    LeadPartner?
+  /// Additional categories this listing appears under (paid-plan feature — see PropertyCategory).
+  extraCategories PropertyCategory[]
+  /// A paid sponsored placement in browse lists, when one has been set up (see SponsoredPlacement).
+  sponsoredPlacement SponsoredPlacement?
 
   @@index([categoryId])
   @@index([localityId])
@@ -406,6 +412,37 @@ model PropertyOwnerSession {
 // ---------------------------------------------------------------------------
 // Content
 // ---------------------------------------------------------------------------
+
+/// An additional category a listing appears under. The property's own
+/// categoryId stays its primary category; how many extras are allowed is set
+/// by its commercial plan (see planEntitlements.ts).
+model PropertyCategory {
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@id([propertyId, categoryId])
+  @@index([categoryId])
+}
+
+/// A paid, admin-set sponsored placement: the listing is shown, labelled
+/// "Sponsored", at fixed positions (2, 12, 22) on the first page of browse
+/// lists — in the categories listed here, or in every category. Payment is
+/// taken offline; endsAt is when the paid period stops.
+model SponsoredPlacement {
+  id            String    @id @default(cuid())
+  propertyId    String    @unique
+  property      Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  enabled       Boolean   @default(true)
+  allCategories Boolean   @default(false)
+  categorySlugs String[]  @default([])
+  startsAt      DateTime?
+  endsAt        DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
 
 /// A blog article written in the admin CMS. Content is Markdown, rendered
 /// HTML-safe on the public site. Only PUBLISHED posts with a publishedAt in

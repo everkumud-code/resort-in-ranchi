@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { publicPropertyCardSelect, publishedOnly, type PublicPropertyCard } from "./properties";
+import { categoryMembershipWhere, publicPropertyCardSelect, publishedOnly, type PublicPropertyCard } from "./properties";
 import type { PublicCategory } from "./categories";
 import type { PublicLocation } from "./locations";
 import { PRIORITY_LOCATION_SLUGS } from "./locations";
@@ -38,7 +38,7 @@ export async function getCategoryDiscoverySupplement(params: {
   const pull = async (categoryIds: string[]) => {
     if (categoryIds.length === 0 || stillNeeded() <= 0) return;
     const candidates = await prisma.property.findMany({
-      where: publishedOnly({ categoryId: { in: categoryIds }, id: { notIn: [...shown] } }),
+      where: publishedOnly({ ...categoryMembershipWhere(categoryIds), id: { notIn: [...shown] } }),
       select: publicPropertyCardSelect,
       orderBy: SUPPLEMENT_ORDER_BY,
       take: stillNeeded(),

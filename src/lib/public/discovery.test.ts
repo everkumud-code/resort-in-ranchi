@@ -22,7 +22,7 @@ describe("getCategoryDiscoverySupplement / getLocationDiscoverySupplement never 
   });
 
   it("only ever selects PUBLISHED properties (never DRAFT/ARCHIVED/CLOSED) via the shared publishedOnly() helper", () => {
-    expect(src).toMatch(/publishedOnly\(\{ categoryId: \{ in: categoryIds \}, id: \{ notIn: \[\.\.\.shown\] \} \}\)/);
+    expect(src).toMatch(/publishedOnly\(\{ \.\.\.categoryMembershipWhere\(categoryIds\), id: \{ notIn: \[\.\.\.shown\] \} \}\)/);
     expect(src).toMatch(/publishedOnly\(\{ localityId: \{ in: localityIds \}, id: \{ notIn: \[\.\.\.shown\] \} \}\)/);
   });
 

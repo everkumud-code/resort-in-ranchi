@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Breadcrumbs from "./Breadcrumbs";
 import PropertyCardGrid from "./PropertyCardGrid";
-import { getPinnedListing } from "@/lib/public/pinnedListingQuery";
+import { getSponsoredListings } from "@/lib/public/sponsoredListings";
 import { pinListing } from "@/lib/public/pinnedListing";
 import EmptyState from "./EmptyState";
 import Pagination from "./Pagination";
@@ -18,7 +18,7 @@ export default async function UmbrellaCategoryView({
   data: UmbrellaCategoryData;
 }) {
   // Sponsored placement only on the first page of the list.
-  const pinned = data.page === 1 ? await getPinnedListing() : null;
+  const pinned = data.page === 1 ? await getSponsoredListings(route.categorySlugs) : null;
   const [pinnedItems] = pinListing([data.items], pinned);
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">

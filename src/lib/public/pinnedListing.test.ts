@@ -64,3 +64,34 @@ describe("pinListing", () => {
     expect(ids(list)).toEqual(["p1", "p2", "p3"]);
   });
 });
+
+describe("pinListing with several sponsors", () => {
+  const a = { id: "a" };
+  const b = { id: "b" };
+  const c = { id: "c" };
+  const organic = Array.from({ length: 25 }, (_, i) => ({ id: `p${i + 1}` }));
+
+  it("shares the slots between sponsors in order, wrapping around", () => {
+    const [list] = pinListing([organic], [a, b]);
+    expect(list[1].property.id).toBe("a");
+    expect(list[11].property.id).toBe("b");
+    expect(list[21].property.id).toBe("a");
+  });
+
+  it("gives three sponsors one slot each", () => {
+    const [list] = pinListing([organic], [a, b, c]);
+    expect([list[1], list[11], list[21]].map((e) => e.property.id)).toEqual(["a", "b", "c"]);
+  });
+
+  it("never lists a sponsor organically and ignores duplicates", () => {
+    const [list] = pinListing([[a, ...organic, b]], [a, a, b]);
+    expect(list.filter((e) => !e.pinned).some((e) => e.property.id === "a" || e.property.id === "b")).toBe(false);
+    expect(new Set(list.map((e) => e.key)).size).toBe(list.length);
+  });
+
+  it("an empty sponsor list changes nothing", () => {
+    const [list] = pinListing([organic], []);
+    expect(list.every((e) => !e.pinned)).toBe(true);
+    expect(list).toHaveLength(25);
+  });
+});

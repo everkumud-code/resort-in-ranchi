@@ -3,7 +3,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLocationBySlug, getLocationIdsForPage, getCategoryBreakdownForLocations } from "@/lib/public/locations";
 import { getFacilitiesWithPublishedCounts } from "@/lib/public/facilities";
-import { buildPublicOrderBy, listPublicProperties, type PublicPropertyCard } from "@/lib/public/properties";
+import {
+  buildPublicOrderBy,
+  categorySlugMembershipWhere,
+  listPublicProperties,
+  type PublicPropertyCard,
+} from "@/lib/public/properties";
 import { getLocationDiscoverySupplement } from "@/lib/public/discovery";
 import { buildDiscoveryCountLabel, remainingForDensity } from "@/lib/public/discoveryDensity";
 import {
@@ -21,7 +26,7 @@ import { itemListJsonLd } from "@/lib/public/structuredData";
 import { computePagination, parsePage } from "@/lib/queries/properties";
 import Breadcrumbs from "@/components/site/Breadcrumbs";
 import PropertyCardGrid from "@/components/site/PropertyCardGrid";
-import { getPinnedListing } from "@/lib/public/pinnedListingQuery";
+import { getSponsoredListings } from "@/lib/public/sponsoredListings";
 import { pinListing } from "@/lib/public/pinnedListing";
 import EmptyState from "@/components/site/EmptyState";
 import Pagination from "@/components/site/Pagination";
@@ -60,7 +65,7 @@ async function loadLocationPage(
   const page = parsePage(sp.page);
   const where = {
     localityId: { in: locationIds },
-    ...(sp.category ? { category: { slug: sp.category } } : {}),
+    ...(sp.category ? categorySlugMembershipWhere(sp.category) : {}),
     ...buildFacilityTrustWhere({ facilitySlugs, trust }),
   };
   const orderBy = buildPublicOrderBy(sp.sort);
@@ -147,7 +152,7 @@ export default async function LocationPage({
   const filtersActive = hasActiveFacilityOrTrustFilter({ facilitySlugs: activeFacilitySlugs, trust: activeTrust });
   const displayedCount = items.length + supplemented.length;
   // Sponsored placement only on the plain first page — never on filtered, category-scoped or later pages.
-  const pinned = page === 1 && !filtersActive && !sp.category ? await getPinnedListing() : null;
+  const pinned = page === 1 && !filtersActive && !sp.category ? await getSponsoredListings(null) : null;
   const [pinnedItems, pinnedSupplemented] = pinListing([items, supplemented], pinned);
   const countLabel = buildDiscoveryCountLabel({
     exactCount: totalCount,

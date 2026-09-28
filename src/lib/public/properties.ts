@@ -90,6 +90,21 @@ export const publicPropertyCardSelect = {
 
 export type PublicPropertyCard = Prisma.PropertyGetPayload<{ select: typeof publicPropertyCardSelect }>;
 
+/**
+ * A property belongs to a category page when it is filed there (its primary
+ * categoryId) or has bought that category as an extra (PropertyCategory).
+ */
+export function categoryMembershipWhere(categoryIds: string[]): Prisma.PropertyWhereInput {
+  return {
+    OR: [{ categoryId: { in: categoryIds } }, { extraCategories: { some: { categoryId: { in: categoryIds } } } }],
+  };
+}
+
+/** Same as categoryMembershipWhere, keyed by category slug (used by the location page's category filter). */
+export function categorySlugMembershipWhere(slug: string): Prisma.PropertyWhereInput {
+  return { OR: [{ category: { slug } }, { extraCategories: { some: { category: { slug } } } }] };
+}
+
 /** Every public property query starts here — only ever PUBLISHED listings. */
 export function publishedOnly(extra: Prisma.PropertyWhereInput = {}): Prisma.PropertyWhereInput {
   return { status: "PUBLISHED", ...extra };

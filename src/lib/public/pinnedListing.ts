@@ -29,26 +29,35 @@ export interface PinnedEntry<T> {
  */
 export function pinListing<T extends { id: string }>(
   sections: T[][],
-  pinned: T | null,
+  pinned: T | T[] | null,
   positions: readonly number[] = PINNED_POSITIONS
 ): PinnedEntry<T>[][] {
+  // One or several sponsors: slots are filled in order, wrapping around, so a
+  // single sponsor takes every slot and several sponsors share them.
+  const seen = new Set<string>();
+  const sponsors = (Array.isArray(pinned) ? pinned : pinned ? [pinned] : []).filter((s) => !seen.has(s.id) && seen.add(s.id));
+  const sponsorIds = new Set(sponsors.map((s) => s.id));
+
   const flat: { section: number; entry: PinnedEntry<T> }[] = [];
   sections.forEach((items, section) => {
     for (const property of items) {
-      if (pinned && property.id === pinned.id) continue;
+      if (sponsorIds.has(property.id)) continue;
       flat.push({ section, entry: { property, pinned: false, key: property.id } });
     }
   });
 
-  if (pinned) {
-    for (const position of [...positions].sort((a, b) => a - b)) {
-      if (position < 1 || flat.length < position - 1) continue;
-      const section = flat[Math.max(0, position - 2)]?.section ?? 0;
-      flat.splice(position - 1, 0, {
-        section,
-        entry: { property: pinned, pinned: true, key: `${pinned.id}-pinned-${position}` },
+  if (sponsors.length > 0) {
+    [...positions]
+      .sort((a, b) => a - b)
+      .forEach((position, slot) => {
+        if (position < 1 || flat.length < position - 1) return;
+        const sponsor = sponsors[slot % sponsors.length];
+        const section = flat[Math.max(0, position - 2)]?.section ?? 0;
+        flat.splice(position - 1, 0, {
+          section,
+          entry: { property: sponsor, pinned: true, key: `${sponsor.id}-pinned-${position}` },
+        });
       });
-    }
   }
 
   const result: PinnedEntry<T>[][] = sections.map(() => []);
