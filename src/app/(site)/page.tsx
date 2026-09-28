@@ -16,6 +16,7 @@ import SearchBox from "@/components/site/SearchBox";
 import JsonLd from "@/components/site/JsonLd";
 import HeroVisual from "@/components/site/HeroVisual";
 import BrandLogo from "@/components/site/BrandLogo";
+import LatestBlogSection from "@/components/site/LatestBlogSection";
 
 export const dynamic = "force-dynamic";
 
@@ -119,6 +120,8 @@ export default async function HomePage() {
       </section>
 
       {recent.length > 0 && <section className="mx-auto max-w-6xl px-4 py-14"><h2 className="font-serif text-2xl font-semibold text-brand-dark">Recently added businesses</h2><div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">{recent.map((p) => <PropertyCard key={p.id} property={p} />)}</div></section>}
+
+      <LatestBlogSection />
 
       <section className="border-t border-brand/10 bg-white">
         <div className="mx-auto max-w-3xl px-4 py-14">

@@ -9,6 +9,7 @@ const NAV_LINKS = [
   { href: "/banquet-halls", label: "Banquet Halls" },
   { href: "/wedding-venues", label: "Wedding Venues" },
   { href: "/experiences", label: "Experiences" },
+  { href: "/blog", label: "Blog" },
   { href: "/#explore-by-area", label: "Locations" },
 ];
 

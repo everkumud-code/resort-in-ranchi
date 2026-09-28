@@ -73,6 +73,23 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           ))}
         </div>
       )}
+      <aside className="mt-10 rounded-lg border border-brand/10 bg-brand-cream/50 p-5">
+        <p className="font-serif text-lg font-semibold text-brand-dark">Plan your stay or event in Ranchi</p>
+        <p className="mt-1 text-sm text-brand-dark/70">Browse verified listings and contact the business directly.</p>
+        <div className="mt-3 flex flex-wrap gap-2 text-sm">
+          {[
+            { href: "/resorts", label: "Resorts" },
+            { href: "/hotels", label: "Hotels" },
+            { href: "/restaurants", label: "Restaurants" },
+            { href: "/banquet-halls", label: "Banquet Halls" },
+            { href: "/wedding-venues", label: "Wedding Venues" },
+          ].map((link) => (
+            <Link key={link.href} href={link.href} className="rounded-full border border-brand/20 px-3 py-1 text-brand hover:border-brand">
+              {link.label}
+            </Link>
+          ))}
+        </div>
+      </aside>
     </article>
   );
 }
