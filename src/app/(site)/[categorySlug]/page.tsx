@@ -54,6 +54,7 @@ async function loadCategoryPage(
   if (!category) return null;
 
   const categoryIds = await getCategoryIdsForPage(category);
+  const page = parsePage(sp.page);
   const where = {
     categoryId: { in: categoryIds },
     ...(sp.location ? { locality: { slug: sp.location } } : {}),
