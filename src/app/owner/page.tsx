@@ -5,8 +5,29 @@ import { prisma } from "@/lib/prisma";
 import TrustBadge from "@/components/site/TrustBadge";
 import { calculateListingQuality, type ListingQualityFieldId } from "@/lib/validation/listingQuality";
 import { computeOwnerLifecycleStages } from "@/lib/validation/ownerLifecycle";
+import { computeOwnerFreshness, type OwnerFreshness } from "@/lib/validation/ownerFreshness";
 import { computeConversionRate, formatConversionRate } from "@/lib/analyticsInsights";
 import { COMMERCIAL_TIER_LABELS, type CommercialTierValue } from "@/lib/validation/commercial";
+
+/** Nudges the vendor to keep the listing current: how long since its last update, and a direct edit link once it is stale. */
+function UpdateReminder({ freshness, editHref }: { freshness: OwnerFreshness; editHref: string }) {
+  const { days, stale } = freshness;
+  return (
+    <div
+      className={`mt-6 rounded-lg border p-4 shadow-sm ${stale ? "border-brand-orange/40 bg-brand-orange/5" : "border-brand/10 bg-white"}`}
+    >
+      <p className="font-medium text-brand-dark">{stale ? "Time to refresh your listing" : "Your listing is up to date"}</p>
+      <p className="mt-1 text-sm text-brand-dark/70">
+        Last updated {days === 0 ? "today" : `${days} day${days === 1 ? "" : "s"} ago`}. Visitors trust listings with current
+        prices, photos, contact details and facilities
+        {stale ? " — please review yours." : "; check back regularly to keep it that way."}
+      </p>
+      <Link href={editHref} className="mt-2 inline-block text-sm font-medium text-brand-teal hover:underline">
+        {stale ? "Update my listing" : "Edit listing"} &rarr;
+      </Link>
+    </div>
+  );
+}
 
 function LifecycleStepper({ stages }: { stages: ReturnType<typeof computeOwnerLifecycleStages> }) {
   return (
@@ -288,18 +309,55 @@ function DashboardCard({
  */
 function AccessInstructions({ errorMessage }: { errorMessage?: string }) {
   return (
-    <div className="mx-auto max-w-md px-4 py-16 text-center">
-      <h1 className="font-serif text-2xl font-semibold text-brand-dark">Owner access</h1>
+    <div className="mx-auto max-w-xl px-4 py-16">
+      <h1 className="text-center font-serif text-2xl font-semibold text-brand-dark">Vendor login</h1>
       {errorMessage ? (
-        <p className="mt-3 rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800" role="alert">
+        <p className="mt-3 rounded-md bg-amber-50 px-3 py-2 text-center text-sm text-amber-800" role="alert">
           {errorMessage}
         </p>
       ) : (
-        <p className="mt-3 text-sm text-brand/70">
+        <p className="mt-3 text-center text-sm text-brand/70">
           Use the one-time access link sent to you after your listing claim was approved. If your link has
           expired, ask us to approve a fresh claim to get a new one.
         </p>
       )}
+
+      <div className="mt-8 rounded-lg border border-brand/10 bg-white p-5 shadow-sm">
+        <p className="font-medium text-brand-dark">How vendor access works</p>
+        <ol className="mt-3 space-y-3 text-sm leading-6 text-brand-dark/75">
+          <li>
+            <span className="font-semibold text-brand-dark">1. Find your listing</span> — search for your business on{" "}
+            <Link href="/search" className="text-brand-teal hover:underline">
+              ResortInRanchi
+            </Link>{" "}
+            and open its page. Not listed yet?{" "}
+            <Link href="/list-your-business" className="text-brand-teal hover:underline">
+              Add your business
+            </Link>
+            .
+          </li>
+          <li>
+            <span className="font-semibold text-brand-dark">2. Claim it</span> — use &quot;Claim this listing&quot; on the
+            listing page and tell us how you are connected to the business.
+          </li>
+          <li>
+            <span className="font-semibold text-brand-dark">3. We review your claim</span> — once approved, we send you a
+            private access link. It works once, so keep the browser you open it in.
+          </li>
+          <li>
+            <span className="font-semibold text-brand-dark">4. Keep your listing fresh</span> — from your dashboard you can
+            update details, pricing, capacity, facilities and photos, and see your enquiries. You stay signed in for
+            about 3 months.
+          </li>
+        </ol>
+        <p className="mt-4 text-xs text-brand/60">
+          Lost your link or signed out?{" "}
+          <Link href="/contact" className="text-brand-teal hover:underline">
+            Contact us
+          </Link>{" "}
+          and we will send a fresh one.
+        </p>
+      </div>
     </div>
   );
 }
@@ -326,6 +384,7 @@ export default async function OwnerHomePage({ searchParams }: { searchParams: Pr
         claimed: true,
         featured: true,
         commercialTier: true,
+        updatedAt: true,
         shortDescription: true,
         fullDescription: true,
         phone: true,
@@ -404,6 +463,8 @@ export default async function OwnerHomePage({ searchParams }: { searchParams: Pr
         found your business on ResortInRanchi. Changes to trust/verification status stay a separate decision made
         by our team.
       </p>
+
+      <UpdateReminder freshness={computeOwnerFreshness(property.updatedAt)} editHref={`/owner/listing/${property.id}`} />
 
       <LifecycleStepper stages={lifecycleStages} />
 

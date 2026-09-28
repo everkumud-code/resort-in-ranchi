@@ -5,7 +5,10 @@ import { BULK_PUBLISH_EXCLUDED_PROPERTY_IDS } from "@/lib/validation/bulkPublish
 
 export const OWNER_SESSION_COOKIE_NAME = "owner_session";
 export const OWNER_INITIAL_TOKEN_DURATION_MS = 30 * 24 * 60 * 60 * 1000;
-export const OWNER_SESSION_DURATION_MS = 30 * 24 * 60 * 60 * 1000;
+// Vendors update their listing occasionally, not daily — a longer session keeps an
+// approved owner signed in between updates. Revoking the owner access still ends
+// every session immediately.
+export const OWNER_SESSION_DURATION_MS = 90 * 24 * 60 * 60 * 1000;
 
 type OwnerAccessLike = { expiresAt: Date; revokedAt: Date | null } | null;
 type InitialOwnerAccessLike = { expiresAt: Date; revokedAt: Date | null; consumedAt: Date | null };
@@ -50,7 +53,8 @@ export async function exchangeOwnerAccessToken(initialToken: string): Promise<{ 
     // The conditional update makes simultaneous exchanges race safely.
     const consumed = await tx.propertyOwnerAccess.updateMany({
       where: { id: access.id, consumedAt: null, revokedAt: null, expiresAt: { gt: now } },
-      data: { consumedAt: now },
+      // Sessions are also bounded by their parent access row's expiry, so it is extended to match.
+      data: { consumedAt: now, expiresAt: new Date(now.getTime() + OWNER_SESSION_DURATION_MS) },
     });
     if (consumed.count !== 1) return null;
 
