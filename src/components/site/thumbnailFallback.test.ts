@@ -58,7 +58,7 @@ describe("PropertyCard always resolves and renders a thumbnail, for every proper
   });
 
   it("renders CardImage unconditionally — never skipped based on whether image data exists", () => {
-    expect(propertyCardSrc).toMatch(/<CardImage image=\{image\} categorySlug=\{property\.category\.slug\} \/>/);
+    expect(propertyCardSrc).toMatch(/<CardImage image=\{image\} categorySlug=\{property\.category\.slug\} name=\{property\.name\} \/>/);
     expect(propertyCardSrc).not.toMatch(/\{image(\.url)? &&/);
     expect(propertyCardSrc).not.toMatch(/image\.kind === "placeholder" \? null/);
   });

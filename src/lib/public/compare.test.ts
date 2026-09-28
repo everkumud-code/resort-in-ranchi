@@ -279,6 +279,6 @@ describe("PropertyCard does not create nested interactive elements", () => {
   it("the outer element is a <div>, not <Link> — CompareCheckbox and <Link> are siblings under it", () => {
     const src = readFileSync(resolve(process.cwd(), "src/components/site/PropertyCard.tsx"), "utf8");
     const returnBlock = src.slice(src.indexOf("return ("));
-    expect(returnBlock.trimStart().startsWith("return (\n    <div")).toBe(true);
+    expect(returnBlock.trimStart()).toMatch(/^return \(\r?\n\s+<div/);
   });
 });

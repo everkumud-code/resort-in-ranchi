@@ -25,7 +25,7 @@ export default function PropertyCard({ property }: { property: PublicPropertyCar
         }}
       />
       <Link href={`/property/${property.slug}`} className="block">
-        <CardImage image={image} categorySlug={property.category.slug} />
+        <CardImage image={image} categorySlug={property.category.slug} name={property.name} />
         <div className="p-4">
           <div className="flex items-start justify-between gap-2">
             <h3 className="font-serif text-base font-semibold text-brand-dark">{property.name}</h3>

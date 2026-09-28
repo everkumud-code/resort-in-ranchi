@@ -16,6 +16,7 @@ import { localBusinessJsonLd } from "@/lib/public/structuredData";
 import Breadcrumbs from "@/components/site/Breadcrumbs";
 import PropertyCard from "@/components/site/PropertyCard";
 import TrustBadge from "@/components/site/TrustBadge";
+import PropertyHeroFallback from "@/components/site/PropertyHeroFallback";
 import JsonLd from "@/components/site/JsonLd";
 import AnalyticsBeacon from "@/components/site/AnalyticsBeacon";
 
@@ -235,7 +236,9 @@ export default async function PropertyPage({
           )}
         </div>
       ) : (
-        illustrativeImage && (
+        !illustrativeImage ? (
+          <PropertyHeroFallback name={property.name} categorySlug={property.category.slug} />
+        ) : (
           <div className="mt-6">
             {/* eslint-disable-next-line @next/next/no-img-element -- generated placeholder, not a Next-optimized local asset */}
             <img

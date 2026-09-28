@@ -1,5 +1,6 @@
 import type { CardImageResult } from "@/lib/public/properties";
 import CategoryIcon from "./CategoryIcon";
+import { getMonogram } from "@/lib/public/monogram";
 
 /**
  * The card's image area — always the same aspect ratio and rounded-top
@@ -8,7 +9,16 @@ import CategoryIcon from "./CategoryIcon";
  * tier never renders an <img> at all (drawn from the category icon + brand
  * tokens instead), so there is no broken-image icon and nothing to fetch.
  */
-export default function CardImage({ image, categorySlug }: { image: CardImageResult; categorySlug: string }) {
+export default function CardImage({
+  image,
+  categorySlug,
+  name,
+}: {
+  image: CardImageResult;
+  categorySlug: string;
+  name?: string;
+}) {
+  const monogram = name ? getMonogram(name) : "";
   if (image.kind === "photo") {
     return (
       <div className="aspect-[4/3] w-full overflow-hidden rounded-t-lg bg-brand-cream">
@@ -47,8 +57,16 @@ export default function CardImage({ image, categorySlug }: { image: CardImageRes
       aria-label={image.alt}
       className="flex aspect-[4/3] w-full items-center justify-center rounded-t-lg bg-gradient-to-br from-brand-cream to-brand/10"
     >
-      <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/70">
-        <CategoryIcon slug={categorySlug} className="h-8 w-8 text-brand/50" />
+      <span className="flex flex-col items-center gap-1">
+        {monogram && (
+          <span
+            aria-hidden="true"
+            className="flex h-16 w-16 items-center justify-center rounded-full bg-white/70 font-serif text-2xl font-semibold text-brand/60"
+          >
+            {monogram}
+          </span>
+        )}
+        <CategoryIcon slug={categorySlug} className="h-6 w-6 text-brand/40" />
       </span>
     </div>
   );

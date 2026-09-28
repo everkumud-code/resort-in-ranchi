@@ -13,19 +13,16 @@ const searchSrc = read("src/app/(site)/search/page.tsx");
 const propertySrc = read("src/app/(site)/property/[slug]/page.tsx");
 
 describe("Ad slots — placement per page", () => {
-  it("homepage uses the 'hero' ladder — the only page that does", () => {
-    expect(homeSrc).toMatch(/<AdSlot ladder="hero"/);
-    for (const src of [categorySrc, locationSrc, searchSrc, propertySrc]) {
-      expect(src).not.toMatch(/ladder="hero"/);
+  it("homepage, category and property pages no longer carry legacy internal AdSlots (ads are site-wide Google slots in the layout)", () => {
+    for (const src of [homeSrc, categorySrc, propertySrc]) {
+      expect(src).not.toMatch(/<AdSlot/);
     }
   });
 
-  it("category and location pages use a 'banner' slot above results and a 'rail' slot in a desktop-only sidebar", () => {
-    for (const src of [categorySrc, locationSrc]) {
-      expect(src).toMatch(/<AdSlot ladder="banner"/);
-      expect(src).toMatch(/<AdSlot ladder="rail"/);
-      expect(src).toMatch(/<aside className="hidden lg:block">/);
-    }
+  it("the location page keeps its 'banner' slot above results and a 'rail' slot in a desktop-only sidebar", () => {
+    expect(locationSrc).toMatch(/<AdSlot ladder="banner"/);
+    expect(locationSrc).toMatch(/<AdSlot ladder="rail"/);
+    expect(locationSrc).toMatch(/<aside className="hidden lg:block">/);
   });
 
   it("search page uses only a 'banner' slot — no sidebar rail, keeping the filter UI clean", () => {
@@ -40,14 +37,8 @@ describe("Ad slots — placement per page", () => {
     expect(startSearchingIdx).toBeGreaterThan(-1);
   });
 
-  it("property page uses exactly one 'card' slot, and never advertises a property on its own page", () => {
-    expect(propertySrc).toMatch(/<AdSlot ladder="card"/);
-    expect((propertySrc.match(/<AdSlot/g) ?? []).length).toBe(1);
-    expect(propertySrc).toMatch(/Never promote a property on its own page/);
-  });
-
-  it("every ad-consuming page gates rendering on a real creative (never renders AdSlot with a null/fabricated creative)", () => {
-    for (const src of [homeSrc, categorySrc, locationSrc, searchSrc, propertySrc]) {
+  it("every page that still renders an internal AdSlot gates it on a real creative (never a null/fabricated creative)", () => {
+    for (const src of [locationSrc, searchSrc]) {
       expect(src).toMatch(/adCreative && \(/);
     }
   });
