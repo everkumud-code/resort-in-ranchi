@@ -12,7 +12,7 @@ import TrustBadge from "./TrustBadge";
  * visual chrome (border/hover/rounded) so the whole card still reads and
  * behaves as one clickable unit; the checkbox floats above it independently.
  */
-export default function PropertyCard({ property }: { property: PublicPropertyCard }) {
+export default function PropertyCard({ property, sponsored = false }: { property: PublicPropertyCard; sponsored?: boolean }) {
   const image = selectCardImage(property);
 
   return (
@@ -29,10 +29,16 @@ export default function PropertyCard({ property }: { property: PublicPropertyCar
         <div className="p-4">
           <div className="flex items-start justify-between gap-2">
             <h3 className="font-serif text-base font-semibold text-brand-dark">{property.name}</h3>
-            {property.featured && (
-              <span className="shrink-0 rounded-full bg-brand-gold/20 px-2 py-0.5 text-xs font-medium text-brand-gold">
-                Featured
+            {sponsored ? (
+              <span className="shrink-0 rounded-full bg-brand/10 px-2 py-0.5 text-xs font-medium text-brand-dark">
+                Sponsored
               </span>
+            ) : (
+              property.featured && (
+                <span className="shrink-0 rounded-full bg-brand-gold/20 px-2 py-0.5 text-xs font-medium text-brand-gold">
+                  Featured
+                </span>
+              )
             )}
           </div>
           <p className="mt-1 text-sm text-brand/70">

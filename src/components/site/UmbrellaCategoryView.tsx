@@ -1,6 +1,8 @@
 import Link from "next/link";
 import Breadcrumbs from "./Breadcrumbs";
-import PropertyCard from "./PropertyCard";
+import PropertyCardGrid from "./PropertyCardGrid";
+import { getPinnedListing } from "@/lib/public/pinnedListingQuery";
+import { pinListing } from "@/lib/public/pinnedListing";
 import EmptyState from "./EmptyState";
 import Pagination from "./Pagination";
 import JsonLd from "./JsonLd";
@@ -8,13 +10,16 @@ import { itemListJsonLd } from "@/lib/public/structuredData";
 import type { UmbrellaCategoryRoute } from "@/lib/public/categoryRoutes";
 import type { UmbrellaCategoryData } from "@/lib/public/umbrellaQueries";
 
-export default function UmbrellaCategoryView({
+export default async function UmbrellaCategoryView({
   route,
   data,
 }: {
   route: UmbrellaCategoryRoute;
   data: UmbrellaCategoryData;
 }) {
+  // Sponsored placement only on the first page of the list.
+  const pinned = data.page === 1 ? await getPinnedListing() : null;
+  const [pinnedItems] = pinListing([data.items], pinned);
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       {data.items.length > 0 && (
@@ -39,11 +44,7 @@ export default function UmbrellaCategoryView({
             }
           />
         ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {data.items.map((p) => (
-              <PropertyCard key={p.id} property={p} />
-            ))}
-          </div>
+          <PropertyCardGrid entries={pinnedItems} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3" />
         )}
       </div>
 

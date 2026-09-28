@@ -20,7 +20,9 @@ import { buildPageMetadata } from "@/lib/public/seo";
 import { itemListJsonLd } from "@/lib/public/structuredData";
 import { computePagination, parsePage } from "@/lib/queries/properties";
 import Breadcrumbs from "@/components/site/Breadcrumbs";
-import PropertyCard from "@/components/site/PropertyCard";
+import PropertyCardGrid from "@/components/site/PropertyCardGrid";
+import { getPinnedListing } from "@/lib/public/pinnedListingQuery";
+import { pinListing } from "@/lib/public/pinnedListing";
 import EmptyState from "@/components/site/EmptyState";
 import Pagination from "@/components/site/Pagination";
 import FacilityTrustFilterPanel from "@/components/site/FacilityTrustFilterPanel";
@@ -131,6 +133,9 @@ export default async function CategoryPage({
   const activeSort = sp.sort ?? "recommended";
   const filtersActive = hasActiveFacilityOrTrustFilter({ facilitySlugs: activeFacilitySlugs, trust: activeTrust });
   const displayedCount = items.length + supplemented.length;
+  // Sponsored placement only on the plain first page — never on filtered, location-scoped or later pages.
+  const pinned = page === 1 && !filtersActive && !sp.location ? await getPinnedListing() : null;
+  const [pinnedItems, pinnedSupplemented] = pinListing([items, supplemented], pinned);
   const countLabel = buildDiscoveryCountLabel({
     exactCount: totalCount,
     displayedCount,
@@ -221,11 +226,7 @@ export default async function CategoryPage({
               }
             />
           ) : (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
-              {items.map((p) => (
-                <PropertyCard key={p.id} property={p} />
-              ))}
-            </div>
+            <PropertyCardGrid entries={pinnedItems} />
           )}
 
           <div className="mt-8">
@@ -243,11 +244,10 @@ export default async function CategoryPage({
               <p className="mt-1 text-sm text-brand/60">
                 These aren&apos;t {category.name} listings, but might interest you too.
               </p>
-              <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
-                {supplemented.map((p) => (
-                  <PropertyCard key={p.id} property={p} />
-                ))}
-              </div>
+              <PropertyCardGrid
+                entries={pinnedSupplemented}
+                className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
+              />
             </div>
           )}
         </div>

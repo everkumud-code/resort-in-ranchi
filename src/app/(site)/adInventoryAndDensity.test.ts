@@ -50,10 +50,10 @@ describe("30+ discovery density — exact matches always render before supplemen
     ["location", locationSrc],
   ] as const) {
     it(`${label} page renders the exact-match grid, then Pagination, then the "More Places to Explore" section — never interleaved`, () => {
-      const exactGridIdx = src.indexOf("{items.map((p) => (");
+      const exactGridIdx = src.indexOf("<PropertyCardGrid entries={pinnedItems}");
       const paginationIdx = src.indexOf("<Pagination");
       const moreSectionIdx = src.indexOf("More Places to Explore");
-      const supplementedGridIdx = src.indexOf("{supplemented.map((p) => (");
+      const supplementedGridIdx = src.indexOf("entries={pinnedSupplemented}");
       expect(exactGridIdx).toBeGreaterThan(-1);
       expect(paginationIdx).toBeGreaterThan(exactGridIdx);
       expect(moreSectionIdx).toBeGreaterThan(paginationIdx);
@@ -88,7 +88,7 @@ describe("30+ discovery density — never duplicates, never fabricates", () => {
   it("supplemented cards use the exact same PropertyCard component as exact matches — same thumbnail fallback, same data shape", () => {
     for (const src of [categorySrc, locationSrc]) {
       const supplementSection = src.slice(src.indexOf("supplemented.length > 0"));
-      expect(supplementSection).toMatch(/<PropertyCard key=\{p\.id\} property=\{p\} \/>/);
+      expect(supplementSection).toMatch(/<PropertyCardGrid\s+entries=\{pinnedSupplemented\}/);
     }
   });
 });

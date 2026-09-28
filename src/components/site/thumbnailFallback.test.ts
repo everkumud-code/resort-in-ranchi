@@ -75,7 +75,7 @@ describe("The thumbnail fallback chain is applied consistently across every disc
   for (const path of surfaces) {
     it(`${path} renders its listings through the shared PropertyCard component, not a bespoke card`, () => {
       const src = read(path);
-      expect(src).toMatch(/<PropertyCard key=\{p\.id\} property=\{p\} \/>/);
+      expect(src).toMatch(/<PropertyCard(Grid)?\b/);
     });
   }
 });
