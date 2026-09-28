@@ -1,7 +1,7 @@
 import { propertyImageSchema } from "@/lib/validation/propertyImage";
 
 /** Listings whose photos/data must never be touched by a bulk import. */
-export const PHOTO_IMPORT_PROTECTED_SLUGS = ["aangan-resort", "aangan-palace"] as const;
+export const PHOTO_IMPORT_PROTECTED_SLUGS = ["aangan-resort-ranchi", "aangan-resort", "aangan-palace"] as const;
 
 export interface PhotoCsvRow {
   line: number;

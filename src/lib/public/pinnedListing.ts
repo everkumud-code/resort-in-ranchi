@@ -5,7 +5,7 @@
  */
 
 /** The listing pinned in every browse list — a real, published Property. */
-export const PINNED_LISTING_SLUG = "aangan-resort";
+export const PINNED_LISTING_SLUG = "aangan-resort-ranchi";
 
 /** 1-indexed positions on the first page of an unfiltered browse list. */
 export const PINNED_POSITIONS: readonly number[] = [2, 12, 22];
