@@ -1,0 +1,3 @@
+/** Typography for rendered blog Markdown — shared by the public post page and the admin editor preview. */
+export const BLOG_PROSE_CLASS =
+  "text-base leading-7 text-brand-dark/90 [&_a]:text-brand-teal [&_a]:underline [&_blockquote]:border-l-4 [&_blockquote]:border-brand/30 [&_blockquote]:pl-4 [&_blockquote]:italic [&_code]:rounded [&_code]:bg-brand/5 [&_code]:px-1 [&_h2]:mt-8 [&_h2]:font-serif [&_h2]:text-2xl [&_h2]:font-semibold [&_h3]:mt-6 [&_h3]:font-serif [&_h3]:text-xl [&_h3]:font-semibold [&_h4]:mt-4 [&_h4]:font-semibold [&_hr]:my-8 [&_img]:my-4 [&_img]:rounded-lg [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:mt-4 [&_pre]:mt-4 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-brand-dark [&_pre]:p-4 [&_pre]:text-brand-cream [&_ul]:list-disc [&_ul]:pl-6";

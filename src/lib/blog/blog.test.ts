@@ -72,6 +72,13 @@ describe("renderMarkdown", () => {
     expect(html).not.toContain('onmouseover="');
   });
 
+  it("supports text colour only for a valid hex value", () => {
+    expect(renderMarkdown("{color:#C0392B}hot{/color}")).toContain('<span style="color:#C0392B">hot</span>');
+    expect(renderMarkdown("{color:red}x{/color}")).not.toContain("<span");
+    expect(renderMarkdown('{color:#ff0000;background:url(x)}x{/color}')).not.toContain("<span");
+    expect(renderMarkdown("**{color:#000000}both{/color}**")).toContain("<strong><span");
+  });
+
   it("renders blockquotes and fenced code", () => {
     expect(renderMarkdown("> wise words")).toBe("<blockquote><p>wise words</p></blockquote>");
     expect(renderMarkdown("```\n<b>\n```")).toBe("<pre><code>&lt;b&gt;</code></pre>");

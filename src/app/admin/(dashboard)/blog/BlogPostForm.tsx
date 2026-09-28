@@ -1,9 +1,40 @@
 "use client";
 
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useMemo, useRef, useState } from "react";
 import type { BlogPost } from "@prisma/client";
 import { createBlogPost, updateBlogPost, type BlogFormState } from "./actions";
-import { buildSeoChecklist, parseList, readingTimeMinutes, slugify } from "@/lib/blog/blog";
+import { buildSeoChecklist, parseList, readingTimeMinutes, renderMarkdown, slugify } from "@/lib/blog/blog";
+import { applyFormat, type EditorFormat } from "@/lib/blog/editorActions";
+import { BLOG_PROSE_CLASS } from "@/components/site/blogProse";
+
+const TOOLBAR: { label: string; title: string; format: EditorFormat; className?: string }[] = [
+  { label: "B", title: "Bold", format: { kind: "bold" }, className: "font-bold" },
+  { label: "I", title: "Italic", format: { kind: "italic" }, className: "italic" },
+  { label: "H2", title: "Big heading", format: { kind: "heading", level: 2 } },
+  { label: "H3", title: "Small heading", format: { kind: "heading", level: 3 } },
+  { label: "• List", title: "Bulleted list", format: { kind: "ul" } },
+  { label: "1. List", title: "Numbered list", format: { kind: "ol" } },
+  { label: "Quote", title: "Quote", format: { kind: "quote" } },
+];
+
+/** Shows the cover image as visitors will get it, and says so when the link is not a direct image file. */
+function CoverPreview({ url }: { url: string }) {
+  const [failed, setFailed] = useState(false);
+  if (!/^https?:\/\//i.test(url.trim())) return null;
+  return (
+    <div className="mt-2">
+      {failed ? (
+        <p className="rounded-md bg-amber-50 px-2 py-1.5 text-xs text-amber-800">
+          This link doesn&apos;t load as an image. Use the picture&apos;s direct image address (right-click the image → Copy image address). Page links
+          such as pin.it or Google Drive/Pinterest share links are web pages, not images.
+        </p>
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element -- admin-supplied external URL preview
+        <img key={url} src={url} alt="Cover preview" onError={() => setFailed(true)} className="max-h-40 rounded-md border border-slate-200" />
+      )}
+    </div>
+  );
+}
 
 const initialState: BlogFormState = {};
 const inputClass =
@@ -36,6 +67,34 @@ export default function BlogPostForm({ post }: { post?: BlogPost }) {
   const [metaDescription, setMetaDescription] = useState(post?.metaDescription ?? "");
   const [coverImageUrl, setCoverImageUrl] = useState(post?.coverImageUrl ?? "");
   const [coverImageAlt, setCoverImageAlt] = useState(post?.coverImageAlt ?? "");
+
+  const contentRef = useRef<HTMLTextAreaElement>(null);
+  const [showPreview, setShowPreview] = useState(false);
+
+  /** Applies a toolbar action to the current selection in the content box, then restores the selection. */
+  function format(action: EditorFormat) {
+    const el = contentRef.current;
+    if (!el) return;
+    const result = applyFormat(content, el.selectionStart, el.selectionEnd, action);
+    setContent(result.text);
+    requestAnimationFrame(() => {
+      el.focus();
+      el.setSelectionRange(result.start, result.end);
+    });
+  }
+
+  function addLink() {
+    const url = window.prompt("Link address — a full URL (https://…) or a site page like /resorts");
+    if (!url || !url.trim()) return;
+    format({ kind: "link", url: url.trim() });
+  }
+
+  function addImage() {
+    const url = window.prompt("Direct image URL (must end in .jpg / .png / .webp — right-click the picture → Copy image address)");
+    if (!url || !url.trim()) return;
+    const alt = window.prompt("Describe the image (alt text)") ?? "";
+    format({ kind: "image", url: url.trim(), alt: alt.trim() });
+  }
 
   const checks = useMemo(
     () =>
@@ -109,17 +168,64 @@ export default function BlogPostForm({ post }: { post?: BlogPost }) {
 
         <div>
           <label htmlFor="content" className={labelClass}>
-            Content (Markdown) — about {readingTimeMinutes(content)} min read
+            Content — about {readingTimeMinutes(content)} min read
           </label>
+
+          <div className="mb-1 flex flex-wrap items-center gap-1 rounded-md border border-slate-300 bg-slate-50 p-1">
+            {TOOLBAR.map((item) => (
+              <button
+                key={item.label}
+                type="button"
+                title={item.title}
+                onClick={() => format(item.format)}
+                className={`rounded px-2 py-1 text-sm hover:bg-slate-200 ${item.className ?? ""}`}
+              >
+                {item.label}
+              </button>
+            ))}
+            <button type="button" title="Link the selected words to a page or website" onClick={addLink} className="rounded px-2 py-1 text-sm underline hover:bg-slate-200">
+              Link
+            </button>
+            <button type="button" title="Insert an image from its direct image URL" onClick={addImage} className="rounded px-2 py-1 text-sm hover:bg-slate-200">
+              Image
+            </button>
+            <label title="Colour the selected words" className="flex cursor-pointer items-center gap-1 rounded px-2 py-1 text-sm hover:bg-slate-200">
+              Colour
+              <input
+                type="color"
+                defaultValue="#c0392b"
+                onChange={(e) => format({ kind: "color", hex: e.target.value })}
+                className="h-5 w-6 cursor-pointer border-0 bg-transparent p-0"
+              />
+            </label>
+            <button
+              type="button"
+              onClick={() => setShowPreview((v) => !v)}
+              className={`ml-auto rounded px-2 py-1 text-sm ${showPreview ? "bg-slate-900 text-white" : "hover:bg-slate-200"}`}
+            >
+              {showPreview ? "Back to editing" : "Preview"}
+            </button>
+          </div>
+
           <textarea
             id="content"
             name="content"
+            ref={contentRef}
             rows={22}
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className={`${inputClass} font-mono`}
-            placeholder={"## Heading\n\nWrite in Markdown. **Bold**, *italic*, [links](/resorts), - lists, ![alt](https://image-url)."}
+            className={`${inputClass} font-mono ${showPreview ? "hidden" : ""}`}
+            placeholder={"Select some words and use the buttons above — Bold, Italic, Link, Colour, headings, lists.\n\nTip: Preview shows exactly how it will look."}
           />
+          {showPreview && (
+            <div className="rounded-md border border-slate-300 bg-brand-cream p-4">
+              {content.trim() ? (
+                <div className={BLOG_PROSE_CLASS} dangerouslySetInnerHTML={{ __html: renderMarkdown(content) }} />
+              ) : (
+                <p className="text-sm text-slate-400">Nothing to preview yet.</p>
+              )}
+            </div>
+          )}
           {errors.content && <p className="mt-1 text-xs text-red-600">{errors.content}</p>}
         </div>
 
@@ -192,6 +298,7 @@ export default function BlogPostForm({ post }: { post?: BlogPost }) {
                 placeholder="https://"
               />
               {errors.coverImageUrl && <p className="mt-1 text-xs text-red-600">{errors.coverImageUrl}</p>}
+              <CoverPreview key={coverImageUrl} url={coverImageUrl} />
             </div>
             <div>
               <label htmlFor="coverImageAlt" className={labelClass}>

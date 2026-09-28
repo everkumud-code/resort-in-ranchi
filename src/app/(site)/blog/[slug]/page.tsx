@@ -8,6 +8,7 @@ import { buildPageMetadata } from "@/lib/public/seo";
 import Breadcrumbs from "@/components/site/Breadcrumbs";
 import JsonLd from "@/components/site/JsonLd";
 import { formatPostDate } from "@/components/site/BlogPostCard";
+import { BLOG_PROSE_CLASS } from "@/components/site/blogProse";
 
 export const revalidate = 300;
 
@@ -32,9 +33,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     openGraph: { ...base.openGraph, type: "article", publishedTime: post.publishedAt?.toISOString(), tags: post.tags },
   };
 }
-
-const PROSE =
-  "text-base leading-7 text-brand-dark/90 [&_a]:text-brand-teal [&_a]:underline [&_blockquote]:border-l-4 [&_blockquote]:border-brand/30 [&_blockquote]:pl-4 [&_blockquote]:italic [&_code]:rounded [&_code]:bg-brand/5 [&_code]:px-1 [&_h2]:mt-8 [&_h2]:font-serif [&_h2]:text-2xl [&_h2]:font-semibold [&_h3]:mt-6 [&_h3]:font-serif [&_h3]:text-xl [&_h3]:font-semibold [&_h4]:mt-4 [&_h4]:font-semibold [&_hr]:my-8 [&_img]:my-4 [&_img]:rounded-lg [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:mt-4 [&_pre]:mt-4 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-brand-dark [&_pre]:p-4 [&_pre]:text-brand-cream [&_ul]:list-disc [&_ul]:pl-6";
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -62,7 +60,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       )}
 
       {/* renderMarkdown HTML-escapes everything first and only emits a fixed set of safe tags. */}
-      <div className={`mt-6 ${PROSE}`} dangerouslySetInnerHTML={{ __html: renderMarkdown(post.content) }} />
+      <div className={`mt-6 ${BLOG_PROSE_CLASS}`} dangerouslySetInnerHTML={{ __html: renderMarkdown(post.content) }} />
 
       {post.tags.length > 0 && (
         <div className="mt-8 flex flex-wrap gap-2 border-t border-brand/10 pt-4 text-sm">

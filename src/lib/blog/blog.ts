@@ -68,7 +68,9 @@ function renderInline(escaped: string): string {
           return `<a href="${url}"${external ? ' rel="noopener noreferrer"' : ""}>${label}</a>`;
         })
         .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
-        .replace(/(^|[^*])\*([^*\s][^*]*)\*/g, "$1<em>$2</em>");
+        .replace(/(^|[^*])\*([^*\s][^*]*)\*/g, "$1<em>$2</em>")
+        // Text colour: only a validated 6-digit hex value ever reaches the style attribute.
+        .replace(/\{color:(#[0-9a-fA-F]{6})\}([^{}]+?)\{\/color\}/g, '<span style="color:$1">$2</span>');
     })
     .join("");
 }
