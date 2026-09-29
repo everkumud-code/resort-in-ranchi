@@ -10,16 +10,31 @@ export const EVENT_STATUS_LABELS: Record<EventStatusValue, string> = {
   REJECTED: "Rejected",
 };
 
-/** A FormData datetime-local field ("YYYY-MM-DDTHH:mm"): "" -> null, otherwise a valid Date. */
+/**
+ * Every event on this site happens in and around Ranchi, so a `datetime-local`
+ * value ("YYYY-MM-DDTHH:mm", no timezone of its own) is always the intended
+ * IST wall-clock time — never the server's own timezone, which on a host
+ * like Render is UTC and would otherwise silently shift every event by 5.5
+ * hours. Appending the fixed +05:30 offset before parsing makes the stored
+ * instant correct regardless of where this code runs. A value that already
+ * carries an offset/Z (e.g. from a non-form caller) is left as-is.
+ */
+const IST_OFFSET = "+05:30";
+function parseIstDateTimeLocal(value: string): Date {
+  const hasOffset = /Z$|[+-]\d{2}:?\d{2}$/.test(value);
+  return new Date(hasOffset ? value : `${value}${IST_OFFSET}`);
+}
+
+/** A FormData datetime-local field ("YYYY-MM-DDTHH:mm"): "" -> null, otherwise a valid Date (interpreted as IST — see parseIstDateTimeLocal). */
 const optionalDateTime = z.preprocess((v) => {
   if (typeof v !== "string" || v.trim() === "") return null;
-  const parsed = new Date(v);
+  const parsed = parseIstDateTimeLocal(v);
   return Number.isNaN(parsed.getTime()) ? new Date(NaN) : parsed;
 }, z.date().nullable().refine((v) => v === null || !Number.isNaN(v.getTime()), "Must be a valid date/time"));
 
 const requiredDateTime = z.preprocess((v) => {
   if (typeof v !== "string" || v.trim() === "") return new Date(NaN);
-  return new Date(v);
+  return parseIstDateTimeLocal(v);
 }, z.date().refine((v) => !Number.isNaN(v.getTime()), "Please choose a valid date and time"));
 
 /** Shared by the admin editor and the public "Create your event" form — the fields either can set. */

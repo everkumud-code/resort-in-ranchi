@@ -16,6 +16,17 @@ describe("eventApplicationSchema", () => {
     expect(eventApplicationSchema.safeParse({ title: "X", startAt: base.startAt, submittedByPhone: "9876543210" }).success).toBe(false);
   });
 
+  it("interprets a datetime-local value as IST, not the server's own timezone", () => {
+    const parsed = eventApplicationSchema.parse({
+      ...base,
+      startAt: "2026-10-16T17:00",
+      submittedByName: "Asha",
+      submittedByPhone: "9876543210",
+    });
+    // 17:00 IST = 11:30 UTC (UTC+5:30) — regardless of the process's local timezone.
+    expect(parsed.startAt.toISOString()).toBe("2026-10-16T11:30:00.000Z");
+  });
+
   it("rejects an end time before the start", () => {
     const result = eventApplicationSchema.safeParse({
       ...base,

@@ -11,10 +11,15 @@ const inputClass =
   "w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500";
 const labelClass = "block text-xs font-medium text-slate-500";
 
+// Every event is IST wall-clock time (see parseIstDateTimeLocal in the event
+// validation) — shift the stored UTC instant by +5:30 and read its UTC parts,
+// so the box always shows real Ranchi time regardless of the browser's own zone.
+const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
 function toLocalInput(d: Date | null | undefined): string {
   if (!d) return "";
+  const ist = new Date(d.getTime() + IST_OFFSET_MS);
   const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}T${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`;
+  return `${ist.getUTCFullYear()}-${pad(ist.getUTCMonth() + 1)}-${pad(ist.getUTCDate())}T${pad(ist.getUTCHours())}:${pad(ist.getUTCMinutes())}`;
 }
 
 export default function EventForm({

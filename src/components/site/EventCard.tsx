@@ -13,13 +13,16 @@ export interface EventCardData {
   locality: { name: string; slug: string } | null;
 }
 
+// Every event happens in Ranchi — always shown in IST, regardless of the visitor's own timezone.
+const EVENT_TIME_ZONE = "Asia/Kolkata";
+
 export function formatEventDateRange(startAt: Date, endAt: Date | null): string {
-  const dateOpts: Intl.DateTimeFormatOptions = { day: "numeric", month: "short", timeZone: "UTC" };
-  const timeOpts: Intl.DateTimeFormatOptions = { hour: "numeric", minute: "2-digit", timeZone: "UTC" };
+  const dateOpts: Intl.DateTimeFormatOptions = { day: "numeric", month: "short", timeZone: EVENT_TIME_ZONE };
+  const timeOpts: Intl.DateTimeFormatOptions = { hour: "numeric", minute: "2-digit", timeZone: EVENT_TIME_ZONE };
   const startDate = startAt.toLocaleDateString("en-IN", dateOpts);
   const startTime = startAt.toLocaleTimeString("en-IN", timeOpts);
   if (!endAt) return `${startDate} · ${startTime}`;
-  const sameDay = startAt.toDateString() === endAt.toDateString();
+  const sameDay = startAt.toLocaleDateString("en-IN", { timeZone: EVENT_TIME_ZONE }) === endAt.toLocaleDateString("en-IN", { timeZone: EVENT_TIME_ZONE });
   if (sameDay) return `${startDate} · ${startTime}–${endAt.toLocaleTimeString("en-IN", timeOpts)}`;
   return `${startDate} – ${endAt.toLocaleDateString("en-IN", dateOpts)}`;
 }
