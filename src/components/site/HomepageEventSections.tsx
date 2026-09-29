@@ -23,7 +23,7 @@ export default async function HomepageEventSections() {
   if (total === 0) return null;
 
   return (
-    <section className="border-t border-brand/10 bg-white">
+    <section className="border-t border-brand/10">
       <div className="mx-auto max-w-6xl px-4 py-14">
         <div className="flex items-end justify-between gap-4">
           <div>

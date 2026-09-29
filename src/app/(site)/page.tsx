@@ -97,13 +97,33 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Time-sensitive content sits right after the core discovery nav — the same
+       * "what's on now" prominence a Stay/Eat/Celebrate-style directory needs to
+       * compete on, and a reason to come back beyond one-off listing browsing. */}
+      <HomepageEventSections />
+
+      <section className="bg-white py-14">
+        <div className="mx-auto max-w-6xl px-4">
+          <h2 className="font-serif text-2xl font-semibold text-brand-dark">Featured listings</h2>
+          {featured.length === 0 ? <div className="mt-4"><EmptyState title="No featured listings yet" description="Listings are being verified before publishing. Check back soon." /></div> : <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">{featured.map((p) => <PropertyCard key={p.id} property={p} />)}</div>}
+        </div>
+      </section>
+
+      <InfluencerAlbum />
+
       {priorityLocations.length > 0 && (
-        <section id="explore-by-area" className="mx-auto max-w-6xl scroll-mt-24 px-4 py-14">
-          <h2 className="font-serif text-2xl font-semibold text-brand-dark">Explore businesses by Ranchi area</h2>
-          <p className="mt-2 max-w-2xl text-sm text-brand-dark/70">Explore published listings by locality so you can choose a place closer to where you are staying or travelling.</p>
-          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">{priorityLocations.map((l) => <LocationCard key={l.id} name={l.name} slug={l.slug} count={l.publishedCount} />)}</div>
+        <section id="explore-by-area" className="scroll-mt-24 bg-white py-14">
+          <div className="mx-auto max-w-6xl px-4">
+            <h2 className="font-serif text-2xl font-semibold text-brand-dark">Explore businesses by Ranchi area</h2>
+            <p className="mt-2 max-w-2xl text-sm text-brand-dark/70">Explore published listings by locality so you can choose a place closer to where you are staying or travelling.</p>
+            <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">{priorityLocations.map((l) => <LocationCard key={l.id} name={l.name} slug={l.slug} count={l.publishedCount} />)}</div>
+          </div>
         </section>
       )}
+
+      {recent.length > 0 && <section className="mx-auto max-w-6xl px-4 py-14"><h2 className="font-serif text-2xl font-semibold text-brand-dark">Recently added businesses</h2><div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">{recent.map((p) => <PropertyCard key={p.id} property={p} />)}</div></section>}
+
+      <LatestBlogSection />
 
       <section className="bg-brand-dark py-12">
         <div className="mx-auto max-w-3xl px-4 text-center">
@@ -115,19 +135,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-
-      <section className="mx-auto max-w-6xl px-4 py-14">
-        <h2 className="font-serif text-2xl font-semibold text-brand-dark">Featured listings</h2>
-        {featured.length === 0 ? <div className="mt-4"><EmptyState title="No featured listings yet" description="Listings are being verified before publishing. Check back soon." /></div> : <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">{featured.map((p) => <PropertyCard key={p.id} property={p} />)}</div>}
-      </section>
-
-      {recent.length > 0 && <section className="mx-auto max-w-6xl px-4 py-14"><h2 className="font-serif text-2xl font-semibold text-brand-dark">Recently added businesses</h2><div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">{recent.map((p) => <PropertyCard key={p.id} property={p} />)}</div></section>}
-
-      <HomepageEventSections />
-
-      <InfluencerAlbum />
-
-      <LatestBlogSection />
 
       <section className="border-t border-brand/10 bg-white">
         <div className="mx-auto max-w-3xl px-4 py-14">

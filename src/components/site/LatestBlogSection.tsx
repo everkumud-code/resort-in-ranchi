@@ -8,7 +8,7 @@ export default async function LatestBlogSection() {
   if (posts.length === 0) return null;
 
   return (
-    <section className="border-t border-brand/10 bg-brand-cream/40">
+    <section className="border-t border-brand/10 bg-white">
       <div className="mx-auto max-w-6xl px-4 py-14">
         <div className="flex items-end justify-between gap-4">
           <div>
