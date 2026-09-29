@@ -53,10 +53,28 @@ export default function InfluencerForm({ influencer }: { influencer?: Influencer
           <label htmlFor="bio" className={labelClass}>Bio</label>
           <textarea id="bio" name="bio" rows={4} defaultValue={influencer?.bio ?? ""} className={inputClass} />
         </div>
-        <div>
-          <label htmlFor="photoUrl" className={labelClass}>Photo URL</label>
-          <input id="photoUrl" name="photoUrl" defaultValue={influencer?.photoUrl ?? ""} placeholder="https://" className={inputClass} />
-          {errors.photoUrl && <p className="mt-1 text-xs text-red-600">{errors.photoUrl}</p>}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor="photoUrl" className={labelClass}>Photo URL</label>
+            <input id="photoUrl" name="photoUrl" defaultValue={influencer?.photoUrl ?? ""} placeholder="https://" className={inputClass} />
+            {errors.photoUrl && <p className="mt-1 text-xs text-red-600">{errors.photoUrl}</p>}
+          </div>
+          <div>
+            <label htmlFor="videoUrl" className={labelClass}>Feature video URL (YouTube, Reel, ...)</label>
+            <input id="videoUrl" name="videoUrl" defaultValue={influencer?.videoUrl ?? ""} placeholder="https://" className={inputClass} />
+            {errors.videoUrl && <p className="mt-1 text-xs text-red-600">{errors.videoUrl}</p>}
+          </div>
+        </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor="contactEmail" className={labelClass}>Public contact email</label>
+            <input id="contactEmail" name="contactEmail" type="email" defaultValue={influencer?.contactEmail ?? ""} className={inputClass} />
+            {errors.contactEmail && <p className="mt-1 text-xs text-red-600">{errors.contactEmail}</p>}
+          </div>
+          <div>
+            <label htmlFor="contactPhone" className={labelClass}>Public contact phone</label>
+            <input id="contactPhone" name="contactPhone" defaultValue={influencer?.contactPhone ?? ""} className={inputClass} />
+          </div>
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div>
@@ -89,6 +107,12 @@ export default function InfluencerForm({ influencer }: { influencer?: Influencer
           <input type="checkbox" name="featured" defaultChecked={influencer?.featured ?? false} />
           Featured
         </label>
+        {influencer && (
+          <p className="text-xs text-slate-500">
+            Claimed: <span className="font-medium text-slate-700">{influencer.claimed ? "Yes" : "No"}</span>
+            {!influencer.claimed && " — approve a claim for this creator under Creator claims above to let them manage their own profile."}
+          </p>
+        )}
         <div>
           <label htmlFor="order" className={labelClass}>Album order (lower shows first)</label>
           <input id="order" name="order" type="number" defaultValue={influencer?.order ?? 0} className={inputClass} />

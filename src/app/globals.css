@@ -93,6 +93,36 @@ body {
   display: none;
 }
 
+/* Continuous auto-scrolling creator album — the track holds the card list
+ * twice back-to-back and animates exactly one copy's width, so the loop is
+ * seamless. Paused on hover/focus so a visitor can actually read a card or
+ * click into it, and disabled entirely for prefers-reduced-motion. */
+@keyframes creator-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.creator-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: creator-marquee 50s linear infinite;
+}
+
+.creator-marquee-track:hover,
+.creator-marquee-track:focus-within {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .creator-marquee-track {
+    animation: none;
+  }
+}
+
 @media (max-width: 640px) {
   .mx-auto.max-w-4xl > .mt-6:has(> img.aspect-video) {
     grid-template-columns: repeat(2, minmax(0, 1fr));

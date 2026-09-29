@@ -519,6 +519,7 @@ model AdminUser {
   claimsReviewed ClaimRequest[]
   submissionsReviewed PropertySubmission[]
   eventsReviewed      Event[]
+  influencerClaimsReviewed InfluencerClaimRequest[]
 }
 
 // ---------------------------------------------------------------------------
@@ -599,19 +600,103 @@ model Influencer {
   name         String
   slug         String      @unique
   photoUrl     String?
+  // A link to a feature video (YouTube, Instagram Reel, ...) — a URL, never an upload.
+  videoUrl     String?
   bio          String?
   category     String? // free text, e.g. "Travel", "Food", "Wedding" — mirrors VenueSpace.type
   instagramUrl String?
   youtubeUrl   String?
   websiteUrl   String?
+  // Shown on the public profile and used for the creator's own contact form replies.
+  contactEmail String?
+  contactPhone String?
   featured     Boolean     @default(false)
   status       GuideStatus @default(DRAFT)
   // Manual ordering in the homepage scroll album — lower shows first.
   order        Int         @default(0)
+  // True once a claim for this profile has been approved (see InfluencerClaimRequest/InfluencerOwnerAccess) —
+  // mirrors Property.claimed exactly, including that it never implies verification by itself.
+  claimed      Boolean     @default(false)
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 
-  ratings InfluencerRating[]
+  ratings       InfluencerRating[]
+  claimRequests InfluencerClaimRequest[]
+  ownerAccess   InfluencerOwnerAccess?
+  enquiries     InfluencerEnquiry[]
+}
+
+/// A visitor's claim that they are this creator, reviewed the same way a
+/// Property claim is (see ClaimRequest) — PENDING until an admin approves or
+/// rejects it. Approving creates an InfluencerOwnerAccess one-time link.
+model InfluencerClaimRequest {
+  id           String      @id @default(cuid())
+  influencerId String
+  influencer   Influencer  @relation(fields: [influencerId], references: [id], onDelete: Cascade)
+  claimantName String
+  email        String
+  phone        String
+  message      String?
+  status       ClaimStatus @default(PENDING)
+  createdAt    DateTime    @default(now())
+  reviewedAt   DateTime?
+  reviewedById String?
+  reviewedBy   AdminUser?  @relation(fields: [reviewedById], references: [id], onDelete: SetNull)
+  ownerAccess  InfluencerOwnerAccess?
+
+  @@index([influencerId])
+  @@index([status])
+}
+
+/// Passwordless creator access, mirroring PropertyOwnerAccess exactly — a
+/// random one-time token (only its hash stored), created once when an admin
+/// approves an InfluencerClaimRequest. The raw token is shown to the admin
+/// once, to share with the creator; every dashboard mutation re-derives the
+/// influencerId from this row via the session token, never from the URL.
+model InfluencerOwnerAccess {
+  id             String                  @id @default(cuid())
+  influencerId   String                  @unique
+  influencer     Influencer              @relation(fields: [influencerId], references: [id], onDelete: Cascade)
+  claimRequestId String                  @unique
+  claimRequest   InfluencerClaimRequest  @relation(fields: [claimRequestId], references: [id], onDelete: Cascade)
+  tokenHash      String                  @unique
+  expiresAt      DateTime
+  createdAt      DateTime                @default(now())
+  consumedAt     DateTime?
+  revokedAt      DateTime?
+  sessions       InfluencerOwnerSession[]
+}
+
+/// A browser session established after a valid initial creator-access token
+/// is exchanged — mirrors PropertyOwnerSession exactly.
+model InfluencerOwnerSession {
+  id            String                @id @default(cuid())
+  ownerAccessId String
+  ownerAccess   InfluencerOwnerAccess @relation(fields: [ownerAccessId], references: [id], onDelete: Cascade)
+  tokenHash     String                @unique
+  expiresAt     DateTime
+  createdAt     DateTime              @default(now())
+
+  @@index([ownerAccessId])
+}
+
+/// A visitor's message to a creator via their public profile's contact form
+/// — mirrors Enquiry exactly. Visible to the creator (who replies directly by
+/// phone/email/WhatsApp, the same pattern Property enquiries already use —
+/// there is no in-app messaging) and to admins.
+model InfluencerEnquiry {
+  id           String        @id @default(cuid())
+  influencerId String
+  influencer   Influencer    @relation(fields: [influencerId], references: [id], onDelete: Cascade)
+  name         String
+  phone        String
+  email        String?
+  message      String?
+  status       EnquiryStatus @default(NEW)
+  createdAt    DateTime      @default(now())
+
+  @@index([influencerId])
+  @@index([status])
 }
 
 /// One admin-given score (1–5) for one influencer against one criterion.

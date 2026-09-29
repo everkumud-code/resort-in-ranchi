@@ -6,12 +6,16 @@ export const influencerCardSelect = {
   name: true,
   slug: true,
   photoUrl: true,
+  videoUrl: true,
   bio: true,
   category: true,
   instagramUrl: true,
   youtubeUrl: true,
   websiteUrl: true,
+  contactEmail: true,
+  contactPhone: true,
   featured: true,
+  claimed: true,
   ratings: { select: { score: true, criterionId: true } },
 } as const;
 
@@ -20,12 +24,16 @@ export interface PublicInfluencer {
   name: string;
   slug: string;
   photoUrl: string | null;
+  videoUrl: string | null;
   bio: string | null;
   category: string | null;
   instagramUrl: string | null;
   youtubeUrl: string | null;
   websiteUrl: string | null;
+  contactEmail: string | null;
+  contactPhone: string | null;
   featured: boolean;
+  claimed: boolean;
   rating: number | null;
 }
 

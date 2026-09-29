@@ -6,6 +6,8 @@ import { buildPageMetadata } from "@/lib/public/seo";
 import Breadcrumbs from "@/components/site/Breadcrumbs";
 import ShareButtons from "@/components/site/ShareButtons";
 import { absoluteUrl } from "@/lib/public/site";
+import ContactCreatorForm from "./ContactCreatorForm";
+import { influencerEligibleForClaimCta } from "@/lib/validation/influencerClaim";
 
 export const revalidate = 300;
 
@@ -28,16 +30,38 @@ const SOCIAL_LINKS = (i: { instagramUrl: string | null; youtubeUrl: string | nul
     { url: i.websiteUrl, label: "Website" },
   ].filter((l): l is { url: string; label: string } => Boolean(l.url));
 
-export default async function InfluencerDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function InfluencerDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ claimed?: string; contacted?: string }>;
+}) {
   const { slug } = await params;
+  const { claimed: justClaimed, contacted } = await searchParams;
   const influencer = await getPublishedInfluencer(slug);
   if (!influencer) notFound();
 
   const links = SOCIAL_LINKS(influencer);
+  // getPublishedInfluencer only ever returns a PUBLISHED profile — status is passed explicitly here
+  // since the public select this page reads from never carries the raw status field.
+  const claimEligible = influencerEligibleForClaimCta({ status: "PUBLISHED", claimed: influencer.claimed });
 
   return (
     <article className="mx-auto max-w-2xl px-4 py-8">
       <Breadcrumbs items={[{ name: "Influencers", path: "/influencers" }, { name: influencer.name, path: `/influencers/${slug}` }]} />
+
+      {justClaimed && (
+        <div className="mt-4 rounded-md border border-green-200 bg-green-50 px-4 py-3" role="status">
+          <p className="text-sm font-medium text-green-900">Your claim is under review.</p>
+          <p className="mt-0.5 text-xs text-green-800">We&apos;ll review it and get in touch once a decision is made.</p>
+        </div>
+      )}
+      {contacted && (
+        <div className="mt-4 rounded-md border border-green-200 bg-green-50 px-4 py-3" role="status">
+          <p className="text-sm font-medium text-green-900">Message sent.</p>
+        </div>
+      )}
 
       <div className="mt-4 flex items-center gap-4">
         <div className="h-24 w-24 shrink-0 overflow-hidden rounded-full bg-brand-cream">
@@ -61,6 +85,22 @@ export default async function InfluencerDetailPage({ params }: { params: Promise
       </div>
 
       {influencer.bio && <p className="mt-6 text-sm leading-6 text-brand-dark/80">{influencer.bio}</p>}
+
+      {influencer.videoUrl && (
+        <div className="mt-4">
+          <a href={influencer.videoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-teal hover:underline">
+            ▶ Watch feature video
+          </a>
+        </div>
+      )}
+
+      {(influencer.contactEmail || influencer.contactPhone) && (
+        <p className="mt-2 text-sm text-brand-dark/70">
+          Contact: {influencer.contactPhone}
+          {influencer.contactPhone && influencer.contactEmail ? " · " : ""}
+          {influencer.contactEmail}
+        </p>
+      )}
 
       {links.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-2">
@@ -95,7 +135,25 @@ export default async function InfluencerDetailPage({ params }: { params: Promise
 
       <ShareButtons url={absoluteUrl(`/influencers/${slug}`)} title={influencer.name} />
 
-      <p className="mt-10 text-sm text-brand/70">
+      <div className="mt-8 rounded-lg border border-brand/10 bg-white p-5">
+        <p className="font-serif text-lg font-semibold text-brand-dark">Contact {influencer.name}</p>
+        <p className="mt-1 text-xs text-brand/60">Reach out about a collaboration, feature or event.</p>
+        <div className="mt-3">
+          <ContactCreatorForm influencerSlug={slug} influencerName={influencer.name} />
+        </div>
+      </div>
+
+      {claimEligible && (
+        <p className="mt-6 rounded-md bg-brand-cream/60 px-3 py-2 text-sm text-brand-dark/70">
+          Are you {influencer.name}?{" "}
+          <Link href={`/influencers/${slug}/claim`} className="font-medium text-brand-teal hover:underline">
+            Claim this profile
+          </Link>{" "}
+          to manage your own photo, video, bio and contact details.
+        </p>
+      )}
+
+      <p className="mt-6 text-sm text-brand/70">
         <Link href="/influencers" className="text-brand-teal hover:underline">
           All Ranchi creators &amp; influencers
         </Link>

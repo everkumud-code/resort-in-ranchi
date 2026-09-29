@@ -151,7 +151,17 @@ export default async function HomePage() {
       <section className="border-t border-brand/10 bg-white">
         <div className="mx-auto flex max-w-3xl flex-col items-center gap-8 px-4 py-14 sm:flex-row sm:items-start">
           <BrandLogo variant="vertical" className="h-40 w-auto shrink-0" />
-          <div><h2 className="font-serif text-2xl font-semibold text-brand-dark">About ResortInRanchi</h2><p className="mt-4 text-sm leading-6 text-brand-dark/70">ResortInRanchi is an independent Ranchi hospitality and venue discovery directory covering places to stay, eat, celebrate and explore across Ranchi and nearby areas. Business owners can claim an existing profile or submit a new business for review.</p></div>
+          <div>
+            <h2 className="font-serif text-2xl font-semibold text-brand-dark">About ResortInRanchi</h2>
+            <p className="mt-4 text-sm leading-6 text-brand-dark/70">ResortInRanchi is an independent Ranchi hospitality and venue discovery directory covering places to stay, eat, celebrate and explore across Ranchi and nearby areas. Business owners can claim an existing profile or submit a new business for review.</p>
+            <p className="mt-3 text-sm leading-6 text-brand-dark/70">
+              Have a question? Email us at{" "}
+              <a href="mailto:resortinranchi@gmail.com" className="font-medium text-brand-teal hover:underline">
+                resortinranchi@gmail.com
+              </a>
+              .
+            </p>
+          </div>
         </div>
       </section>
     </div>
