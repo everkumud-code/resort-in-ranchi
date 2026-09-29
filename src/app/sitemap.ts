@@ -7,6 +7,8 @@ import { publishedPostWhere } from "@/lib/blog/queries";
 import { tagSlug } from "@/lib/blog/blog";
 import { getComboIndex } from "@/lib/public/comboQueries";
 import { comboPath } from "@/lib/public/comboPages";
+import { listPublishedEvents } from "@/lib/eventQueries";
+import { isEventPast } from "@/lib/events";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [categories, locations, properties] = await Promise.all([
@@ -92,6 +94,33 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   } catch {
     // Blog table unavailable — omit blog URLs rather than failing the sitemap.
+  }
+
+  // Published events still live (not yet over) — never lets an unmigrated table fail the sitemap.
+  try {
+    const events = await listPublishedEvents();
+    if (events.length > 0) {
+      entries.push({ url: `${SITE_URL}/events`, changeFrequency: "daily", priority: 0.6 });
+      entries.push({ url: `${SITE_URL}/events/create`, changeFrequency: "monthly", priority: 0.3 });
+      for (const event of events) {
+        if (!isEventPast(event)) entries.push({ url: `${SITE_URL}/events/${event.slug}`, changeFrequency: "daily", priority: 0.5 });
+      }
+    }
+  } catch {
+    // Never let the events index take the whole sitemap down.
+  }
+
+  // Published influencers.
+  try {
+    const influencers = await prisma.influencer.findMany({ where: { status: "PUBLISHED" }, select: { slug: true, updatedAt: true } });
+    if (influencers.length > 0) {
+      entries.push({ url: `${SITE_URL}/influencers`, changeFrequency: "weekly", priority: 0.5 });
+      for (const inf of influencers) {
+        entries.push({ url: `${SITE_URL}/influencers/${inf.slug}`, lastModified: inf.updatedAt, changeFrequency: "monthly", priority: 0.4 });
+      }
+    }
+  } catch {
+    // Influencer table unavailable — omit rather than failing the sitemap.
   }
 
   return entries;

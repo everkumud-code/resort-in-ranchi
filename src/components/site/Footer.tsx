@@ -20,6 +20,8 @@ const FOOTER_LOCATION_LINKS = [
 
 const FOOTER_ABOUT_LINKS = [
   { href: "/about", label: "About" },
+  { href: "/events", label: "Events" },
+  { href: "/influencers", label: "Influencers" },
   { href: "/blog", label: "Blog" },
   { href: "/list-your-business", label: "Add Your Business" },
   { href: "/contact", label: "Contact" },

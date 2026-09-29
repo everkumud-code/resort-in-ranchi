@@ -15,15 +15,18 @@ const NAV_ITEMS = [
   { href: "/admin/vendors", label: "Vendors" },
   { href: "/admin/enquiries", label: "Enquiries" },
   { href: "/admin/blog", label: "Blog" },
+  { href: "/admin/events", label: "Events" },
+  { href: "/admin/influencers", label: "Influencers" },
   { href: "/admin/data-quality", label: "Data Quality" },
 ];
 
 export default async function AdminDashboardLayout({ children }: { children: React.ReactNode }) {
   const admin = await requireAdmin();
-  const [pendingClaimCount, pendingSubmissionCount, newEnquiryCount] = await Promise.all([
+  const [pendingClaimCount, pendingSubmissionCount, newEnquiryCount, pendingEventCount] = await Promise.all([
     prisma.claimRequest.count({ where: { status: "PENDING" } }),
     prisma.propertySubmission.count({ where: { status: "PENDING" } }),
     prisma.enquiry.count({ where: { status: "NEW" } }),
+    prisma.event.count({ where: { status: "PENDING" } }).catch(() => 0),
   ]);
 
   return (
@@ -53,6 +56,11 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
                   {item.href === "/admin/enquiries" && newEnquiryCount > 0 && (
                     <span className="ml-1 rounded-full bg-amber-100 px-1.5 py-0.5 text-xs font-semibold text-amber-800">
                       {newEnquiryCount}
+                    </span>
+                  )}
+                  {item.href === "/admin/events" && pendingEventCount > 0 && (
+                    <span className="ml-1 rounded-full bg-amber-100 px-1.5 py-0.5 text-xs font-semibold text-amber-800">
+                      {pendingEventCount}
                     </span>
                   )}
                 </Link>

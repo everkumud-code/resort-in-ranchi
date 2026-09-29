@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { PINNED_LISTING_SLUG } from "@/lib/public/pinnedListing";
 
 export interface AdCreative {
   sponsorLabel: string;
@@ -22,7 +23,7 @@ export interface AdCreative {
  */
 export async function getAanganResortAdCreative(): Promise<AdCreative | null> {
   const property = await prisma.property.findFirst({
-    where: { slug: "aangan-resort", status: "PUBLISHED" },
+    where: { slug: PINNED_LISTING_SLUG, status: "PUBLISHED" },
     select: {
       name: true,
       slug: true,

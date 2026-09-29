@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { SITE_URL } from "@/lib/public/site";
+import CopyLinkButton from "@/components/admin/CopyLinkButton";
 
 export const dynamic = "force-dynamic";
 
@@ -66,9 +68,14 @@ export default async function AdminBlogPage() {
                 <td className="px-4 py-2 text-slate-500">{p.updatedAt.toISOString().slice(0, 10)}</td>
                 <td className="px-4 py-2 text-right">
                   {p.status === "PUBLISHED" && (
-                    <Link href={`/blog/${p.slug}`} className="mr-3 text-slate-500 hover:text-slate-900 hover:underline">
-                      View
-                    </Link>
+                    <>
+                      <Link href={`/blog/${p.slug}`} className="mr-3 text-slate-500 hover:text-slate-900 hover:underline">
+                        View
+                      </Link>
+                      <span className="mr-3 inline-block">
+                        <CopyLinkButton url={`${SITE_URL}/blog/${p.slug}`} />
+                      </span>
+                    </>
                   )}
                   <Link href={`/admin/blog/${p.id}`} className="text-slate-600 hover:text-slate-900 hover:underline">
                     Edit

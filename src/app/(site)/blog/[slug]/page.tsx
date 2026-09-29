@@ -9,6 +9,8 @@ import Breadcrumbs from "@/components/site/Breadcrumbs";
 import JsonLd from "@/components/site/JsonLd";
 import { formatPostDate } from "@/components/site/BlogPostCard";
 import { BLOG_PROSE_CLASS } from "@/components/site/blogProse";
+import AdSlot from "@/components/site/ads/AdSlot";
+import { getAanganResortAdCreative } from "@/lib/ads/adCreative";
 
 export const revalidate = 300;
 
@@ -36,7 +38,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const post = await getPublishedPost(slug);
+  const [post, adCreative] = await Promise.all([getPublishedPost(slug), getAanganResortAdCreative()]);
   if (!post) notFound();
 
   return (
@@ -59,8 +61,20 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         <img src={post.coverImageUrl} alt={post.coverImageAlt ?? ""} className="mt-6 w-full rounded-lg object-cover" />
       )}
 
+      {adCreative && (
+        <div className="mt-6">
+          <AdSlot ladder="banner" creative={adCreative} />
+        </div>
+      )}
+
       {/* renderMarkdown HTML-escapes everything first and only emits a fixed set of safe tags. */}
       <div className={`mt-6 ${BLOG_PROSE_CLASS}`} dangerouslySetInnerHTML={{ __html: renderMarkdown(post.content) }} />
+
+      {adCreative && (
+        <div className="mt-8">
+          <AdSlot ladder="banner" creative={adCreative} />
+        </div>
+      )}
 
       {post.tags.length > 0 && (
         <div className="mt-8 flex flex-wrap gap-2 border-t border-brand/10 pt-4 text-sm">
