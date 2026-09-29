@@ -77,7 +77,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
             rel="noopener noreferrer"
             className="rounded-full bg-brand-orange px-5 py-2 text-sm font-semibold text-white hover:brightness-95"
           >
-            Tickets / Booking
+            Tickets / Booking &#8599;
           </a>
         )}
         {event.property && (
@@ -86,6 +86,11 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
           </Link>
         )}
       </div>
+      {event.ticketUrl && (
+        <p className="mt-1.5 text-xs text-brand/50">
+          Opens the organiser&apos;s own site in a new tab — payment, if any, is handled there, not on ResortInRanchi.
+        </p>
+      )}
 
       {(event.contactPhone || event.contactEmail) && (
         <p className="mt-4 text-sm text-brand-dark/70">
