@@ -109,7 +109,7 @@ describe("PHASE 5B — About/Contact reachable from mobile navigation, not just 
     const src = read("src/components/site/Header.tsx");
     expect(src).toMatch(/href: "\/about"/);
     expect(src).toMatch(/href: "\/contact"/);
-    expect(src).toMatch(/<MobileNav links=\{\[\.\.\.NAV_LINKS,.*MOBILE_ONLY_LINKS,.*LOGIN_LINKS\]\}/);
+    expect(src).toMatch(/<MobileNav links=\{\[\.\.\.NAV_LINKS,.*MOBILE_ONLY_LINKS\]\}/);
   });
 
   it("does not clutter the desktop nav with the same links (kept in the footer there)", () => {
