@@ -5,6 +5,8 @@ import { buildPageMetadata } from "@/lib/public/seo";
 import Breadcrumbs from "@/components/site/Breadcrumbs";
 import EventCard from "@/components/site/EventCard";
 import EmptyState from "@/components/site/EmptyState";
+import JsonLd from "@/components/site/JsonLd";
+import { itemListJsonLd } from "@/lib/public/structuredData";
 
 export const revalidate = 300;
 
@@ -18,8 +20,14 @@ export default async function EventsPage() {
   const sections = await getHomepageEventSections();
   const total = sections.sponsored.length + sections.today.length + sections.upcoming.length;
 
+  const allEvents = [...sections.sponsored, ...sections.today, ...sections.upcoming];
+  const uniqueEvents = [...new Map(allEvents.map((e) => [e.id, e])).values()];
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
+      {uniqueEvents.length > 0 && (
+        <JsonLd data={itemListJsonLd(uniqueEvents.map((e) => ({ name: e.title, path: `/events/${e.slug}` })))} />
+      )}
       <Breadcrumbs items={[{ name: "Events", path: "/events" }]} />
       <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
         <div>
