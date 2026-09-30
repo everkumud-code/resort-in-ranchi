@@ -4,12 +4,49 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth/session";
-import { buildPropertyUpdateData, propertyUpdateSchema } from "@/lib/validation/property";
+import { buildPropertyCreateData, buildPropertyUpdateData, propertyUpdateSchema } from "@/lib/validation/property";
 import { dedupeFacilityIds } from "@/lib/validation/facility";
 
 export interface UpdatePropertyState {
   error?: string;
   fieldErrors?: Record<string, string>;
+}
+
+/**
+ * Admin only. Manually adds a listing (as opposed to a bulk import). Starts
+ * DRAFT/DISCOVERED like every other new listing — see buildPropertyCreateData.
+ */
+export async function createProperty(_prevState: UpdatePropertyState, formData: FormData): Promise<UpdatePropertyState> {
+  await requireAdmin();
+
+  const raw = Object.fromEntries(formData.entries());
+  const parsed = propertyUpdateSchema.safeParse(raw);
+
+  if (!parsed.success) {
+    const fieldErrors: Record<string, string> = {};
+    for (const issue of parsed.error.issues) {
+      const key = issue.path.map(String).join(".");
+      if (!fieldErrors[key]) fieldErrors[key] = issue.message;
+    }
+    return { error: "Please fix the errors below.", fieldErrors };
+  }
+
+  const slugOwner = await prisma.property.findUnique({ where: { slug: parsed.data.slug } });
+  if (slugOwner) {
+    return { error: "Please fix the errors below.", fieldErrors: { slug: "This slug is already used by another property." } };
+  }
+
+  const data = buildPropertyCreateData(parsed.data);
+
+  let created;
+  try {
+    created = await prisma.property.create({ data });
+  } catch {
+    return { error: "Could not create the listing. The category or location may not exist." };
+  }
+
+  revalidatePath("/admin/properties");
+  redirect(`/admin/properties/${created.id}?created=1`);
 }
 
 export async function updateProperty(

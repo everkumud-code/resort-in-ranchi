@@ -37,10 +37,10 @@ export default async function AdminPropertyDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ saved?: string; lifecycle?: string }>;
+  searchParams: Promise<{ saved?: string; created?: string; lifecycle?: string }>;
 }) {
   const { id } = await params;
-  const { saved, lifecycle } = await searchParams;
+  const { saved, created, lifecycle } = await searchParams;
 
   const [property, categories, locations, allFacilities] = await Promise.all([
     prisma.property.findUnique({
@@ -83,6 +83,11 @@ export default async function AdminPropertyDetailPage({
       </div>
 
       {saved === "1" && <p className="rounded-md bg-green-50 px-3 py-2 text-sm text-green-700">Changes saved.</p>}
+      {created === "1" && (
+        <p className="rounded-md bg-green-50 px-3 py-2 text-sm text-green-700">
+          Listing created as a Draft — publish and verify it below when you&apos;re ready.
+        </p>
+      )}
       {lifecycleMessage && (
         <p className="rounded-md bg-green-50 px-3 py-2 text-sm text-green-700">{lifecycleMessage}</p>
       )}

@@ -90,12 +90,17 @@ export default async function AdminPropertiesPage({
           <h1 className="text-xl font-semibold text-slate-900">Properties</h1>
           <p className="mt-1 text-sm text-slate-500">{totalCount} matching properties.</p>
         </div>
-        <Link
-          href="/admin/properties/bulk-publish"
-          className="rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
-        >
-          Bulk publish Discovery listings
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/admin/properties/bulk-publish"
+            className="rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Bulk publish Discovery listings
+          </Link>
+          <Link href="/admin/properties/new" className="rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-700">
+            New property
+          </Link>
+        </div>
       </div>
 
       <form method="get" className="grid grid-cols-1 gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-7">

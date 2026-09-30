@@ -109,3 +109,48 @@ export function buildPropertyUpdateData(input: PropertyUpdateInput): Prisma.Prop
     featured: input.featured,
   };
 }
+
+/**
+ * Pure transform from validated input to a Prisma create payload, for an
+ * admin manually adding a listing (as opposed to a bulk import). Starts
+ * DRAFT/DISCOVERED like every other new listing — an admin uses the
+ * Lifecycle panel on the listing's own page to publish or verify it, same
+ * as for an imported one, so there's one honest path to "live" either way.
+ */
+export function buildPropertyCreateData(input: PropertyUpdateInput): Prisma.PropertyCreateInput {
+  return {
+    name: input.name,
+    slug: input.slug,
+    category: { connect: { id: input.categoryId } },
+    locality: input.localityId ? { connect: { id: input.localityId } } : undefined,
+    shortDescription: input.shortDescription,
+    fullDescription: input.fullDescription,
+    address: input.address,
+    city: input.city,
+    state: input.state,
+    pincode: input.pincode,
+    latitude: input.latitude,
+    longitude: input.longitude,
+    phone: input.phone,
+    whatsapp: input.whatsapp,
+    email: input.email,
+    website: input.website,
+    googleMapsUrl: input.googleMapsUrl,
+    generatedIdentityMarkUrl: input.generatedIdentityMarkUrl,
+    googleRating: input.googleRating,
+    reviewCount: input.reviewCount,
+    priceMin: input.priceMin,
+    priceMax: input.priceMax,
+    priceLabel: input.priceLabel,
+    rooms: input.rooms,
+    eventCapacityMin: input.eventCapacityMin,
+    eventCapacityMax: input.eventCapacityMax,
+    claimed: input.claimed,
+    ownerVerified: input.ownerVerified,
+    featured: input.featured,
+    status: "DRAFT",
+    verificationStatus: "DISCOVERED",
+    commercialTier: "FREE",
+    source: "Added manually by admin",
+  };
+}
