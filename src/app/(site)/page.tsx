@@ -19,6 +19,8 @@ import BrandLogo from "@/components/site/BrandLogo";
 import LatestBlogSection from "@/components/site/LatestBlogSection";
 import HomepageEventSections from "@/components/site/HomepageEventSections";
 import InfluencerAlbum from "@/components/site/InfluencerAlbum";
+import RanchiClockWeather from "@/components/site/RanchiClockWeather";
+import TravelInfoSection from "@/components/site/TravelInfoSection";
 
 export const dynamic = "force-dynamic";
 
@@ -68,6 +70,9 @@ export default async function HomePage() {
             <div className="mt-5 flex justify-center border-t border-brand/10 pt-5">
               <SearchBox locations={locations} />
             </div>
+            <div className="mt-4 border-t border-brand/10 pt-4">
+              <RanchiClockWeather />
+            </div>
           </div>
         </div>
       </section>
@@ -115,6 +120,8 @@ export default async function HomePage() {
       )}
 
       {recent.length > 0 && <section className="mx-auto max-w-6xl px-4 py-14"><h2 className="font-serif text-2xl font-semibold text-brand-dark">Recently added businesses</h2><div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">{recent.map((p) => <PropertyCard key={p.id} property={p} />)}</div></section>}
+
+      <TravelInfoSection />
 
       <LatestBlogSection />
 
