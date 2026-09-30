@@ -5,6 +5,13 @@
  * an external stock image wasn't an option here, so this stands in as an
  * honest placeholder with real visual presence.
  *
+ * Each wave layer is drawn twice, back to back (the second copy translated
+ * by exactly one viewBox width), then the pair drifts left as one unit —
+ * as the first copy scrolls off, the second is already in its place, so it
+ * reads as continuous forward motion rather than a back-and-forth bob (see
+ * the hero-wave-drift-* keyframes in globals.css; disabled entirely under
+ * prefers-reduced-motion).
+ *
  * To swap in a real photo later: replace this component's contents with
  * next/image (fill, object-cover) pointed at the new asset — the parent
  * hero section already has `relative overflow-hidden` sizing and a text
@@ -23,9 +30,18 @@ export default function HeroVisual() {
         <circle cx="1180" cy="330" r="260" fill="#F36B21" opacity="0.9" />
         <circle cx="1180" cy="330" r="380" fill="#F36B21" opacity="0.15" />
       </g>
-      <path className="hero-wave-1" d="M0 620 Q 260 480 560 560 T 1120 540 T 1600 600 V 900 H 0 Z" fill="#6B7F42" opacity="0.55" />
-      <path className="hero-wave-2" d="M0 700 Q 320 600 700 680 T 1600 660 V 900 H 0 Z" fill="#2697A0" opacity="0.35" />
-      <path className="hero-wave-3" d="M0 780 Q 400 700 800 760 T 1600 740 V 900 H 0 Z" fill="#064B3A" />
+      <g className="hero-wave-1">
+        <path d="M0 620 Q 260 480 560 560 T 1120 540 T 1600 600 V 900 H 0 Z" fill="#6B7F42" opacity="0.55" />
+        <path d="M0 620 Q 260 480 560 560 T 1120 540 T 1600 600 V 900 H 0 Z" fill="#6B7F42" opacity="0.55" transform="translate(1600 0)" />
+      </g>
+      <g className="hero-wave-2">
+        <path d="M0 700 Q 320 600 700 680 T 1600 660 V 900 H 0 Z" fill="#2697A0" opacity="0.35" />
+        <path d="M0 700 Q 320 600 700 680 T 1600 660 V 900 H 0 Z" fill="#2697A0" opacity="0.35" transform="translate(1600 0)" />
+      </g>
+      <g className="hero-wave-3">
+        <path d="M0 780 Q 400 700 800 760 T 1600 740 V 900 H 0 Z" fill="#064B3A" />
+        <path d="M0 780 Q 400 700 800 760 T 1600 740 V 900 H 0 Z" fill="#064B3A" transform="translate(1600 0)" />
+      </g>
     </svg>
   );
 }
