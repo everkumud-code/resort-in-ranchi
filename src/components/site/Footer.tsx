@@ -39,9 +39,9 @@ export default function Footer() {
             {/* The logo's own dark-green linework needs a light backdrop to
              * stay legible here — a plain background patch behind the
              * unaltered artwork, not a filter on the artwork itself. */}
-            <div className="inline-block rounded-lg bg-brand-cream p-2">
+            <Link href="/" className="inline-block rounded-lg bg-brand-cream p-2 transition hover:brightness-95" aria-label="Back to homepage">
               <BrandLogo variant="vertical" className="h-24 w-auto" />
-            </div>
+            </Link>
             <p className="mt-3 text-sm text-brand-cream/80">{SITE_POSITIONING}</p>
             <p className="mt-2 font-serif text-sm italic text-brand-gold">{SITE_TAGLINE}</p>
           </div>
