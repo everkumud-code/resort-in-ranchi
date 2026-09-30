@@ -93,9 +93,20 @@ describe("itemListJsonLd", () => {
 });
 
 describe("localBusinessJsonLd", () => {
-  it("returns null when there is no address, phone, or website (insufficient data)", () => {
-    const property = mockProperty();
+  it("returns null when there is no address, phone, website, or even a city (insufficient data)", () => {
+    const property = mockProperty({ city: undefined });
     expect(localBusinessJsonLd(property, "/property/aangan-resort")).toBeNull();
+  });
+
+  it("falls back to a city/state-only address when there is no verified street address", () => {
+    const property = mockProperty({ address: null });
+    const result = localBusinessJsonLd(property, "/property/aangan-resort");
+    expect(result?.address).toEqual({
+      "@type": "PostalAddress",
+      addressLocality: "Ranchi",
+      addressRegion: "Jharkhand",
+      addressCountry: "IN",
+    });
   });
 
   it("returns a block when a phone number is present", () => {

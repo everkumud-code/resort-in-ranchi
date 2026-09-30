@@ -90,7 +90,7 @@ const LODGING_TYPES = new Set(["Hotel", "Resort", "LodgingBusiness"]);
  * listing record; nothing is generated merely to satisfy a schema field.
  */
 export function localBusinessJsonLd(property: PublicProperty, path: string): Record<string, unknown> | null {
-  const hasEnoughData = Boolean(property.address || property.phone || property.website);
+  const hasEnoughData = Boolean(property.address || property.phone || property.website || property.city);
   if (!hasEnoughData) return null;
 
   const type = CATEGORY_SCHEMA_TYPE[property.category.slug] ?? "LocalBusiness";
@@ -121,7 +121,19 @@ export function localBusinessJsonLd(property: PublicProperty, path: string): Rec
             addressCountry: "IN",
           },
         }
-      : {}),
+      : property.city
+        ? {
+            // No verified street address yet — a coarser, still-honest address
+            // (city/state only) is better than none, and matches what the
+            // page already shows publicly.
+            address: {
+              "@type": "PostalAddress",
+              addressLocality: property.city,
+              addressRegion: property.state,
+              addressCountry: "IN",
+            },
+          }
+        : {}),
     ...(property.latitude !== null && property.longitude !== null
       ? { geo: { "@type": "GeoCoordinates", latitude: property.latitude, longitude: property.longitude } }
       : {}),
