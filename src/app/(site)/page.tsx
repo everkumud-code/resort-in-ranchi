@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getCategoriesWithPublishedCounts, type CategoryWithCount } from "@/lib/public/categories";
+import { getCategoriesWithPublishedCounts } from "@/lib/public/categories";
 import { getLocationsWithPublishedCounts, PRIORITY_LOCATION_SLUGS } from "@/lib/public/locations";
 import { getFeaturedProperties, getRecentProperties } from "@/lib/public/properties";
 import { buildPageMetadata } from "@/lib/public/seo";
@@ -10,11 +10,11 @@ import { CLAIM_VALUE_PROP_COPY } from "@/lib/validation/claim";
 import CategoryCard from "@/components/site/CategoryCard";
 import LocationCard from "@/components/site/LocationCard";
 import PropertyCard from "@/components/site/PropertyCard";
-import DiscoveryCard from "@/components/site/DiscoveryCard";
 import EmptyState from "@/components/site/EmptyState";
 import SearchBox from "@/components/site/SearchBox";
 import JsonLd from "@/components/site/JsonLd";
 import HeroVisual from "@/components/site/HeroVisual";
+import HeroIntentTiles from "@/components/site/HeroIntentTiles";
 import BrandLogo from "@/components/site/BrandLogo";
 import LatestBlogSection from "@/components/site/LatestBlogSection";
 import HomepageEventSections from "@/components/site/HomepageEventSections";
@@ -28,10 +28,6 @@ export function generateMetadata(): Metadata {
     description: SITE_DESCRIPTION,
     path: "/",
   });
-}
-
-function sumCounts(categories: CategoryWithCount[], slugs: string[]): number {
-  return categories.filter((c) => slugs.includes(c.slug)).reduce((sum, c) => sum + c.publishedCount, 0);
 }
 
 export default async function HomePage() {
@@ -54,15 +50,25 @@ export default async function HomePage() {
 
       <section className="relative overflow-hidden">
         <HeroVisual />
-        <div className="relative mx-auto max-w-6xl px-4 py-12 text-center sm:py-28">
+        <div className="relative mx-auto max-w-6xl px-4 pt-12 pb-8 text-center sm:pt-20 sm:pb-12">
           <p className="text-xs font-semibold tracking-[0.15em] text-white/80 uppercase sm:text-sm">{SITE_POSITIONING}</p>
           <h1 className="mx-auto mt-4 max-w-2xl font-serif text-4xl leading-tight font-semibold text-white sm:mt-5 sm:text-6xl">
             Discover. Compare.
             <br className="hidden sm:block" /> Experience Ranchi.
           </h1>
           <p className="mx-auto mt-3 max-w-2xl text-sm text-white/85 sm:mt-4 sm:text-base">{SITE_DESCRIPTION}</p>
-          <div className="mt-6 flex justify-center sm:mt-9"><SearchBox locations={locations} /></div>
           <p className="mt-4 text-sm text-white/80">Own a business here? <Link href="/list-your-business" className="font-semibold text-white underline">Add Your Property</Link></p>
+        </div>
+        {/* A floating white card for quick-nav + search — same idea as a
+         * booking site's search widget sitting on its hero image, adapted to
+         * a browse directory: intent tiles instead of a flight/train search. */}
+        <div className="relative mx-auto max-w-5xl px-4 pb-10 sm:pb-16">
+          <div className="rounded-2xl bg-white p-4 shadow-xl sm:p-6">
+            <HeroIntentTiles />
+            <div className="mt-5 flex justify-center border-t border-brand/10 pt-5">
+              <SearchBox locations={locations} />
+            </div>
+          </div>
         </div>
       </section>
 
@@ -81,19 +87,6 @@ export default async function HomePage() {
         <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium">
           <Link href="/picnic-spots" className="text-brand-teal hover:underline">Picnic Spots &amp; Day Outings →</Link>
           <Link href="/experiences" className="text-brand-teal hover:underline">Experiences Near Ranchi →</Link>
-        </div>
-      </section>
-
-      <section className="bg-white py-14">
-        <div className="mx-auto max-w-6xl px-4">
-          <h2 className="font-serif text-2xl font-semibold text-brand-dark">Stay, eat, celebrate, explore</h2>
-          <p className="mt-1 text-sm text-brand/60">Explore Ranchi hospitality and local venues by intent.</p>
-          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <DiscoveryCard label="Stay" description="Resorts, hotels and homestays around Ranchi." count={sumCounts(categories, ["resorts", "hotels", "homestays-farm-stays"])} href="/resorts" tone="brand" />
-            <DiscoveryCard label="Eat" description="Restaurants and cafés in Ranchi." count={sumCounts(categories, ["restaurants", "cafes"])} href="/restaurants" tone="orange" />
-            <DiscoveryCard label="Celebrate" description="Banquet halls, wedding venues and party halls." count={sumCounts(categories, ["banquet-halls", "wedding-venues", "party-halls"])} href="/banquet-halls" tone="gold" />
-            <DiscoveryCard label="Experience" description="Adventure, camping and weekend getaways near Ranchi." count={sumCounts(categories, ["adventure-camping", "weekend-getaways", "homestays-farm-stays"])} href="/experiences" tone="teal" />
-          </div>
         </div>
       </section>
 

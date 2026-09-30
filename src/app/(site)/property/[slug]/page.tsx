@@ -23,6 +23,7 @@ import JsonLd from "@/components/site/JsonLd";
 import AnalyticsBeacon from "@/components/site/AnalyticsBeacon";
 import ShareButtons from "@/components/site/ShareButtons";
 import { absoluteUrl } from "@/lib/public/site";
+import { buildDirectionsUrl } from "@/lib/public/maps";
 
 interface PageParams {
   slug: string;
@@ -348,11 +349,9 @@ export default async function PropertyPage({
               <InfoRow
                 label="Directions"
                 value={
-                  property.googleMapsUrl ? (
-                    <a href={property.googleMapsUrl} target="_blank" rel="noopener noreferrer nofollow" className="text-brand-teal hover:underline">
-                      Google Maps
-                    </a>
-                  ) : null
+                  <a href={buildDirectionsUrl(property)} target="_blank" rel="noopener noreferrer nofollow" className="text-brand-teal hover:underline">
+                    Get directions
+                  </a>
                 }
               />
               <InfoRow label="Price" value={property.priceLabel} />
