@@ -1,72 +1,23 @@
-import Link from "next/link";
 import { requireAdmin } from "@/lib/auth/session";
 import { logout } from "@/lib/auth/actions";
-import { prisma } from "@/lib/prisma";
+import AdminHeaderNav from "@/components/admin/AdminHeaderNav";
 
-const NAV_ITEMS = [
-  { href: "/admin", label: "Dashboard" },
-  { href: "/admin/properties", label: "Properties" },
-  { href: "/admin/categories", label: "Categories" },
-  { href: "/admin/locations", label: "Locations" },
-  { href: "/admin/facilities", label: "Facilities" },
-  { href: "/admin/badges", label: "Badges" },
-  { href: "/admin/claims", label: "Claims" },
-  { href: "/admin/submissions", label: "Submissions" },
-  { href: "/admin/partners", label: "Partners" },
-  { href: "/admin/vendors", label: "Vendors" },
-  { href: "/admin/enquiries", label: "Enquiries" },
-  { href: "/admin/blog", label: "Blog" },
-  { href: "/admin/events", label: "Events" },
-  { href: "/admin/influencers", label: "Influencers" },
-  { href: "/admin/data-quality", label: "Data Quality" },
-];
-
+/**
+ * No flat text-link nav here on purpose — every section is a colorful block
+ * on the dashboard itself (see AdminSectionBlocks). This header just carries
+ * the persistent, highlighted "Back" / "Main menu" controls (AdminHeaderNav)
+ * so wayfinding works the same from any depth, plus the session controls.
+ */
 export default async function AdminDashboardLayout({ children }: { children: React.ReactNode }) {
   const admin = await requireAdmin();
-  const [pendingClaimCount, pendingSubmissionCount, newEnquiryCount, pendingEventCount] = await Promise.all([
-    prisma.claimRequest.count({ where: { status: "PENDING" } }),
-    prisma.propertySubmission.count({ where: { status: "PENDING" } }),
-    prisma.enquiry.count({ where: { status: "NEW" } }),
-    prisma.event.count({ where: { status: "PENDING" } }).catch(() => 0),
-  ]);
 
   return (
     <div className="min-h-screen bg-slate-50">
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
             <span className="text-sm font-semibold text-slate-900">ResortInRanchi Admin</span>
-            <nav className="flex gap-4">
-              {NAV_ITEMS.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="text-sm text-slate-600 hover:text-slate-900 hover:underline"
-                >
-                  {item.label}
-                  {item.href === "/admin/claims" && pendingClaimCount > 0 && (
-                    <span className="ml-1 rounded-full bg-amber-100 px-1.5 py-0.5 text-xs font-semibold text-amber-800">
-                      {pendingClaimCount}
-                    </span>
-                  )}
-                  {item.href === "/admin/submissions" && pendingSubmissionCount > 0 && (
-                    <span className="ml-1 rounded-full bg-amber-100 px-1.5 py-0.5 text-xs font-semibold text-amber-800">
-                      {pendingSubmissionCount}
-                    </span>
-                  )}
-                  {item.href === "/admin/enquiries" && newEnquiryCount > 0 && (
-                    <span className="ml-1 rounded-full bg-amber-100 px-1.5 py-0.5 text-xs font-semibold text-amber-800">
-                      {newEnquiryCount}
-                    </span>
-                  )}
-                  {item.href === "/admin/events" && pendingEventCount > 0 && (
-                    <span className="ml-1 rounded-full bg-amber-100 px-1.5 py-0.5 text-xs font-semibold text-amber-800">
-                      {pendingEventCount}
-                    </span>
-                  )}
-                </Link>
-              ))}
-            </nav>
+            <AdminHeaderNav />
           </div>
           <div className="flex items-center gap-3 text-sm text-slate-600">
             <span>{admin.email}</span>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import AdminSectionBlocks from "@/components/admin/AdminSectionBlocks";
 import { ANALYTICS_EVENT_TYPES, ANALYTICS_EVENT_LABELS } from "@/lib/analytics";
 import {
   ANALYTICS_PERIODS,
@@ -110,6 +111,7 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
     commercialTierCounts,
     leadPartnerCount,
     totalPartnerLeadCount,
+    pendingEventsCount,
   ] = await Promise.all([
     prisma.property.count(),
     prisma.property.groupBy({ by: ["verificationStatus"], _count: { _all: true } }),
@@ -141,6 +143,7 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
     prisma.property.groupBy({ by: ["commercialTier"], _count: { _all: true } }),
     prisma.leadPartner.count(),
     prisma.partnerLead.count(),
+    prisma.event.count({ where: { status: "PENDING" } }).catch(() => 0),
   ]);
 
   const countsByStatus = Object.fromEntries(verificationCounts.map((g) => [g.verificationStatus, g._count._all]));
@@ -192,19 +195,24 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
     <div className="space-y-8">
       <div>
         <h1 className="text-xl font-semibold text-slate-900">Dashboard</h1>
-        <p className="mt-1 text-sm text-slate-500">Overview of the directory dataset — every number here is a live count, nothing estimated.</p>
+        <p className="mt-1 text-sm text-slate-500">Every section, one tap away — open a block for its full list and detail pages.</p>
       </div>
 
+      <AdminSectionBlocks
+        pendingClaims={pendingClaimsCount}
+        pendingSubmissions={pendingSubmissionsCount}
+        newEnquiries={newEnquiriesCount}
+        pendingEvents={pendingEventsCount}
+      />
+
       <div className="flex flex-wrap gap-2">
-        <QuickLink href="/admin/properties" label="Properties" />
-        <QuickLink href="/admin/submissions" label="Submissions" />
-        <QuickLink href="/admin/claims" label="Claims" />
-        <QuickLink href="/admin/enquiries" label="Enquiries" />
         <QuickLink href="/admin/partners/leads" label="Partner Leads" />
-        <QuickLink href="/admin/partners" label="Lead Partners" />
-        <QuickLink href="/admin/vendors" label="Vendors" />
-        <QuickLink href="/admin/properties?featured=true" label="Featured" />
-        <QuickLink href="/admin/data-quality" label="Verification" />
+        <QuickLink href="/admin/properties?featured=true" label="Featured properties" />
+      </div>
+
+      <div className="border-t border-slate-200 pt-8">
+        <h2 className="text-sm font-semibold text-slate-900 uppercase tracking-wide text-slate-500">Analytics &amp; stats</h2>
+        <p className="mt-1 text-sm text-slate-500">Overview of the directory dataset — every number here is a live count, nothing estimated.</p>
       </div>
 
       <div>

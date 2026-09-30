@@ -7,11 +7,15 @@ function read(path: string): string {
 }
 
 const dashboardSrc = read("src/app/admin/(dashboard)/page.tsx");
-const layoutSrc = read("src/app/admin/(dashboard)/layout.tsx");
+const sectionBlocksSrc = read("src/components/admin/AdminSectionBlocks.tsx");
+// Navigation to every section lives in the colorful block grid on the dashboard
+// (AdminSectionBlocks) rather than a flat text nav in the layout — combine both
+// sources when checking overall coverage.
+const navSurface = `${dashboardSrc}\n${sectionBlocksSrc}`;
 
 describe("PHASE 9 — admin command centre gives efficient access to every required area", () => {
   it("the nav includes Vendors alongside the existing Properties/Claims/Submissions/Partners/Enquiries", () => {
-    expect(layoutSrc).toMatch(/href:\s*"\/admin\/vendors"/);
+    expect(sectionBlocksSrc).toMatch(/href:\s*"\/admin\/vendors"/);
   });
 
   it("the dashboard quick links cover properties, submissions, claims, enquiries, partner leads, lead partners, vendors, and featured", () => {
@@ -25,7 +29,7 @@ describe("PHASE 9 — admin command centre gives efficient access to every requi
       "/admin/vendors",
       "/admin/properties?featured=true",
     ]) {
-      expect(dashboardSrc).toContain(`href="${href}"`);
+      expect(navSurface).toMatch(new RegExp(`href[:=]\\s*"${href.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`));
     }
   });
 
