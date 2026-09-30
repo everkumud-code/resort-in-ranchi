@@ -3,6 +3,7 @@ import {
   buildFallbackDescription,
   buildPublicOrderBy,
   buildPublicSearchWhere,
+  isSponsoredListing,
   isThinPublicListing,
   publicPropertyCardSelect,
   publicPropertySelect,
@@ -347,5 +348,20 @@ describe("buildPublicOrderBy", () => {
       const serialized = JSON.stringify(orderBy);
       expect(serialized).not.toMatch(/verificationStatus|lastVerifiedAt/);
     }
+  });
+});
+
+describe("isSponsoredListing", () => {
+  it("is not sponsored when free and not featured", () => {
+    expect(isSponsoredListing({ featured: false, commercialTier: "FREE" })).toBe(false);
+  });
+
+  it("is sponsored when admin-featured, regardless of plan", () => {
+    expect(isSponsoredListing({ featured: true, commercialTier: "FREE" })).toBe(true);
+  });
+
+  it("is sponsored on a paid plan, regardless of the featured flag", () => {
+    expect(isSponsoredListing({ featured: false, commercialTier: "PREMIUM" })).toBe(true);
+    expect(isSponsoredListing({ featured: false, commercialTier: "LEAD_PARTNER" })).toBe(true);
   });
 });

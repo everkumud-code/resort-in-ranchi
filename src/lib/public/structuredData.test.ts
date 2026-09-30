@@ -32,6 +32,7 @@ function mockProperty(overrides: Partial<PublicProperty> = {}): PublicProperty {
     verificationStatus: "DISCOVERED",
     claimed: false,
     generatedIdentityMarkUrl: null,
+    commercialTier: "FREE",
     category: { id: "cat_1", name: "Resorts", slug: "resorts" },
     locality: { id: "loc_1", name: "Ranchi", slug: "ranchi" },
     facilities: [],

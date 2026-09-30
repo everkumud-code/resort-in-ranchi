@@ -47,6 +47,7 @@ export const publicPropertySelect = {
   verificationStatus: true,
   claimed: true,
   generatedIdentityMarkUrl: true,
+  commercialTier: true,
   category: { select: { id: true, name: true, slug: true } },
   locality: { select: { id: true, name: true, slug: true } },
   facilities: { select: { facility: { select: { name: true, slug: true } } } },
@@ -184,14 +185,32 @@ export async function getRecentProperties(limit: number): Promise<PublicProperty
   });
 }
 
+/**
+ * A listing counts as "sponsored" for competitor-suppression purposes when
+ * it's admin-featured or on a paid plan (Premium/Lead Partner) — see
+ * getRelatedProperties, which uses this to decide whether to show any
+ * competitor at all below it.
+ */
+export function isSponsoredListing(property: { featured: boolean; commercialTier: string }): boolean {
+  return property.featured || property.commercialTier !== "FREE";
+}
+
+/**
+ * Same-category "you might also consider" listings shown below a property's
+ * own detail page. A sponsored/featured/paid listing never shows a
+ * competitor below it — that protection is part of what "sponsored" buys.
+ * A free listing does show related properties, with featured/paid ones
+ * surfaced first (the paid listing's exposure on free pages, in exchange).
+ */
 export async function getRelatedProperties(
-  property: Pick<PublicProperty, "id" | "category">,
+  property: Pick<PublicProperty, "id" | "category" | "featured" | "commercialTier">,
   limit: number
 ): Promise<PublicPropertyCard[]> {
+  if (isSponsoredListing(property)) return [];
   return prisma.property.findMany({
     where: publishedOnly({ categoryId: property.category.id, id: { not: property.id } }),
     select: publicPropertyCardSelect,
-    orderBy: { createdAt: "desc" },
+    orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
     take: limit,
   });
 }
