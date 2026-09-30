@@ -9,11 +9,14 @@ export const PINNED_LISTING_SLUG = "aangan-resort-ranchi";
 
 /**
  * A position is any 1-indexed slot on the first page of an unfiltered
- * browse list, up to this bound (matches the page size — pinning only ever
- * applies to page 1). An admin can assign any listing to any position in
- * this range, not just a fixed few — see PaidPlanPanel.
+ * browse list, up to this bound. An admin can assign any listing to any
+ * position in this range, not just a fixed few — see PaidPlanPanel. Pinning
+ * only ever applies to page 1, which currently holds PROPERTY_PAGE_SIZE (25)
+ * organic items — a position beyond that never actually gets filled (see
+ * pinListing's worst-case-length check), it's just reserved for later if the
+ * page size ever grows.
  */
-export const MAX_PINNED_POSITION = 25;
+export const MAX_PINNED_POSITION = 100;
 
 /** A listing with a sponsored placement — `positions` is whichever slots (1..MAX_PINNED_POSITION) an admin has assigned it. */
 export interface Sponsor<T> {
