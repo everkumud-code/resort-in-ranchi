@@ -1,5 +1,6 @@
 import Header from "@/components/site/Header";
 import Footer from "@/components/site/Footer";
+import LocalInfoSection from "@/components/site/LocalInfoSection";
 import GoogleAdSlot from "@/components/site/GoogleAdSlot";
 import { CompareProvider } from "@/components/site/CompareProvider";
 import CompareTray from "@/components/site/CompareTray";
@@ -24,6 +25,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
           {children}
         </main>
         <GoogleAdSlot slot={bottomAdSlot} label="Advertisement" />
+        <LocalInfoSection />
         <Footer />
       </div>
       <CompareTray />
