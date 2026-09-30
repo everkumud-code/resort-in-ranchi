@@ -97,7 +97,7 @@ export default async function ClaimsPage() {
         {reviewed.length === 0 ? (
           <p className="mt-2 text-sm text-slate-400">None yet.</p>
         ) : (
-          <div className="mt-3 overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
+          <div className="mt-3 overflow-x-auto rounded-lg border border-slate-200 bg-panel-green shadow-sm">
             <table className="min-w-full divide-y divide-slate-200 text-sm">
               <thead className="bg-slate-50">
                 <tr>

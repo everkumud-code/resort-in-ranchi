@@ -14,6 +14,12 @@
   --color-brand-teal: #2697a0;
   --color-brand-olive: #6b7f42;
   --color-brand-gold: #d89016;
+
+  /* Admin/owner/creator dashboard panel background — a light, matte
+   * (flat, non-glossy) green standing in for what used to be plain white
+   * card backgrounds, so the dashboards read as one tinted system rather
+   * than stark white panels. */
+  --color-panel-green: #e6f0e2;
 }
 
 @theme inline {
@@ -26,6 +32,7 @@
   --color-brand-teal: var(--color-brand-teal);
   --color-brand-olive: var(--color-brand-olive);
   --color-brand-gold: var(--color-brand-gold);
+  --color-panel-green: var(--color-panel-green);
   --font-sans: var(--font-sans-body);
   --font-serif: var(--font-serif-display);
 }

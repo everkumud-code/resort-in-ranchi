@@ -9,7 +9,7 @@ export default function CriteriaManager({ criteria }: { criteria: { id: string; 
   const [state, formAction, pending] = useActionState(createCriterion, initial);
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="rounded-lg border border-slate-200 bg-panel-green p-4 shadow-sm">
       <h2 className="text-sm font-semibold text-slate-900">Rating criteria</h2>
       <p className="mt-1 text-xs text-slate-500">
         What influencers are rated against (e.g. Content quality, Local reach). Admin-set only — never a public review.

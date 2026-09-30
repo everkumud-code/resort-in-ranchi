@@ -111,7 +111,7 @@ export default async function AdminPropertyDetailPage({
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
-          <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="rounded-lg border border-slate-200 bg-panel-green p-4 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-sm font-semibold text-slate-900">Lifecycle</h2>
               <div className="flex items-center gap-2">
@@ -183,7 +183,7 @@ export default async function AdminPropertyDetailPage({
             </p>
           </div>
 
-          <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="rounded-lg border border-slate-200 bg-panel-green p-4 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-sm font-semibold text-slate-900">Commercial status</h2>
               <CommercialTierBadge commercialTier={property.commercialTier} />
@@ -220,13 +220,13 @@ export default async function AdminPropertyDetailPage({
             takenPositions={takenPositions}
           />
 
-          <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="rounded-lg border border-slate-200 bg-panel-green p-6 shadow-sm">
             <PropertyEditForm property={property} categories={categories} locations={locations} />
           </div>
         </div>
 
         <div className="space-y-6">
-          <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="rounded-lg border border-slate-200 bg-panel-green p-4 shadow-sm">
             <h2 className="text-sm font-semibold text-slate-900">Source / provenance</h2>
             <p className="mt-1 text-xs text-slate-400">
               Preserved from the research spreadsheet import. Read-only — never shown on public routes.

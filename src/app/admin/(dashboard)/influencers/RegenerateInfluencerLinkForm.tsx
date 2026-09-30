@@ -38,7 +38,7 @@ export default function RegenerateInfluencerLinkForm({ ownerAccessId, influencer
       {state.error && <p className="mt-1 text-xs text-red-700">{state.error}</p>}
       {state.accessLink && (
         <div className="mt-2 max-w-xs rounded-md border border-blue-300 bg-blue-50 p-2 text-xs">
-          <code className="block break-all rounded bg-white px-2 py-1 font-mono text-[11px] text-slate-700">{state.accessLink}</code>
+          <code className="block break-all rounded bg-panel-green px-2 py-1 font-mono text-[11px] text-slate-700">{state.accessLink}</code>
           <button type="button" onClick={handleCopyLink} className="mt-1 rounded bg-blue-200 px-2 py-1 text-[11px] font-medium text-blue-900 hover:bg-blue-300">
             {copied ? "✓ Copied" : "Copy link"}
           </button>

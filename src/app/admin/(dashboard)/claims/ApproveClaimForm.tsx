@@ -65,7 +65,7 @@ export default function ApproveClaimForm({ claimId, propertyName }: { claimId: s
           <div className="flex flex-col gap-2">
             <code 
               data-access-link 
-              className="block break-all rounded bg-white px-3 py-2 font-mono text-xs text-slate-700"
+              className="block break-all rounded bg-panel-green px-3 py-2 font-mono text-xs text-slate-700"
             >
               {state.accessLink}
             </code>

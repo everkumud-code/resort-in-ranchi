@@ -77,7 +77,7 @@ export default async function PartnerLeadsPage({ searchParams }: { searchParams:
       {leads.length === 0 ? (
         <p className="text-sm text-slate-400">No partner leads{validStatus ? ` with status ${PARTNER_LEAD_STATUS_LABELS[validStatus]}` : ""}.</p>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div className="overflow-x-auto rounded-lg border border-slate-200 bg-panel-green shadow-sm">
           <table className="min-w-full divide-y divide-slate-200 text-sm">
             <thead className="bg-slate-50">
               <tr>

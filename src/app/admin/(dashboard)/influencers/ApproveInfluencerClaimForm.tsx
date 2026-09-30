@@ -45,7 +45,7 @@ export default function ApproveInfluencerClaimForm({ claimId, influencerName }: 
           <p className="font-semibold text-green-900">Creator access approved</p>
           <p className="mt-1 text-xs text-green-800">Share this single-use link with the creator. It won&apos;t appear again after you leave this page.</p>
           <div className="mt-3 flex flex-col gap-2">
-            <code className="block break-all rounded bg-white px-3 py-2 font-mono text-xs text-slate-700">{state.accessLink}</code>
+            <code className="block break-all rounded bg-panel-green px-3 py-2 font-mono text-xs text-slate-700">{state.accessLink}</code>
             <button type="button" onClick={handleCopyLink} className="rounded bg-green-200 px-3 py-2 text-xs font-medium text-green-900 hover:bg-green-300">
               {copied ? "✓ Copied to clipboard" : "Copy Link"}
             </button>

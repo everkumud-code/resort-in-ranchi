@@ -103,7 +103,7 @@ export default async function AdminPropertiesPage({
         </div>
       </div>
 
-      <form method="get" className="grid grid-cols-1 gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-7">
+      <form method="get" className="grid grid-cols-1 gap-3 rounded-lg border border-slate-200 bg-panel-green p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-7">
         <div className="lg:col-span-2">
           <label className="block text-xs font-medium text-slate-500">Search name</label>
           <input
@@ -180,7 +180,7 @@ export default async function AdminPropertiesPage({
         </div>
       </form>
 
-      <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-x-auto rounded-lg border border-slate-200 bg-panel-green shadow-sm">
         <table className="min-w-full divide-y divide-slate-200 text-sm">
           <thead className="bg-slate-50">
             <tr>

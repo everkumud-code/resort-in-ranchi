@@ -37,7 +37,7 @@ export default async function EditInfluencerPage({
 
       <InfluencerForm influencer={influencer} />
 
-      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="rounded-lg border border-slate-200 bg-panel-green p-4 shadow-sm">
         <h2 className="text-sm font-semibold text-slate-900">Editorial ratings</h2>
         <p className="mt-1 text-xs text-slate-500">Admin-set scores (1–5) per criterion — never a public/crowd-sourced review.</p>
         <div className="mt-3">

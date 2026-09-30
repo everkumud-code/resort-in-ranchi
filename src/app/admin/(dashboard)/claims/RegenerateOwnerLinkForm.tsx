@@ -53,7 +53,7 @@ export default function RegenerateOwnerLinkForm({
         <div className="flex flex-col gap-2">
           <code 
             data-regenerate-access-link 
-            className="block break-all rounded bg-white px-3 py-2 font-mono text-xs text-slate-700"
+            className="block break-all rounded bg-panel-green px-3 py-2 font-mono text-xs text-slate-700"
           >
             {state.accessLink}
           </code>

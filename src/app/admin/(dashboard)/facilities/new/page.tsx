@@ -10,7 +10,7 @@ export default function NewFacilityPage() {
         </Link>
         <h1 className="mt-1 text-xl font-semibold text-slate-900">New facility</h1>
       </div>
-      <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="rounded-lg border border-slate-200 bg-panel-green p-6 shadow-sm">
         <FacilityForm />
       </div>
     </div>

@@ -18,7 +18,7 @@ export default function AdminHeaderNav() {
       <button
         type="button"
         onClick={() => router.back()}
-        className="flex items-center gap-1 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+        className="flex items-center gap-1 rounded-md border border-slate-300 bg-panel-green px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
       >
         ← Back
       </button>

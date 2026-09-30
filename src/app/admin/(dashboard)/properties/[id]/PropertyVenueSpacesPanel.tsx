@@ -10,7 +10,7 @@ export default function PropertyVenueSpacesPanel({
   venueSpaces: VenueSpace[];
 }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="rounded-lg border border-slate-200 bg-panel-green p-4 shadow-sm">
       <h2 className="text-sm font-semibold text-slate-900">Venue spaces ({venueSpaces.length})</h2>
 
       {venueSpaces.length === 0 ? (

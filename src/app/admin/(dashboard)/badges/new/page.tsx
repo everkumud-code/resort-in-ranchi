@@ -12,7 +12,7 @@ export default function NewBadgePage() {
         </Link>
         <h1 className="mt-1 text-xl font-semibold text-slate-900">New badge</h1>
       </div>
-      <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="rounded-lg border border-slate-200 bg-panel-green p-6 shadow-sm">
         <BadgeForm />
       </div>
     </div>

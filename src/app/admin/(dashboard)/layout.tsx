@@ -15,7 +15,7 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
   return (
     <div className="min-h-screen bg-slate-50">
       <JoharSplash storageKey="johar-splash-admin" subtitle="Admin control centre" buttonLabel="Enter dashboard" />
-      <header className="border-b border-slate-200 bg-white">
+      <header className="border-b border-slate-200 bg-panel-green">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-4">
             <span className="text-sm font-semibold text-slate-900">ResortInRanchi Admin</span>

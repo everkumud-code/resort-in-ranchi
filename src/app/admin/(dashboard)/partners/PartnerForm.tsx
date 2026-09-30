@@ -32,7 +32,7 @@ export default function PartnerForm({
   const [state, formAction, pending] = useActionState(createLeadPartner, initialState);
 
   return (
-    <form action={formAction} className="space-y-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <form action={formAction} className="space-y-4 rounded-lg border border-slate-200 bg-panel-green p-4 shadow-sm">
       <h3 className="text-sm font-semibold text-slate-900">Configure a new lead partner</h3>
       {state.error && <p role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p>}
 

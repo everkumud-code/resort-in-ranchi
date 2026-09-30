@@ -89,7 +89,7 @@ export default async function DataQualityPage() {
         {unresolvedVenueSpaces.length === 0 ? (
           <p className="mt-2 text-sm text-slate-400">None.</p>
         ) : (
-          <div className="mt-3 overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
+          <div className="mt-3 overflow-x-auto rounded-lg border border-slate-200 bg-panel-green shadow-sm">
             <table className="min-w-full divide-y divide-slate-200 text-sm">
               <thead className="bg-slate-50">
                 <tr>
@@ -124,7 +124,7 @@ export default async function DataQualityPage() {
         {mergedProperties.length === 0 ? (
           <p className="mt-2 text-sm text-slate-400">None.</p>
         ) : (
-          <div className="mt-3 overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
+          <div className="mt-3 overflow-x-auto rounded-lg border border-slate-200 bg-panel-green shadow-sm">
             <table className="min-w-full divide-y divide-slate-200 text-sm">
               <thead className="bg-slate-50">
                 <tr>
@@ -157,7 +157,7 @@ export default async function DataQualityPage() {
           Out of {totalCount} total properties. This dataset is research-stage — most fields are expected to be
           empty until verified.
         </p>
-        <div className="mt-3 overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div className="mt-3 overflow-x-auto rounded-lg border border-slate-200 bg-panel-green shadow-sm">
           <table className="min-w-full divide-y divide-slate-200 text-sm">
             <thead className="bg-slate-50">
               <tr>

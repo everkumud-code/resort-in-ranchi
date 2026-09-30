@@ -47,7 +47,7 @@ export default async function PartnersPage() {
         ) : (
           <div className="mt-3 space-y-3">
             {partners.map((partner) => (
-              <div key={partner.id} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+              <div key={partner.id} className="rounded-lg border border-slate-200 bg-panel-green p-4 shadow-sm">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <span className="font-medium text-slate-900">{partner.property.name}</span>
@@ -110,7 +110,7 @@ export default async function PartnersPage() {
               <Link
                 key={value}
                 href={`/admin/partners/leads?status=${value}`}
-                className="rounded-lg border border-slate-200 bg-white p-3 text-center shadow-sm hover:border-slate-400"
+                className="rounded-lg border border-slate-200 bg-panel-green p-3 text-center shadow-sm hover:border-slate-400"
               >
                 <p className="text-lg font-semibold text-slate-900">{leadCountByStatus[value] ?? 0}</p>
                 <p className="text-xs text-slate-500">{PARTNER_LEAD_STATUS_LABELS[value]}</p>

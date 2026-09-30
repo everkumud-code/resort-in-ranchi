@@ -82,7 +82,7 @@ export default async function VendorsPage({ searchParams }: { searchParams: Prom
         ))}
       </div>
 
-      <form method="get" className="flex flex-wrap items-end gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+      <form method="get" className="flex flex-wrap items-end gap-3 rounded-lg border border-slate-200 bg-panel-green p-4 shadow-sm">
         {tier && <input type="hidden" name="tier" value={tier} />}
         <div>
           <label className="block text-xs font-medium text-slate-500">Search name</label>
@@ -104,7 +104,7 @@ export default async function VendorsPage({ searchParams }: { searchParams: Prom
         )}
       </form>
 
-      <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-x-auto rounded-lg border border-slate-200 bg-panel-green shadow-sm">
         <table className="min-w-full divide-y divide-slate-200 text-sm">
           <thead className="bg-slate-50">
             <tr>

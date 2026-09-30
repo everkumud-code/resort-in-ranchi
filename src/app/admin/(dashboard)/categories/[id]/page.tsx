@@ -33,7 +33,7 @@ export default async function EditCategoryPage({
         <h1 className="mt-1 text-xl font-semibold text-slate-900">Edit category</h1>
       </div>
       {saved === "1" && <p className="rounded-md bg-green-50 px-3 py-2 text-sm text-green-700">Changes saved.</p>}
-      <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="rounded-lg border border-slate-200 bg-panel-green p-6 shadow-sm">
         <CategoryForm category={category} parentOptions={categories} />
       </div>
     </div>

@@ -152,7 +152,7 @@ export default function EventForm({
         )}
       </div>
 
-      <aside className="space-y-3 rounded-lg border border-slate-200 bg-white p-4 lg:sticky lg:top-6 lg:self-start">
+      <aside className="space-y-3 rounded-lg border border-slate-200 bg-panel-green p-4 lg:sticky lg:top-6 lg:self-start">
         <div>
           <label htmlFor="status" className={labelClass}>Status</label>
           <select id="status" name="status" defaultValue={event?.status ?? "PUBLISHED"} className={inputClass}>

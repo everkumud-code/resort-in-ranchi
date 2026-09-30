@@ -229,7 +229,7 @@ export default function BlogPostForm({ post }: { post?: BlogPost }) {
           {errors.content && <p className="mt-1 text-xs text-red-600">{errors.content}</p>}
         </div>
 
-        <fieldset className="space-y-4 rounded-lg border border-slate-200 bg-white p-4">
+        <fieldset className="space-y-4 rounded-lg border border-slate-200 bg-panel-green p-4">
           <legend className="px-1 text-sm font-semibold text-slate-700">SEO</legend>
 
           <div>
@@ -316,7 +316,7 @@ export default function BlogPostForm({ post }: { post?: BlogPost }) {
       </div>
 
       <aside className="space-y-4 lg:sticky lg:top-6 lg:self-start">
-        <div className="space-y-3 rounded-lg border border-slate-200 bg-white p-4">
+        <div className="space-y-3 rounded-lg border border-slate-200 bg-panel-green p-4">
           <div>
             <label htmlFor="status" className={labelClass}>
               Status
@@ -341,7 +341,7 @@ export default function BlogPostForm({ post }: { post?: BlogPost }) {
           </button>
         </div>
 
-        <div className="rounded-lg border border-slate-200 bg-white p-4">
+        <div className="rounded-lg border border-slate-200 bg-panel-green p-4">
           <p className="text-sm font-semibold text-slate-700">
             SEO checklist — {passed}/{checks.length}
           </p>

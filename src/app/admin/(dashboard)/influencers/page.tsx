@@ -56,7 +56,7 @@ export default async function AdminInfluencersPage() {
         </div>
       </div>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+      <section className="rounded-lg border border-slate-200 bg-panel-green p-4 shadow-sm">
         <h2 className="text-sm font-semibold text-slate-900">
           Creator claims — Pending{" "}
           {pendingClaims.length > 0 ? (
@@ -146,7 +146,7 @@ export default async function AdminInfluencersPage() {
 
       <CriteriaManager criteria={criteria} />
 
-      <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-x-auto rounded-lg border border-slate-200 bg-panel-green shadow-sm">
         <table className="min-w-full divide-y divide-slate-200 text-sm">
           <thead className="bg-slate-50">
             <tr>

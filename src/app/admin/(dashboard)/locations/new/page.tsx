@@ -15,7 +15,7 @@ export default async function NewLocationPage() {
         </Link>
         <h1 className="mt-1 text-xl font-semibold text-slate-900">New location</h1>
       </div>
-      <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="rounded-lg border border-slate-200 bg-panel-green p-6 shadow-sm">
         <LocationForm parentOptions={locations} />
       </div>
     </div>
