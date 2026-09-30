@@ -9,7 +9,10 @@ import {
   isPlacementActive,
   maxExtraCategories,
 } from "@/lib/validation/planEntitlements";
-import { PINNED_POSITIONS } from "@/lib/public/pinnedListing";
+import { MAX_PINNED_POSITION } from "@/lib/public/pinnedListing";
+
+const POSITION_SLOTS = 3;
+const ALL_POSITIONS = Array.from({ length: MAX_PINNED_POSITION }, (_, i) => i + 1);
 
 const initial: PlanFormState = {};
 const inputClass =
@@ -39,6 +42,7 @@ export default function PaidPlanPanel({
   categories,
   extraCategoryIds,
   placement,
+  takenPositions,
 }: {
   propertyId: string;
   tier: CommercialTierValue;
@@ -46,6 +50,8 @@ export default function PaidPlanPanel({
   categories: CategoryOption[];
   extraCategoryIds: string[];
   placement: PlacementValue | null;
+  /** Positions already assigned (and enabled) on some other listing — offered here only if this listing already holds them. */
+  takenPositions: number[];
 }) {
   const [catState, catAction, catPending] = useActionState(saveExtraCategories.bind(null, propertyId), initial);
   const [plState, plAction, plPending] = useActionState(saveSponsoredPlacement.bind(null, propertyId), initial);
@@ -130,15 +136,31 @@ export default function PaidPlanPanel({
             </div>
             <div>
               <p className="text-xs text-slate-500">
-                Positions on the first page (2nd, 12th, 22nd slot) to guarantee — untick any to free it up without turning the whole placement off:
+                Positions on the first page to guarantee (any slot, not just fixed ones) — a position already taken by
+                another listing won&apos;t show up here; set a slot to &quot;— None —&quot; to free it up without
+                turning the whole placement off:
               </p>
-              <div className="mt-1 flex gap-4">
-                {PINNED_POSITIONS.map((pos) => (
-                  <label key={pos} className="flex items-center gap-2 text-sm text-slate-700">
-                    <input type="checkbox" name="positions" value={pos} defaultChecked={placement?.positions.includes(pos) ?? true} />
-                    Position {pos}
-                  </label>
-                ))}
+              <div className="mt-1 flex flex-wrap gap-3">
+                {Array.from({ length: POSITION_SLOTS }, (_, i) => {
+                  const current = placement?.positions[i] ?? null;
+                  const options = ALL_POSITIONS.filter((p) => p === current || !takenPositions.includes(p));
+                  return (
+                    <select
+                      key={i}
+                      name="positions"
+                      defaultValue={current ?? ""}
+                      className="w-32 rounded-md border border-slate-300 px-2 py-1.5 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+                    >
+
+                      <option value="">— None —</option>
+                      {options.map((p) => (
+                        <option key={p} value={p}>
+                          Position {p}
+                        </option>
+                      ))}
+                    </select>
+                  );
+                })}
               </div>
             </div>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">

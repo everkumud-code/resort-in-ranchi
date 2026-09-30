@@ -7,10 +7,15 @@
 /** The site's own listing — used to build its ad-space creative (see adCreative.ts). Not specially pinned any more; it's a normal SponsoredPlacement row like any other paid listing. */
 export const PINNED_LISTING_SLUG = "aangan-resort-ranchi";
 
-/** 1-indexed positions on the first page of an unfiltered browse list. */
-export const PINNED_POSITIONS: readonly number[] = [2, 12, 22];
+/**
+ * A position is any 1-indexed slot on the first page of an unfiltered
+ * browse list, up to this bound (matches the page size — pinning only ever
+ * applies to page 1). An admin can assign any listing to any position in
+ * this range, not just a fixed few — see PaidPlanPanel.
+ */
+export const MAX_PINNED_POSITION = 25;
 
-/** A listing with a sponsored placement — `positions` is the subset of PINNED_POSITIONS it's ticked for. */
+/** A listing with a sponsored placement — `positions` is whichever slots (1..MAX_PINNED_POSITION) an admin has assigned it. */
 export interface Sponsor<T> {
   property: T;
   positions: number[];
@@ -45,9 +50,10 @@ export function pinListing<T extends { id: string }>(
   let worstCaseCount = 0;
   for (const items of sections) for (const property of items) if (!allSponsorIds.has(property.id)) worstCaseCount++;
 
+  const candidatePositions = [...new Set(list.flatMap((s) => s.positions))].sort((a, b) => a - b);
   const takenPositions = new Set<number>();
   const placements: { position: number; sponsor: Sponsor<T> }[] = [];
-  for (const position of [...PINNED_POSITIONS].sort((a, b) => a - b)) {
+  for (const position of candidatePositions) {
     if (position < 1 || worstCaseCount < position - 1) continue;
     const sponsor = list.find((s) => s.positions.includes(position) && !takenPositions.has(position));
     if (!sponsor) continue;

@@ -1,7 +1,7 @@
 import { prisma } from "./prisma";
 import { checkExtraCategories, checkPlacementScope } from "./validation/planEntitlements";
 import { isValidCommercialTier, type CommercialTierValue } from "./validation/commercial";
-import { PINNED_POSITIONS } from "./public/pinnedListing";
+import { MAX_PINNED_POSITION } from "./public/pinnedListing";
 
 export interface PlanWriteResult {
   ok: boolean;
@@ -65,7 +65,21 @@ export async function saveSponsoredPlacementForProperty(propertyId: string, inpu
   const check = checkPlacementScope(tier, input.allCategories, categorySlugs, listingSlugs);
   if (!check.ok) return { ok: false, error: check.error };
 
-  const positions = [...new Set(input.positions)].filter((p) => PINNED_POSITIONS.includes(p));
+  const positions = [...new Set(input.positions)].filter(
+    (p) => Number.isInteger(p) && p >= 1 && p <= MAX_PINNED_POSITION
+  );
+
+  if (input.enabled && positions.length > 0) {
+    const others = await prisma.sponsoredPlacement.findMany({
+      where: { enabled: true, propertyId: { not: propertyId } },
+      select: { positions: true },
+    });
+    const takenElsewhere = new Set(others.flatMap((o) => o.positions));
+    const conflicts = positions.filter((p) => takenElsewhere.has(p));
+    if (conflicts.length > 0) {
+      return { ok: false, error: `Position ${conflicts.join(", ")} ${conflicts.length > 1 ? "are" : "is"} already assigned to another listing.` };
+    }
+  }
 
   const data = { enabled: input.enabled, allCategories: input.allCategories, categorySlugs, positions, startsAt: input.startsAt, endsAt: input.endsAt };
   await prisma.sponsoredPlacement.upsert({ where: { propertyId }, create: { propertyId, ...data }, update: data });

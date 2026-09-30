@@ -4,9 +4,9 @@ import { isPlacementActive, placementAppliesTo } from "@/lib/validation/planEnti
 import type { Sponsor } from "./pinnedListing";
 
 /**
- * The sponsored listings for one browse list, each with the positions it's
- * ticked for (a subset of PINNED_POSITIONS, set per-listing by an admin —
- * see PaidPlanPanel). `contextSlugs` are the category slugs the list is
+ * The sponsored listings for one browse list, each with whichever positions
+ * an admin has assigned it (any slot, not a fixed set — see PaidPlanPanel).
+ * `contextSlugs` are the category slugs the list is
  * about; null means a list not tied to a category (a location page), where
  * only sponsors that bought every category apply. Only placements that are
  * enabled, inside their paid period, and for a listing that is currently

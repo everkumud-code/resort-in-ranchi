@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { pinListing, PINNED_POSITIONS, type Sponsor } from "./pinnedListing";
+import { pinListing, type Sponsor } from "./pinnedListing";
+
+const DEFAULT_POSITIONS = [2, 12, 22];
 
 const item = (id: string) => ({ id });
 const many = (n: number, prefix = "p") => Array.from({ length: n }, (_, i) => item(`${prefix}${i + 1}`));
 const ids = (entries: { property: { id: string } }[]) => entries.map((e) => e.property.id);
-const sponsor = (id: string, positions: number[] = [...PINNED_POSITIONS]): Sponsor<{ id: string }> => ({
+const sponsor = (id: string, positions: number[] = [...DEFAULT_POSITIONS]): Sponsor<{ id: string }> => ({
   property: item(id),
   positions,
 });
@@ -14,7 +16,7 @@ describe("pinListing", () => {
 
   it("puts the pinned listing at positions 2, 12 and 22 of a long list", () => {
     const [list] = pinListing([many(25)], pinned);
-    for (const position of PINNED_POSITIONS) {
+    for (const position of DEFAULT_POSITIONS) {
       expect(list[position - 1].pinned).toBe(true);
       expect(list[position - 1].property.id).toBe("aangan");
     }
