@@ -1,0 +1,31 @@
+﻿"OWNER ONLY - do not send to agencies. These are my rough estimates of effort, not real quotations."
+Module ID,Module,Low hours,High hours,Cost low @Rs800/h,Cost high @Rs800/h,Cost low @Rs1500/h,Cost high @Rs1500/h,Cost low @Rs2500/h,Cost high @Rs2500/h
+M1,Brand design system and user interface,80,120,64000,96000,120000,180000,200000,300000
+M2,Public website: pages and content,220,320,176000,256000,330000,480000,550000,800000
+M3,SEO and discoverability,100,150,80000,120000,150000,225000,250000,375000
+M4,Performance engineering,60,90,48000,72000,90000,135000,150000,225000
+M5,"Lead capture, popups, announcements, analytics",50,80,40000,64000,75000,120000,125000,200000
+M6,AI concierge Swanya (guest chat + knowledge base),90,130,72000,104000,135000,195000,225000,325000
+M7,Event ticketing: guest side + PayU,110,160,88000,128000,165000,240000,275000,400000
+M8,"Admin shell, authentication and security",110,160,88000,128000,165000,240000,275000,400000
+M9,"Users, roles, permissions, organisation",90,130,72000,104000,135000,195000,225000,325000
+M10,Content management suite,200,300,160000,240000,300000,450000,500000,750000
+M11,CRM and sales desk,120,180,96000,144000,180000,270000,300000,450000
+M12,"Kitchen, menu and pricing workflow",100,150,80000,120000,150000,225000,250000,375000
+M13,Post-booking operations,60,90,48000,72000,90000,135000,150000,225000
+M14,Task management,40,60,32000,48000,60000,90000,100000,150000
+M15,"Ticketing admin, gate scanner, entry desk",150,220,120000,176000,225000,330000,375000,550000
+M16,AI and automation engine,110,160,88000,128000,165000,240000,275000,400000
+M17,Third-party integrations,90,140,72000,112000,135000,210000,225000,350000
+M18,Reporting and dashboards,60,90,48000,72000,90000,135000,150000,225000
+M19,"Infrastructure, DevOps, hardening",70,110,56000,88000,105000,165000,175000,275000
+M20,Quality assurance and automated tests,150,220,120000,176000,225000,330000,375000,550000
+M21,Data and content migration,50,80,40000,64000,75000,120000,125000,200000
+M22,"Project management, documentation, handover (about 12 percent)",253,377,202400,301600,379500,565500,632500,942500
+TOTAL,All modules,2363,3517,1890400,2813600,3544500,5275500,5907500,8792500
+
+How to read this
+1,"Hours are what an experienced Indian team would need to build the same system from scratch (design, build, test, deploy)."
+2,"Cost columns multiply those hours by three sample hourly rates. Real agencies add margin, GST (18 percent), and often quote a fixed price; compare with their Annexure A."
+3,"Calendar time: 6 to 9 months for a team of 4 to 6 people. Running cost after launch (hosting, domain, e-mail, AI usage, PayU fees) is separate."
+4,Your saving is roughly the difference between this table (or the real agency quotes) and what you actually spent on this build.

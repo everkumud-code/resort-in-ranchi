@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ssh -i ~/.ssh/hostinger_vps root@187.126.116.161:*)",
+      "Bash(scp -i ~/.ssh/hostinger_vps:*)"
+    ]
+  }
+}

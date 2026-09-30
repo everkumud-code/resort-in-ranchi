@@ -1,0 +1,162 @@
+STATAXIS: YOUTUBE API QUOTA FORM: ALL ANSWERS, SECTION 1 TO 7 (copy from here, top to bottom)
+Form: https://support.google.com/youtube/contact/yt_api_form
+Tip: the form cannot save your work. Keep this file open, fill the form in one sitting, and do not refresh the page.
+Write only what is true. [Square brackets] = you decide / you choose.
+
+======================================================================================================
+BEFORE YOU START (2 minutes)
+- Cloud Console > Credentials > key "stataxis-collector": Application restrictions = IP addresses: 187.126.116.161 and 2a02:4780:63:3a0e::1 ; API restriction stays "YouTube Data API v3". Save.
+- Make these three files first (see "EVIDENCE FILES" at the end): privacy-policy-page.pdf, terms-of-service-page.pdf, homepage-privacy-link.png. Dashboard screenshots later.
+- Ready files are in the folder reports\yt-evidence: stataxis-architecture-diagram.pdf, stataxis-user-flow-diagram.pdf, stataxis-sample-daily-report-hindi-news-13-oct-2026.pdf
+
+======================================================================================================
+SECTION 1: Request type
+Select the reason for your request *
+  -> Complete a compliance audit to request additional quota
+
+======================================================================================================
+SECTION 2: Organisation and contact information
+Are you applying *                         -> As an individual user
+Your full legal name *                     -> Kumud Ranjan
+Your organisation's legal name *           -> Self
+Parent company name                        -> (leave empty)
+Your organisation's primary website *      -> https://www.stataxis.org
+Country *                                  -> India
+Street address *                           -> Sikidiri Road, Anandi, Ormanjhi
+City *                                     -> Ranchi
+State/province/county/region *             -> JHARKHAND
+Postcode *                                 -> 835219
+Category *                                 -> Analytics and business intelligence
+Organisation size/type *                   -> Independent developer/sole trader
+Primary contact: Name *                    -> Kumud Ranjan
+Primary contact: Email *                   -> ever.kumud@gmail.com
+Primary technical contact                  -> tick "Same as primary contact (name and email)"
+Primary business contact                   -> tick "Same as primary contact (name and email)"
+
+======================================================================================================
+SECTION 3: Business model and Google contacts
+Describe your organisation's work as it relates to YouTube *  (paste this)
+---
+StatAxis (https://www.stataxis.org) is an independent media measurement and analytics service for Indian digital news. It reads PUBLIC YouTube statistics (live concurrent viewers, views and uploads of news channels) through the YouTube Data API v3 and turns them into period reports, rankings and an index (the STX Index), so that media companies, advertisers, agencies, campaigns and researchers can compare how news channels perform on YouTube. We do not operate or manage YouTube channels, we do not use OAuth or any private channel data, and we do not offer YouTube data to third parties through an API. All figures are labelled as StatAxis's own calculation of public YouTube data, not TV ratings.
+---
+Who is your target audience? *
+  Tick: Media companies and broadcasters / Brands and advertisers / Marketing agencies / Researchers and academics / Enterprise clients / Individual content creators (YouTubers, influencers)
+  Tick "Other (please specify)" and write: Political campaigns and public-affairs teams, independent journalists
+  Do NOT tick: General public / Software developers / Educators and educational institutions / Internal users
+How does your API client monetise or generate revenue?
+  Tick: Freemium and Recurring subscriptions
+  Tick "Other (please specify)" and write: Currently free for all registered users during launch; paid packages (SX plans) are planned.
+  Do NOT tick: Advertising displayed on pages that contain YouTube content / Free-of-charge service
+Do you currently have a designated Google Partner Manager or YouTube Partner Manager? *
+  -> No, I do not have a Google representative
+How did you first learn about the YouTube Data API?
+  -> [choose the true option, for example Google documentation / web search]
+Content owner ID(s)                        -> (leave empty); Associated YouTube channel URL -> (leave empty)
+Google Ads customer ID(s)                  -> (leave empty)
+
+======================================================================================================
+SECTION 4: API client overview and access information
+API client name *                                              -> StatAxis
+Does this API client name contain the word 'YouTube'? *        -> No, the name does not contain 'YouTube'
+Primary access URL *                                           -> https://www.stataxis.org
+Privacy policy URL *                                           -> https://www.stataxis.org/privacy
+Terms of Service URL (optional)                                -> https://www.stataxis.org/terms
+Is your API client publicly accessible? *                      -> Yes
+  (If a box asks how a reviewer gets in, write: "The website is public; the workspace needs a login. A reviewer login is ready and will be sent by e-mail when the review team asks." Never type the password in the form.)
+[If Section 4 shows more boxes than these, such as platform type, authentication or test access: platform = Web application (server-side); authentication = API key only (no OAuth); test access = reviewer login by e-mail on request.]
+
+======================================================================================================
+SECTION 5: Use cases and quota extension details
+How many project numbers are you adding? *     -> 1
+Google Cloud project number *                  -> 511939018862
+Use case category (or categories) *            -> Tick: Tools for advertisers / Analytics and reporting / Others (please specify)
+  If a box appears for "Others", write: Media measurement and market intelligence of public news-channel audiences (live audience, views, comparison index) for media planning and research.
+Does this API client require users to sign in with their Google Account (OAuth 2.0)? *   -> No
+Use case description (large box, required) (paste this)
+---
+StatAxis is a media measurement service for Indian digital news. (1) Live audience: every 15 seconds it reads the public concurrent-viewer count of the live streams of tracked news channels and reports average and peak audience for any period. (2) Views of new videos: it reads public view counts of videos uploaded in a period and ranks channels by views gained. (3) STX Index: a composite index StatAxis calculates from these public signals. (4) Reports: daily, weekly, monthly, quarterly, half-yearly and yearly summaries as PDFs, images and e-mails for registered business users. Users never call the YouTube API: they see StatAxis's stored readings, each marked 'as last measured', with the line 'Data via YouTube. Processed and evaluated by StatAxis. Not TV ratings.' Independent value: publishers, advertisers and researchers get a neutral comparison of digital news audiences in India, which YouTube's own tools do not provide for other people's channels.
+---
+Required agreement and acknowledgement (derived metrics and data storage)
+  -> Tick: "I have read and agree to abide by the additional policies for derived metrics and data storage."
+  (True for StatAxis: statistics and derived metrics are kept at most 36 calendar months; titles and other data follow the 30-day refresh and deletion rule; the automatic retention job already does this. Keep it ON.)
+Expected API usage volume *                    -> 10,000 to 100,000 requests per day
+REQUIRED EVIDENCE for project 1
+  Privacy policy screenshots *                 -> upload privacy-policy-page.pdf
+  Homepage screenshot (privacy link, YouTube branding visible) *   -> upload homepage-privacy-link.png
+  Terms of Service documentation *             -> upload terms-of-service-page.pdf
+  CONDITIONAL EVIDENCE (dashboard / feature screenshots, analytics and reporting) *   -> upload dashboard-and-reports-screens.pdf (one PDF; send me the screenshots and I will make it)
+Quota details for project 1
+  Select the endpoints you plan to use *       -> Tick: channels.list, playlistItems.list, videos.list (do NOT tick search.list or videos.insert)
+  Total quota requested for project 1          -> Above default quota -> 75000   (smaller plan: 42000)
+Any extra box under Section 5, use these (copy the matching one):
+
+ QUOTA JUSTIFICATION
+---
+Requested: 75,000 units/day. The default is 10,000. We plan to measure more than 300 news channels (about 450 simultaneous live streams at peak) with a 15-second interval during live programmes, because live audiences move within seconds around breaking news and commercial breaks. Per day: live polling every 15 s: ceil(450/50) = 9 videos.list calls x 5,760 polls = 51,840 units. Hourly collection: 300 playlistItems.list + 6 channels.list + 150 videos.list = 456 units x 24 = 10,944 units. Total 62,784 units; with 15% headroom about 72,200, so we request 75,000. With the default we can read only about 32 channels every 75 seconds. If a smaller first grant is more appropriate, we can start with about 100 channels every 15 s and the rest every 60 s (about 42,000 units/day) and grow after the audit.
+---
+ DATA STORAGE AND RETENTION
+---
+We store time-stamped readings of public statistics (video views, likes, comment counts, live concurrent viewers, channel subscriber counts) and the metrics derived from them (averages, peaks, views gained, the STX Index) for at most 36 calendar months, after which they are deleted; this is the retention allowed by the additional policies for derived metrics and data storage, which we ask to be approved for. Other YouTube API data (video titles, thumbnails, categories, channel avatars and handles) is refreshed from the API at least every 30 calendar days, and data that has not been refreshed within 30 days is cleared automatically. An automatic retention job runs with every collection pass. Our first reading is from 10 October 2026, so no reading has reached the limit yet. Channel display names shown by StatAxis are editorial labels kept by StatAxis. We store no comment text and no personal data of viewers or commenters.
+---
+ DERIVED METRICS
+---
+Yes: averages and peaks over a period, views gained in a period, a composite index (the STX Index) from these public signals, and comparisons across channels of different publishers. We label these clearly and prominently as StatAxis's own calculation, not sourced from YouTube (on every page footer, report and file: 'Data via YouTube. Processed and evaluated by StatAxis. Not TV ratings.' and 'STX Index and other scores are generated independently by StatAxis. They are not sourced from, provided by or endorsed by YouTube.'). We agree to the additional policies for derived metrics and data storage.
+---
+ API METHODS AND HOW OFTEN
+---
+Read-only, API key only (no OAuth). playlistItems.list: 1 call per tracked channel in each hourly collection pass. channels.list: 50 channels per call, hourly. videos.list: 50 videos per call, hourly for new uploads and every 15 seconds for live streams while they are live. No search.list in the live path; no write methods; no YouTube Analytics or Reporting API; no embedded player.
+---
+ CURRENT QUOTA USAGE
+---
+About 5,300 units/day today (32 channels, live interval 75 seconds). The Quotas graph is attached.
+---
+ QUOTA EFFICIENCY
+---
+All videos.list and channels.list calls are batched at 50 ids; no search.list in the live loop; our client enforces its own budget (60 requests a minute and 9,000 a day at the default); results are cached and shared by all users; a user never triggers an API call.
+---
+ HOW YOU SHOW YOUTUBE DATA AND KEEP IT FRESH
+---
+Values are shown 'as last measured' with their time; stale readings are flagged and never presented as current. Each report shows when it was made.
+---
+ PRIVACY, TERMS, DELETION
+---
+Privacy Policy https://www.stataxis.org/privacy and Terms https://www.stataxis.org/terms state that the service uses YouTube API Services and describe retention and deletion. The footer of every public page links the YouTube Terms of Service (https://www.youtube.com/t/terms) and the Google Privacy Policy (https://policies.google.com/privacy). We use no Authorized Data, so nothing can be revoked in Google security settings. A user can ask for account deletion at stax9@stataxis.org; a publisher who does not want its channel measured can ask us and we remove it.
+---
+ SHARE / SELL / REPUBLISH
+---
+We do not sell raw API data and give users no API access. Users see reports, rankings and downloads of statistics and our calculations, each marked with its source. We do not download or republish video or audio.
+---
+ PROFILE OR IDENTIFY VIEWERS
+---
+No. All figures are aggregates of public counters.
+---
+ ANYTHING ELSE
+---
+Figures are labelled as measured on YouTube, not TV ratings. We welcome a review and will change retention, labelling or any behaviour the API Services team asks for.
+---
+
+======================================================================================================
+SECTION 6: Additional evidence and documentation
+Rules: ONE file per box, each smaller than 10 MB, JPEG/PNG or PDF, screenshots at least 1280x720, readable, with the browser address bar visible, clear file names.
+Architecture diagram                          -> stataxis-architecture-diagram.pdf
+User flow diagrams                            -> stataxis-user-flow-diagram.pdf
+Other supporting materials                    -> stataxis-sample-daily-report-hindi-news-13-oct-2026.pdf
+(All three are in the folder reports\yt-evidence.)
+
+======================================================================================================
+SECTION 7: Attestations and submission
+You will be asked to confirm statements (the information is accurate and complete; you have read and comply with the YouTube API Services Terms of Service and the Developer Policies; you are authorised to submit; you agree to audits and to report changes). Tick every statement that is true for you. For StatAxis these are true: only public data and an API key (no OAuth), statistics and derived metrics are kept at most 36 months, other data is refreshed or cleared within 30 days, derived metrics are labelled as StatAxis's own.
+If a statement says something that is NOT true (for example "we store no data" or "we do not calculate metrics"), do not tick it: write the true facts in the comment box (use the retention and derived-metrics answers above) and send me a screenshot of that statement.
+Then solve the reCAPTCHA yourself and press Submit. Save the confirmation e-mail.
+
+======================================================================================================
+EVIDENCE FILES: how to make them (Chrome)
+1) privacy-policy-page.pdf: open https://www.stataxis.org/privacy > Ctrl+P > Destination: Save as PDF > More settings: tick "Headers and footers" > Save. (It shows the YouTube section, the Google Privacy Policy link, retention and deletion.)
+2) terms-of-service-page.pdf: the same for https://www.stataxis.org/terms.
+3) homepage-privacy-link.png: open https://www.stataxis.org, scroll to the footer so "Privacy Policy" and the line "StatAxis uses YouTube API Services... YouTube Terms of Service ... Google Privacy Policy" are visible, with the address bar in the picture (Windows: Win+Shift+S, or the Snipping Tool).
+4) dashboard-and-reports-screens.pdf: sign in at https://www.stataxis.org/login with the reviewer login (file REVIEWER-LOGIN-private.txt). Take 5 to 6 screenshots with the address bar visible: Weekly report, Report builder result, STX Index, My dashboard, Live event compare, a downloaded report. Send them to me; I will put them into one PDF (the form takes one file per box).
+
+AFTER YOU SUBMIT
+- Answer YouTube's e-mails within 2 to 3 days. Send the reviewer login only by e-mail, only when they ask.
+- Until they answer: keep live polling at 60 seconds and do not add channels.
+- Do not switch the retention job off (STAXIS_RETENTION_ENABLED): the form's agreement depends on it.

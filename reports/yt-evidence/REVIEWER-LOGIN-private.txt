@@ -1,0 +1,10 @@
+STATAXIS REVIEWER LOGIN (for the YouTube API Services review team)
+Keep this private. Send it only when YouTube asks, by e-mail, not inside the form.
+
+Sign-in page: https://www.stataxis.org/login
+Login ID: youtube-reviewer@stataxis.org
+Password: MKeq9gg-OKSSt2dd
+
+What it can do: read every report, the dashboard, the STX Index, live and downloads.
+It is not an administrator: it cannot change channels, users or settings.
+To remove it later: Admin > People and access > switch this login off.
