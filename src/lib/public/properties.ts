@@ -58,6 +58,7 @@ export const publicPropertySelect = {
     // The hero image always comes first, so it is the page's main picture.
     orderBy: [{ isHero: "desc" }, { sortOrder: "asc" }],
   },
+  badges: { select: { badge: { select: { id: true, label: true, description: true } } } },
 } satisfies Prisma.PropertySelect;
 
 export type PublicProperty = Prisma.PropertyGetPayload<{ select: typeof publicPropertySelect }>;
@@ -86,6 +87,7 @@ export const publicPropertyCardSelect = {
     // Hero first: selectCardImage takes the first PHOTO, so the hero becomes the thumbnail.
     orderBy: [{ isHero: "desc" }, { sortOrder: "asc" }],
   },
+  badges: { select: { badge: { select: { id: true, label: true, description: true } } } },
 } satisfies Prisma.PropertySelect;
 
 export type PublicPropertyCard = Prisma.PropertyGetPayload<{ select: typeof publicPropertyCardSelect }>;

@@ -2,7 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import EventForm from "../EventForm";
-import { rejectEvent } from "../actions";
+import { rejectEvent, updateEventBadges } from "../actions";
+import BadgesPanel from "@/components/admin/BadgesPanel";
 
 export const dynamic = "force-dynamic";
 
@@ -16,10 +17,11 @@ export default async function EditEventPage({
   const { id } = await params;
   const { saved } = await searchParams;
 
-  const [event, locations, properties] = await Promise.all([
-    prisma.event.findUnique({ where: { id } }),
+  const [event, locations, properties, allBadges] = await Promise.all([
+    prisma.event.findUnique({ where: { id }, include: { badges: { select: { badgeId: true } } } }),
     prisma.location.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
     prisma.property.findMany({ where: { status: "PUBLISHED" }, orderBy: { name: "asc" }, select: { id: true, name: true } }),
+    prisma.trustBadge.findMany({ orderBy: [{ order: "asc" }, { label: "asc" }] }),
   ]);
   if (!event) notFound();
 
@@ -51,6 +53,12 @@ export default async function EditEventPage({
       )}
 
       <EventForm event={event} locations={locations} properties={properties} />
+
+      <BadgesPanel
+        action={updateEventBadges.bind(null, event.id)}
+        allBadges={allBadges}
+        selectedBadgeIds={event.badges.map((b) => b.badgeId)}
+      />
     </div>
   );
 }

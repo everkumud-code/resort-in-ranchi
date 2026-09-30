@@ -3,6 +3,7 @@ import { selectCardImage, type PublicPropertyCard } from "@/lib/public/propertie
 import CardImage from "./CardImage";
 import CompareCheckbox from "./CompareCheckbox";
 import TrustBadge from "./TrustBadge";
+import BadgePills from "./BadgePills";
 
 /**
  * The outer element is a <div>, not the <Link> itself — CompareCheckbox
@@ -45,8 +46,9 @@ export default function PropertyCard({ property, sponsored = false }: { property
             {property.category.name}
             {property.locality ? ` · ${property.locality.name}` : ""}
           </p>
-          <div className="mt-2">
+          <div className="mt-2 flex flex-wrap items-center gap-1.5">
             <TrustBadge verificationStatus={property.verificationStatus} />
+            {property.badges.length > 0 && <BadgePills badges={property.badges.map((b) => b.badge)} />}
           </div>
           {property.shortDescription && (
             <p className="mt-2 line-clamp-2 text-sm text-brand-dark/70">{property.shortDescription}</p>

@@ -121,6 +121,32 @@ export async function deleteCriterion(criterionId: string): Promise<void> {
   revalidateInfluencers();
 }
 
+export interface UpdateBadgesState {
+  error?: string;
+}
+
+/** Replaces an influencer's full set of InfluencerBadge links with the submitted selection. Admin only. */
+export async function updateInfluencerBadges(influencerId: string, _prevState: UpdateBadgesState, formData: FormData): Promise<UpdateBadgesState> {
+  await requireAdmin();
+
+  const influencer = await prisma.influencer.findUnique({ where: { id: influencerId }, select: { slug: true } });
+  if (!influencer) {
+    return { error: "Influencer not found." };
+  }
+
+  const submittedIds = [...new Set(formData.getAll("badgeIds").map(String))];
+  const validBadges = await prisma.trustBadge.findMany({ where: { id: { in: submittedIds } }, select: { id: true } });
+  const validIds = validBadges.map((b) => b.id);
+
+  await prisma.$transaction([
+    prisma.influencerBadge.deleteMany({ where: { influencerId } }),
+    prisma.influencerBadge.createMany({ data: validIds.map((badgeId) => ({ influencerId, badgeId })), skipDuplicates: true }),
+  ]);
+
+  revalidateInfluencers(influencer.slug);
+  redirect(`/admin/influencers/${influencerId}?saved=1`);
+}
+
 /** Sets (or clears, with an empty value) one influencer's score for one criterion — admin-only editorial rating, never a public review. */
 export async function setInfluencerRating(influencerId: string, criterionId: string, formData: FormData): Promise<void> {
   await requireAdmin();

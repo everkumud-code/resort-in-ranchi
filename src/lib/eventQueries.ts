@@ -17,6 +17,7 @@ export const eventCardSelect = {
   priority: true,
   locality: { select: { id: true, name: true, slug: true } },
   property: { select: { slug: true, name: true } },
+  badges: { select: { badge: { select: { id: true, label: true, description: true } } } },
 } as const;
 
 export type EventCard = Awaited<ReturnType<typeof listPublishedEvents>>[number];
@@ -39,6 +40,7 @@ export async function listPublishedEvents(now: Date = new Date()): Promise<
     priority: number;
     locality: { id: string; name: string; slug: string } | null;
     property: { slug: string; name: string } | null;
+    badges: { badge: { id: string; label: string; description: string | null } }[];
   }[]
 > {
   try {
@@ -65,7 +67,11 @@ export async function getPublishedEvent(slug: string) {
   try {
     return await prisma.event.findFirst({
       where: { slug, status: "PUBLISHED" },
-      include: { locality: { select: { id: true, name: true, slug: true } }, property: { select: { slug: true, name: true } } },
+      include: {
+        locality: { select: { id: true, name: true, slug: true } },
+        property: { select: { slug: true, name: true } },
+        badges: { select: { badge: { select: { id: true, label: true, description: true } } } },
+      },
     });
   } catch {
     return null;

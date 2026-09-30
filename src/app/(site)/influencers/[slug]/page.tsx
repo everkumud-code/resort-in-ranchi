@@ -8,6 +8,7 @@ import ShareButtons from "@/components/site/ShareButtons";
 import { absoluteUrl } from "@/lib/public/site";
 import ContactCreatorForm from "./ContactCreatorForm";
 import { influencerEligibleForClaimCta } from "@/lib/validation/influencerClaim";
+import BadgePills from "@/components/site/BadgePills";
 
 export const revalidate = 300;
 
@@ -81,6 +82,11 @@ export default async function InfluencerDetailPage({
           </div>
           {influencer.category && <p className="text-sm text-brand/60">{influencer.category}</p>}
           {influencer.rating !== null && <p className="mt-0.5 text-sm font-medium text-brand-gold">★ {influencer.rating.toFixed(1)} / 5</p>}
+          {influencer.badges.length > 0 && (
+            <div className="mt-1.5">
+              <BadgePills badges={influencer.badges.map((b) => b.badge)} />
+            </div>
+          )}
         </div>
       </div>
 

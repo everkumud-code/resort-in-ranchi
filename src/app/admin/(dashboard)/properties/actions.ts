@@ -131,3 +131,30 @@ export async function updatePropertyFacilities(
   revalidatePath(`/admin/properties/${propertyId}`);
   redirect(`/admin/properties/${propertyId}?saved=1`);
 }
+
+export interface UpdateBadgesState {
+  error?: string;
+}
+
+/** Replaces a property's full set of PropertyBadge links with the submitted selection. Admin only. */
+export async function updatePropertyBadges(propertyId: string, _prevState: UpdateBadgesState, formData: FormData): Promise<UpdateBadgesState> {
+  await requireAdmin();
+
+  const property = await prisma.property.findUnique({ where: { id: propertyId } });
+  if (!property) {
+    return { error: "Property not found." };
+  }
+
+  const submittedIds = [...new Set(formData.getAll("badgeIds").map(String))];
+  const validBadges = await prisma.trustBadge.findMany({ where: { id: { in: submittedIds } }, select: { id: true } });
+  const validIds = validBadges.map((b) => b.id);
+
+  await prisma.$transaction([
+    prisma.propertyBadge.deleteMany({ where: { propertyId } }),
+    prisma.propertyBadge.createMany({ data: validIds.map((badgeId) => ({ propertyId, badgeId })), skipDuplicates: true }),
+  ]);
+
+  revalidatePath(`/admin/properties/${propertyId}`);
+  revalidatePath("/", "layout");
+  redirect(`/admin/properties/${propertyId}?saved=1`);
+}

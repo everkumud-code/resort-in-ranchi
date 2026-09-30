@@ -37,6 +37,7 @@ function mockProperty(overrides: Partial<PublicProperty> = {}): PublicProperty {
     facilities: [],
     venueSpaces: [],
     images: [],
+    badges: [],
     ...overrides,
   };
 }

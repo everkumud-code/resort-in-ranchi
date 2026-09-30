@@ -1,4 +1,5 @@
 import Link from "next/link";
+import BadgePills from "./BadgePills";
 
 export interface InfluencerAvatarCardData {
   id: string;
@@ -8,6 +9,7 @@ export interface InfluencerAvatarCardData {
   category: string | null;
   featured: boolean;
   rating: number | null;
+  badges?: { badge: { id: string; label: string; description: string | null } }[];
 }
 
 /** The small round-photo card used in both the homepage scroll album (fixed width, for the marquee track) and the /influencers grid (fills its grid cell). */
@@ -43,6 +45,11 @@ export default function InfluencerAvatarCard({
       <p className="mt-3 truncate text-sm font-semibold text-brand-dark">{influencer.name}</p>
       {influencer.category && <p className="truncate text-xs text-brand/60">{influencer.category}</p>}
       {influencer.rating !== null && <p className="mt-1 text-xs font-medium text-brand-gold">★ {influencer.rating.toFixed(1)}</p>}
+      {influencer.badges && influencer.badges.length > 0 && (
+        <div className="mt-1.5 flex justify-center">
+          <BadgePills badges={influencer.badges.map((b) => b.badge)} />
+        </div>
+      )}
     </Link>
   );
 }

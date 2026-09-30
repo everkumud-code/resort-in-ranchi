@@ -146,3 +146,29 @@ export async function deleteEvent(eventId: string): Promise<void> {
   await prisma.event.delete({ where: { id: eventId } });
   revalidateEvents(existing.slug);
 }
+
+export interface UpdateBadgesState {
+  error?: string;
+}
+
+/** Replaces an event's full set of EventBadge links with the submitted selection. Admin only. */
+export async function updateEventBadges(eventId: string, _prevState: UpdateBadgesState, formData: FormData): Promise<UpdateBadgesState> {
+  await requireAdmin();
+
+  const event = await prisma.event.findUnique({ where: { id: eventId }, select: { slug: true } });
+  if (!event) {
+    return { error: "Event not found." };
+  }
+
+  const submittedIds = [...new Set(formData.getAll("badgeIds").map(String))];
+  const validBadges = await prisma.trustBadge.findMany({ where: { id: { in: submittedIds } }, select: { id: true } });
+  const validIds = validBadges.map((b) => b.id);
+
+  await prisma.$transaction([
+    prisma.eventBadge.deleteMany({ where: { eventId } }),
+    prisma.eventBadge.createMany({ data: validIds.map((badgeId) => ({ eventId, badgeId })), skipDuplicates: true }),
+  ]);
+
+  revalidateEvents(event.slug);
+  redirect(`/admin/events/${eventId}?saved=1`);
+}

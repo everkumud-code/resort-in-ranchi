@@ -1,8 +1,22 @@
 import { z } from "zod";
-import { optionalText, requiredText } from "./shared";
+import { optionalText, requiredText, slugField } from "./shared";
 
 export const trustBadgeNameSchema = requiredText("Badge label").pipe(z.string().max(40, "40 characters or fewer"));
 export const trustBadgeDescriptionSchema = optionalText;
+
+/**
+ * A badge's `key` is a stable, slug-shaped identifier (used by the seed
+ * script and never shown publicly); `label` is what's shown on the pill;
+ * `description` is required — shown on hover wherever the badge appears, so
+ * a badge is never an unexplained, unfalsifiable claim.
+ */
+export const trustBadgeSchema = z.object({
+  key: slugField,
+  label: trustBadgeNameSchema,
+  description: requiredText("Description").pipe(z.string().max(200, "200 characters or fewer")),
+});
+
+export type TrustBadgeInput = z.infer<typeof trustBadgeSchema>;
 
 /**
  * The six badges requested at launch. Seeded once (see

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import BadgePills from "./BadgePills";
 
 export interface EventCardData {
   title: string;
@@ -11,6 +12,7 @@ export interface EventCardData {
   endAt: Date | null;
   sponsored: boolean;
   locality: { name: string; slug: string } | null;
+  badges?: { badge: { id: string; label: string; description: string | null } }[];
 }
 
 // Every event happens in Ranchi — always shown in IST, regardless of the visitor's own timezone.
@@ -43,6 +45,11 @@ export default function EventCard({ event }: { event: EventCardData }) {
       <div className="p-4">
         {event.sponsored && (
           <span className="mb-1 inline-block rounded-full bg-brand-orange/15 px-2 py-0.5 text-xs font-semibold text-brand-orange">Sponsored</span>
+        )}
+        {event.badges && event.badges.length > 0 && (
+          <div className="mb-1">
+            <BadgePills badges={event.badges.map((b) => b.badge)} />
+          </div>
         )}
         <h3 className="font-serif text-base font-semibold text-brand-dark">
           <Link href={`/events/${event.slug}`} className="hover:underline">

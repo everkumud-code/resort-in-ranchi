@@ -17,6 +17,7 @@ export const influencerCardSelect = {
   featured: true,
   claimed: true,
   ratings: { select: { score: true, criterionId: true } },
+  badges: { select: { badge: { select: { id: true, label: true, description: true } } } },
 } as const;
 
 export interface PublicInfluencer {
@@ -35,6 +36,7 @@ export interface PublicInfluencer {
   featured: boolean;
   claimed: boolean;
   rating: number | null;
+  badges: { badge: { id: string; label: string; description: string | null } }[];
 }
 
 /** Every published influencer, featured first — for the homepage scroll album and /influencers. Never throws — an unmigrated table just yields none. */

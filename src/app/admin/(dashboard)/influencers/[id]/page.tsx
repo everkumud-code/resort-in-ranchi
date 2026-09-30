@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import InfluencerForm from "../InfluencerForm";
 import RatingsPanel from "../RatingsPanel";
+import BadgesPanel from "@/components/admin/BadgesPanel";
+import { updateInfluencerBadges } from "../actions";
 
 export const dynamic = "force-dynamic";
 
@@ -16,9 +18,10 @@ export default async function EditInfluencerPage({
   const { id } = await params;
   const { saved } = await searchParams;
 
-  const [influencer, criteria] = await Promise.all([
-    prisma.influencer.findUnique({ where: { id }, include: { ratings: true } }),
+  const [influencer, criteria, allBadges] = await Promise.all([
+    prisma.influencer.findUnique({ where: { id }, include: { ratings: true, badges: { select: { badgeId: true } } } }),
     prisma.influencerCriterion.findMany({ orderBy: { order: "asc" } }),
+    prisma.trustBadge.findMany({ orderBy: [{ order: "asc" }, { label: "asc" }] }),
   ]);
   if (!influencer) notFound();
 
@@ -41,6 +44,12 @@ export default async function EditInfluencerPage({
           <RatingsPanel influencerId={influencer.id} criteria={criteria} scoresByCriterion={scoresByCriterion} />
         </div>
       </div>
+
+      <BadgesPanel
+        action={updateInfluencerBadges.bind(null, influencer.id)}
+        allBadges={allBadges}
+        selectedBadgeIds={influencer.badges.map((b) => b.badgeId)}
+      />
     </div>
   );
 }

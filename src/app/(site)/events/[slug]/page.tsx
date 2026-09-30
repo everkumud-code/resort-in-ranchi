@@ -7,6 +7,7 @@ import { buildPageMetadata } from "@/lib/public/seo";
 import Breadcrumbs from "@/components/site/Breadcrumbs";
 import JsonLd from "@/components/site/JsonLd";
 import ShareButtons from "@/components/site/ShareButtons";
+import BadgePills from "@/components/site/BadgePills";
 import { absoluteUrl } from "@/lib/public/site";
 
 export const revalidate = 300;
@@ -51,9 +52,12 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
       <JsonLd data={jsonLd} />
       <Breadcrumbs items={[{ name: "Events", path: "/events" }, { name: event.title, path: `/events/${slug}` }]} />
 
-      {event.sponsored && (
-        <span className="mt-3 inline-block rounded-full bg-brand-orange/15 px-2.5 py-0.5 text-xs font-semibold text-brand-orange">Sponsored</span>
-      )}
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        {event.sponsored && (
+          <span className="inline-block rounded-full bg-brand-orange/15 px-2.5 py-0.5 text-xs font-semibold text-brand-orange">Sponsored</span>
+        )}
+        {event.badges.length > 0 && <BadgePills badges={event.badges.map((b) => b.badge)} />}
+      </div>
       <h1 className="mt-2 font-serif text-3xl font-semibold text-brand-dark sm:text-4xl">{event.title}</h1>
       <p className="mt-2 text-sm text-brand/70">{formatEventDateRange(event.startAt, event.endAt)}</p>
       {(event.venueName || event.address || event.locality) && (

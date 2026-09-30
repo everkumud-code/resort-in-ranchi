@@ -16,6 +16,7 @@ import { localBusinessJsonLd } from "@/lib/public/structuredData";
 import Breadcrumbs from "@/components/site/Breadcrumbs";
 import PropertyCard from "@/components/site/PropertyCard";
 import TrustBadge from "@/components/site/TrustBadge";
+import BadgePills from "@/components/site/BadgePills";
 import PropertyHeroFallback from "@/components/site/PropertyHeroFallback";
 import { getImageTagLabel } from "@/lib/validation/propertyImage";
 import JsonLd from "@/components/site/JsonLd";
@@ -177,6 +178,7 @@ export default async function PropertyPage({
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <TrustBadge verificationStatus={property.verificationStatus} />
+        {property.badges.length > 0 && <BadgePills badges={property.badges.map((b) => b.badge)} />}
         {isDiscoveryTier && (
           <span className="text-xs text-brand/60">Discovery listing · Information may require confirmation.</span>
         )}

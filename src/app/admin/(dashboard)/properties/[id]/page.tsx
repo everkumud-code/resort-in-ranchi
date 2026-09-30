@@ -10,7 +10,9 @@ import CommercialTierSelect from "./CommercialTierSelect";
 import PaidPlanPanel from "./PaidPlanPanel";
 import { StatusBadge, VerificationBadge, CommercialTierBadge } from "@/components/admin/LifecycleBadges";
 import ConfirmForm from "@/components/admin/ConfirmForm";
+import BadgesPanel from "@/components/admin/BadgesPanel";
 import { markNeedsReview, markVerified, unpublishProperty, closeListing } from "../lifecycleActions";
+import { updatePropertyBadges } from "../actions";
 import { IDENTITY_CONFLICT_PROPERTY_IDS } from "@/lib/validation/propertyLifecycle";
 
 export const dynamic = "force-dynamic";
@@ -42,7 +44,7 @@ export default async function AdminPropertyDetailPage({
   const { id } = await params;
   const { saved, created, lifecycle } = await searchParams;
 
-  const [property, categories, locations, allFacilities] = await Promise.all([
+  const [property, categories, locations, allFacilities, allBadges] = await Promise.all([
     prisma.property.findUnique({
       where: { id },
       include: {
@@ -54,16 +56,24 @@ export default async function AdminPropertyDetailPage({
         leadPartner: { select: { id: true, enabled: true } },
         extraCategories: { select: { categoryId: true } },
         sponsoredPlacement: true,
+        badges: { select: { badgeId: true } },
       },
     }),
     prisma.category.findMany({ orderBy: { name: "asc" } }),
     prisma.location.findMany({ orderBy: { name: "asc" } }),
     prisma.facility.findMany({ orderBy: { name: "asc" } }),
+    prisma.trustBadge.findMany({ orderBy: [{ order: "asc" }, { label: "asc" }] }),
   ]);
 
   if (!property) {
     notFound();
   }
+
+  const otherEnabledPlacements = await prisma.sponsoredPlacement.findMany({
+    where: { enabled: true, propertyId: { not: property.id } },
+    select: { positions: true },
+  });
+  const takenPositions = [...new Set(otherEnabledPlacements.flatMap((p) => p.positions))];
 
   const markNeedsReviewAction = markNeedsReview.bind(null, property.id);
   const markVerifiedAction = markVerified.bind(null, property.id);
@@ -85,7 +95,8 @@ export default async function AdminPropertyDetailPage({
       {saved === "1" && <p className="rounded-md bg-green-50 px-3 py-2 text-sm text-green-700">Changes saved.</p>}
       {created === "1" && (
         <p className="rounded-md bg-green-50 px-3 py-2 text-sm text-green-700">
-          Listing created as a Draft — publish and verify it below when you&apos;re ready.
+          Listing created as a Draft. Add photos, facilities and venue spaces in the panels further down this page,
+          then publish and verify it when you&apos;re ready.
         </p>
       )}
       {lifecycleMessage && (
@@ -206,6 +217,7 @@ export default async function AdminPropertyDetailPage({
             categories={categories.map((c) => ({ id: c.id, name: c.name, slug: c.slug }))}
             extraCategoryIds={property.extraCategories.map((e) => e.categoryId)}
             placement={property.sponsoredPlacement}
+            takenPositions={takenPositions}
           />
 
           <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
@@ -253,6 +265,12 @@ export default async function AdminPropertyDetailPage({
         <PropertyImagesPanel propertyId={property.id} images={property.images} />
         <PropertyVenueSpacesPanel propertyId={property.id} venueSpaces={property.venueSpaces} />
       </div>
+
+      <BadgesPanel
+        action={updatePropertyBadges.bind(null, property.id)}
+        allBadges={allBadges}
+        selectedBadgeIds={property.badges.map((b) => b.badgeId)}
+      />
     </div>
   );
 }
