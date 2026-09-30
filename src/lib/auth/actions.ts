@@ -3,9 +3,9 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { loginSchema } from "@/lib/validation/auth";
-import { verifyPassword } from "./password";
-import { createSession, destroySessionByToken, SESSION_COOKIE_NAME, SESSION_DURATION_MS } from "./session";
+import { loginSchema, changePasswordSchema } from "@/lib/validation/auth";
+import { hashPassword, verifyPassword } from "./password";
+import { createSession, destroySessionByToken, requireAdmin, SESSION_COOKIE_NAME, SESSION_DURATION_MS } from "./session";
 
 export interface LoginState {
   error?: string;
@@ -49,6 +49,42 @@ export async function login(_prevState: LoginState, formData: FormData): Promise
   });
 
   redirect("/admin");
+}
+
+export interface ChangePasswordState {
+  error?: string;
+  success?: boolean;
+}
+
+export async function changePassword(_prevState: ChangePasswordState, formData: FormData): Promise<ChangePasswordState> {
+  const admin = await requireAdmin();
+
+  const parsed = changePasswordSchema.safeParse({
+    currentPassword: formData.get("currentPassword"),
+    newPassword: formData.get("newPassword"),
+    confirmPassword: formData.get("confirmPassword"),
+  });
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
+  }
+
+  const { currentPassword, newPassword } = parsed.data;
+
+  const current = await prisma.adminUser.findUnique({ where: { id: admin.id } });
+  if (!current) {
+    return { error: "Account not found." };
+  }
+
+  const validCurrent = await verifyPassword(currentPassword, current.passwordHash);
+  if (!validCurrent) {
+    return { error: "Current password is incorrect." };
+  }
+
+  const passwordHash = await hashPassword(newPassword);
+  await prisma.adminUser.update({ where: { id: admin.id }, data: { passwordHash } });
+
+  return { success: true };
 }
 
 export async function logout(): Promise<void> {

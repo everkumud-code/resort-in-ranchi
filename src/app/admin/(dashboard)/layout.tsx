@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireAdmin } from "@/lib/auth/session";
 import { logout } from "@/lib/auth/actions";
 import AdminHeaderNav from "@/components/admin/AdminHeaderNav";
@@ -23,6 +24,9 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
           </div>
           <div className="flex items-center gap-3 text-sm text-slate-600">
             <span>{admin.email}</span>
+            <Link href="/admin/change-password" className="hover:text-slate-900 hover:underline">
+              Change password
+            </Link>
             <form action={logout}>
               <button type="submit" className="text-slate-500 hover:text-slate-900 hover:underline">
                 Sign out
