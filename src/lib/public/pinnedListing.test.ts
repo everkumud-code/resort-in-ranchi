@@ -1,12 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { pinListing, PINNED_POSITIONS } from "./pinnedListing";
+import { pinListing, PINNED_POSITIONS, type Sponsor } from "./pinnedListing";
 
 const item = (id: string) => ({ id });
 const many = (n: number, prefix = "p") => Array.from({ length: n }, (_, i) => item(`${prefix}${i + 1}`));
 const ids = (entries: { property: { id: string } }[]) => entries.map((e) => e.property.id);
+const sponsor = (id: string, positions: number[] = [...PINNED_POSITIONS]): Sponsor<{ id: string }> => ({
+  property: item(id),
+  positions,
+});
 
 describe("pinListing", () => {
-  const pinned = item("aangan");
+  const pinned = [sponsor("aangan")];
 
   it("puts the pinned listing at positions 2, 12 and 22 of a long list", () => {
     const [list] = pinListing([many(25)], pinned);
@@ -65,31 +69,59 @@ describe("pinListing", () => {
   });
 });
 
-describe("pinListing with several sponsors", () => {
-  const a = { id: "a" };
-  const b = { id: "b" };
-  const c = { id: "c" };
-  const organic = Array.from({ length: 25 }, (_, i) => ({ id: `p${i + 1}` }));
+describe("pinListing — per-listing tickable positions", () => {
+  const organic = many(25);
 
-  it("shares the slots between sponsors in order, wrapping around", () => {
-    const [list] = pinListing([organic], [a, b]);
+  it("only pins a sponsor at the positions it's ticked for", () => {
+    const [list] = pinListing([organic], [sponsor("a", [2, 22])]);
+    expect(list[1].pinned).toBe(true);
     expect(list[1].property.id).toBe("a");
-    expect(list[11].property.id).toBe("b");
+    expect(list[11].pinned).toBe(false);
+    expect(list[21].pinned).toBe(true);
     expect(list[21].property.id).toBe("a");
+    expect(list.filter((e) => e.pinned)).toHaveLength(2);
   });
 
-  it("gives three sponsors one slot each", () => {
-    const [list] = pinListing([organic], [a, b, c]);
+  it("leaves a slot organic when no sponsor has ticked it", () => {
+    const [list] = pinListing([organic], [sponsor("a", [2])]);
+    expect(list.filter((e) => e.pinned)).toHaveLength(1);
+    expect(list[11].pinned).toBe(false);
+    expect(list[21].pinned).toBe(false);
+  });
+
+  it("a sponsor with no ticked positions shows up organically instead of disappearing", () => {
+    const [list] = pinListing([[{ id: "a" }, ...organic]], [sponsor("a", [])]);
+    expect(list.filter((e) => e.pinned)).toHaveLength(0);
+    expect(list.some((e) => e.property.id === "a")).toBe(true);
+  });
+});
+
+describe("pinListing with several sponsors", () => {
+  it("gives each sponsor only its own ticked slot", () => {
+    const organic = many(25);
+    const [list] = pinListing([organic], [sponsor("a", [2]), sponsor("b", [12]), sponsor("c", [22])]);
     expect([list[1], list[11], list[21]].map((e) => e.property.id)).toEqual(["a", "b", "c"]);
   });
 
-  it("never lists a sponsor organically and ignores duplicates", () => {
-    const [list] = pinListing([[a, ...organic, b]], [a, a, b]);
+  it("the earlier sponsor in the list wins a slot both tick, the later one falls back to organic", () => {
+    const organic = [...many(1, "x"), { id: "b" }, ...many(23, "y")];
+    const [list] = pinListing([organic], [sponsor("a", [2]), sponsor("b", [2])]);
+    expect(list[1].property.id).toBe("a");
+    expect(list[1].pinned).toBe(true);
+    expect(list.some((e) => e.property.id === "b" && !e.pinned)).toBe(true);
+  });
+
+  it("never lists a sponsor organically at any position it won, and ignores duplicate entries for the same sponsor", () => {
+    const a = sponsor("a", [2, 22]);
+    const b = sponsor("b", [12]);
+    const organic = many(25);
+    const [list] = pinListing([[{ id: "a" }, ...organic, { id: "b" }]], [a, a, b]);
     expect(list.filter((e) => !e.pinned).some((e) => e.property.id === "a" || e.property.id === "b")).toBe(false);
     expect(new Set(list.map((e) => e.key)).size).toBe(list.length);
   });
 
   it("an empty sponsor list changes nothing", () => {
+    const organic = many(25);
     const [list] = pinListing([organic], []);
     expect(list.every((e) => !e.pinned)).toBe(true);
     expect(list).toHaveLength(25);

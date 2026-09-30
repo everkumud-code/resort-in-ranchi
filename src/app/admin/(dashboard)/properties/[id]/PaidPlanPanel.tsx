@@ -9,6 +9,7 @@ import {
   isPlacementActive,
   maxExtraCategories,
 } from "@/lib/validation/planEntitlements";
+import { PINNED_POSITIONS } from "@/lib/public/pinnedListing";
 
 const initial: PlanFormState = {};
 const inputClass =
@@ -24,6 +25,7 @@ interface PlacementValue {
   enabled: boolean;
   allCategories: boolean;
   categorySlugs: string[];
+  positions: number[];
   startsAt: Date | null;
   endsAt: Date | null;
 }
@@ -91,7 +93,7 @@ export default function PaidPlanPanel({
 
       <form action={plAction} className="mt-6 space-y-2 border-t border-slate-100 pt-4">
         <div className="flex items-center justify-between gap-2">
-          <p className="text-xs font-medium text-slate-600">Sponsored placement (positions 2, 12, 22 — labelled &quot;Sponsored&quot;)</p>
+          <p className="text-xs font-medium text-slate-600">Sponsored placement (labelled &quot;Sponsored&quot; wherever it lands)</p>
           {placement && (
             <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${active ? "bg-green-100 text-green-800" : "bg-slate-100 text-slate-600"}`}>
               {active ? "Active" : "Not active"}
@@ -122,6 +124,19 @@ export default function PaidPlanPanel({
                   <label key={c.id} className="flex items-center gap-2 text-sm text-slate-700">
                     <input type="checkbox" name="categorySlugs" value={c.slug} defaultChecked={placement?.categorySlugs.includes(c.slug) ?? false} />
                     {c.name}
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="text-xs text-slate-500">
+                Positions on the first page (2nd, 12th, 22nd slot) to guarantee — untick any to free it up without turning the whole placement off:
+              </p>
+              <div className="mt-1 flex gap-4">
+                {PINNED_POSITIONS.map((pos) => (
+                  <label key={pos} className="flex items-center gap-2 text-sm text-slate-700">
+                    <input type="checkbox" name="positions" value={pos} defaultChecked={placement?.positions.includes(pos) ?? true} />
+                    Position {pos}
                   </label>
                 ))}
               </div>

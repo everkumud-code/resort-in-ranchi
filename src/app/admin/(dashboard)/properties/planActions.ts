@@ -40,6 +40,7 @@ export async function saveSponsoredPlacement(propertyId: string, _prev: PlanForm
     enabled: formData.get("enabled") === "on",
     allCategories: formData.get("allCategories") === "on",
     categorySlugs: formData.getAll("categorySlugs").map(String),
+    positions: formData.getAll("positions").map(Number),
     startsAt: parseDate(formData.get("startsAt")),
     endsAt: parseDate(formData.get("endsAt")),
   });

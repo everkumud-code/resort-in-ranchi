@@ -1,20 +1,20 @@
 import { prisma } from "@/lib/prisma";
 import { publicPropertyCardSelect, publishedOnly, type PublicPropertyCard } from "./properties";
-import { getPinnedListing } from "./pinnedListingQuery";
 import { isPlacementActive, placementAppliesTo } from "@/lib/validation/planEntitlements";
+import type { Sponsor } from "./pinnedListing";
 
 /**
- * The sponsored listings for one browse list, in slot order.
- *
- * `contextSlugs` are the category slugs the list is about; null means a list
- * not tied to a category (a location page), where only sponsors that bought
- * every category apply. The always-pinned house listing (Aangan Resort) comes
- * first; paid placements follow, only while enabled, inside their paid period,
- * and only for a listing that is currently published.
+ * The sponsored listings for one browse list, each with the positions it's
+ * ticked for (a subset of PINNED_POSITIONS, set per-listing by an admin —
+ * see PaidPlanPanel). `contextSlugs` are the category slugs the list is
+ * about; null means a list not tied to a category (a location page), where
+ * only sponsors that bought every category apply. Only placements that are
+ * enabled, inside their paid period, and for a listing that is currently
+ * published are included. Higher plans are listed first, so a tied position
+ * (two sponsors ticking the same slot) is won by the higher-tier one.
  */
-export async function getSponsoredListings(contextSlugs: string[] | null): Promise<PublicPropertyCard[]> {
+export async function getSponsoredListings(contextSlugs: string[] | null): Promise<Sponsor<PublicPropertyCard>[]> {
   const now = new Date();
-  const house = await getPinnedListing();
 
   const placements = await prisma.sponsoredPlacement.findMany({
     where: { enabled: true, property: { status: "PUBLISHED" } },
@@ -23,6 +23,7 @@ export async function getSponsoredListings(contextSlugs: string[] | null): Promi
       enabled: true,
       allCategories: true,
       categorySlugs: true,
+      positions: true,
       startsAt: true,
       endsAt: true,
       // Higher plans first: Lead Partner, then Premium.
@@ -36,13 +37,16 @@ export async function getSponsoredListings(contextSlugs: string[] | null): Promi
     .filter((p) => isPlacementActive(p, now) && placementAppliesTo(p, contextSlugs))
     .sort((a, b) => rank(a.property.commercialTier) - rank(b.property.commercialTier));
 
-  const ids = applicable.map((p) => p.propertyId).filter((id) => id !== house?.id);
-  const cards =
-    ids.length > 0
-      ? await prisma.property.findMany({ where: publishedOnly({ id: { in: ids } }), select: publicPropertyCardSelect })
-      : [];
-  const byId = new Map(cards.map((c) => [c.id, c]));
-  const paid = ids.map((id) => byId.get(id)).filter((c): c is PublicPropertyCard => Boolean(c));
+  const ids = applicable.map((p) => p.propertyId);
+  if (ids.length === 0) return [];
 
-  return house ? [house, ...paid] : paid;
+  const cards = await prisma.property.findMany({ where: publishedOnly({ id: { in: ids } }), select: publicPropertyCardSelect });
+  const byId = new Map(cards.map((c) => [c.id, c]));
+
+  return applicable
+    .map((p) => {
+      const property = byId.get(p.propertyId);
+      return property ? { property, positions: p.positions } : null;
+    })
+    .filter((s): s is Sponsor<PublicPropertyCard> => s !== null);
 }

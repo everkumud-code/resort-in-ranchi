@@ -1,6 +1,7 @@
 import { prisma } from "./prisma";
 import { checkExtraCategories, checkPlacementScope } from "./validation/planEntitlements";
 import { isValidCommercialTier, type CommercialTierValue } from "./validation/commercial";
+import { PINNED_POSITIONS } from "./public/pinnedListing";
 
 export interface PlanWriteResult {
   ok: boolean;
@@ -39,6 +40,7 @@ export interface PlacementInput {
   enabled: boolean;
   allCategories: boolean;
   categorySlugs: string[];
+  positions: number[];
   startsAt: Date | null;
   endsAt: Date | null;
 }
@@ -63,7 +65,9 @@ export async function saveSponsoredPlacementForProperty(propertyId: string, inpu
   const check = checkPlacementScope(tier, input.allCategories, categorySlugs, listingSlugs);
   if (!check.ok) return { ok: false, error: check.error };
 
-  const data = { enabled: input.enabled, allCategories: input.allCategories, categorySlugs, startsAt: input.startsAt, endsAt: input.endsAt };
+  const positions = [...new Set(input.positions)].filter((p) => PINNED_POSITIONS.includes(p));
+
+  const data = { enabled: input.enabled, allCategories: input.allCategories, categorySlugs, positions, startsAt: input.startsAt, endsAt: input.endsAt };
   await prisma.sponsoredPlacement.upsert({ where: { propertyId }, create: { propertyId, ...data }, update: data });
   return { ok: true };
 }

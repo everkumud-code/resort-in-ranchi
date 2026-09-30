@@ -1,14 +1,20 @@
 /**
- * Pure logic for the pinned (sponsored) listing shown at fixed positions in
- * browse lists. Nothing here touches the database — see
- * pinnedListingQuery.ts for the lookup and PropertyCardGrid for rendering.
+ * Pure logic for sponsored listings pinned at fixed positions in browse
+ * lists. Nothing here touches the database — see sponsoredListings.ts for
+ * the lookup and PropertyCardGrid for rendering.
  */
 
-/** The listing pinned in every browse list — a real, published Property. */
+/** The site's own listing — used to build its ad-space creative (see adCreative.ts). Not specially pinned any more; it's a normal SponsoredPlacement row like any other paid listing. */
 export const PINNED_LISTING_SLUG = "aangan-resort-ranchi";
 
 /** 1-indexed positions on the first page of an unfiltered browse list. */
 export const PINNED_POSITIONS: readonly number[] = [2, 12, 22];
+
+/** A listing with a sponsored placement — `positions` is the subset of PINNED_POSITIONS it's ticked for. */
+export interface Sponsor<T> {
+  property: T;
+  positions: number[];
+}
 
 export interface PinnedEntry<T> {
   property: T;
@@ -19,45 +25,51 @@ export interface PinnedEntry<T> {
 }
 
 /**
- * Inserts `pinned` at each 1-indexed position in `positions` across the
- * concatenation of `sections`, then splits the result back into the same
- * number of sections. A position is only used when the list already holds
- * at least position-1 other items, so a placement never dangles past the
- * end. The pinned listing is removed from the organic items first, so it
- * only ever shows at its fixed positions. A placement takes the section of
- * the item just before it. With `pinned === null` every entry is organic.
+ * Inserts each sponsor at its own ticked positions across the concatenation
+ * of `sections`, then splits the result back into the same number of
+ * sections. When two sponsors tick the same position, the one earlier in
+ * `sponsors` wins it; anyone who doesn't win a position they ticked simply
+ * shows up organically instead of disappearing. A position is only used
+ * when the (worst-case, every-sponsor-removed) list is long enough for it,
+ * so a placement never dangles past the end.
  */
 export function pinListing<T extends { id: string }>(
   sections: T[][],
-  pinned: T | T[] | null,
-  positions: readonly number[] = PINNED_POSITIONS
+  sponsors: Sponsor<T>[] | null
 ): PinnedEntry<T>[][] {
-  // One or several sponsors: slots are filled in order, wrapping around, so a
-  // single sponsor takes every slot and several sponsors share them.
   const seen = new Set<string>();
-  const sponsors = (Array.isArray(pinned) ? pinned : pinned ? [pinned] : []).filter((s) => !seen.has(s.id) && seen.add(s.id));
-  const sponsorIds = new Set(sponsors.map((s) => s.id));
+  const list = (sponsors ?? []).filter((s) => !seen.has(s.property.id) && seen.add(s.property.id));
+  const allSponsorIds = new Set(list.map((s) => s.property.id));
 
+  // Worst-case count (every sponsor removed) decides which positions are structurally reachable.
+  let worstCaseCount = 0;
+  for (const items of sections) for (const property of items) if (!allSponsorIds.has(property.id)) worstCaseCount++;
+
+  const takenPositions = new Set<number>();
+  const placements: { position: number; sponsor: Sponsor<T> }[] = [];
+  for (const position of [...PINNED_POSITIONS].sort((a, b) => a - b)) {
+    if (position < 1 || worstCaseCount < position - 1) continue;
+    const sponsor = list.find((s) => s.positions.includes(position) && !takenPositions.has(position));
+    if (!sponsor) continue;
+    takenPositions.add(position);
+    placements.push({ position, sponsor });
+  }
+
+  const winningIds = new Set(placements.map((p) => p.sponsor.property.id));
   const flat: { section: number; entry: PinnedEntry<T> }[] = [];
   sections.forEach((items, section) => {
     for (const property of items) {
-      if (sponsorIds.has(property.id)) continue;
+      if (winningIds.has(property.id)) continue;
       flat.push({ section, entry: { property, pinned: false, key: property.id } });
     }
   });
 
-  if (sponsors.length > 0) {
-    [...positions]
-      .sort((a, b) => a - b)
-      .forEach((position, slot) => {
-        if (position < 1 || flat.length < position - 1) return;
-        const sponsor = sponsors[slot % sponsors.length];
-        const section = flat[Math.max(0, position - 2)]?.section ?? 0;
-        flat.splice(position - 1, 0, {
-          section,
-          entry: { property: sponsor, pinned: true, key: `${sponsor.id}-pinned-${position}` },
-        });
-      });
+  for (const { position, sponsor } of placements) {
+    const section = flat[Math.max(0, position - 2)]?.section ?? 0;
+    flat.splice(position - 1, 0, {
+      section,
+      entry: { property: sponsor.property, pinned: true, key: `${sponsor.property.id}-pinned-${position}` },
+    });
   }
 
   const result: PinnedEntry<T>[][] = sections.map(() => []);

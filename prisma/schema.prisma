@@ -264,6 +264,7 @@ model Property {
   sponsoredPlacement SponsoredPlacement?
   /// Events hosted at/associated with this listing (optional — an Event never requires one).
   events             Event[]
+  badges             PropertyBadge[]
 
   @@index([categoryId])
   @@index([localityId])
@@ -440,9 +441,11 @@ model PropertyCategory {
 }
 
 /// A paid, admin-set sponsored placement: the listing is shown, labelled
-/// "Sponsored", at fixed positions (2, 12, 22) on the first page of browse
-/// lists — in the categories listed here, or in every category. Payment is
-/// taken offline; endsAt is when the paid period stops.
+/// "Sponsored", at whichever of the fixed positions (2, 12, 22) on the first
+/// page of browse lists are ticked in `positions` — in the categories listed
+/// here, or in every category. An admin can tick/untick individual positions
+/// (e.g. keep 2 and 22 but drop 12) without disabling the placement entirely.
+/// Payment is taken offline; endsAt is when the paid period stops.
 model SponsoredPlacement {
   id            String    @id @default(cuid())
   propertyId    String    @unique
@@ -450,6 +453,7 @@ model SponsoredPlacement {
   enabled       Boolean   @default(true)
   allCategories Boolean   @default(false)
   categorySlugs String[]  @default([])
+  positions     Int[]     @default([2, 12, 22])
   startsAt      DateTime?
   endsAt        DateTime?
   createdAt     DateTime  @default(now())
@@ -572,9 +576,66 @@ model Event {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  badges    EventBadge[]
 
   @@index([status, startAt])
   @@index([localityId])
+}
+
+// ---------------------------------------------------------------------------
+// Trust badges
+// ---------------------------------------------------------------------------
+
+/// An admin-managed badge (e.g. "RIR Verified", "Trusted") that can be
+/// attached to a Property, an Influencer and/or an Event. Never assigned by
+/// self-service (no vendor/owner/creator action anywhere writes to the
+/// PropertyBadge/InfluencerBadge/EventBadge join tables) — always an
+/// explicit, admin-only decision, and `description` records exactly what the
+/// badge claims so it is never a vague, unfalsifiable label.
+model TrustBadge {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  label       String
+  description String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  properties  PropertyBadge[]
+  influencers InfluencerBadge[]
+  events      EventBadge[]
+}
+
+model PropertyBadge {
+  propertyId String
+  property   Property   @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  badgeId    String
+  badge      TrustBadge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  createdAt  DateTime   @default(now())
+
+  @@id([propertyId, badgeId])
+  @@index([badgeId])
+}
+
+model InfluencerBadge {
+  influencerId String
+  influencer   Influencer @relation(fields: [influencerId], references: [id], onDelete: Cascade)
+  badgeId      String
+  badge        TrustBadge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+
+  @@id([influencerId, badgeId])
+  @@index([badgeId])
+}
+
+model EventBadge {
+  eventId   String
+  event     Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  badgeId   String
+  badge     TrustBadge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  createdAt DateTime   @default(now())
+
+  @@id([eventId, badgeId])
+  @@index([badgeId])
 }
 
 // ---------------------------------------------------------------------------
@@ -624,6 +685,7 @@ model Influencer {
   claimRequests InfluencerClaimRequest[]
   ownerAccess   InfluencerOwnerAccess?
   enquiries     InfluencerEnquiry[]
+  badges        InfluencerBadge[]
 }
 
 /// A visitor's claim that they are this creator, reviewed the same way a
