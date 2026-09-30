@@ -69,6 +69,25 @@ export async function exchangeOwnerAccessToken(initialToken: string): Promise<{ 
   });
 }
 
+/**
+ * Establishes a fresh owner browser session for an already-authorized
+ * access row — used after a successful email+password login (see
+ * loginOwnerWithPassword). Mirrors the session half of
+ * exchangeOwnerAccessToken, without consuming any one-time credential.
+ */
+export async function createOwnerSessionForAccess(ownerAccessId: string): Promise<string> {
+  const sessionToken = generateSessionToken();
+  const now = new Date();
+  await prisma.propertyOwnerSession.create({
+    data: {
+      ownerAccessId,
+      tokenHash: hashToken(sessionToken),
+      expiresAt: new Date(now.getTime() + OWNER_SESSION_DURATION_MS),
+    },
+  });
+  return sessionToken;
+}
+
 /** Resolves only the separate owner-session cookie, never a URL/form property ID. */
 export async function getOwnerAccessPropertyId(): Promise<string | null> {
   const store = await cookies();

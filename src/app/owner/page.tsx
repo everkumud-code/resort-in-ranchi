@@ -2,6 +2,8 @@ import Link from "next/link";
 import DashboardTile from "@/components/site/DashboardTile";
 import { getOwnerAccessPropertyId } from "@/lib/auth/ownerAccess";
 import { logoutOwner } from "./actions";
+import OwnerLoginForm from "./OwnerLoginForm";
+import SetOwnerPasswordForm from "./SetOwnerPasswordForm";
 import { prisma } from "@/lib/prisma";
 import TrustBadge from "@/components/site/TrustBadge";
 import { calculateListingQuality, type ListingQualityFieldId } from "@/lib/validation/listingQuality";
@@ -288,18 +290,26 @@ function AccessInstructions({ errorMessage }: { errorMessage?: string }) {
   return (
     <div className="mx-auto max-w-xl px-4 py-16">
       <h1 className="text-center font-serif text-2xl font-semibold text-brand-dark">Vendor login</h1>
-      {errorMessage ? (
+      {errorMessage && (
         <p className="mt-3 rounded-md bg-amber-50 px-3 py-2 text-center text-sm text-amber-800" role="alert">
           {errorMessage}
-        </p>
-      ) : (
-        <p className="mt-3 text-center text-sm text-brand/70">
-          Use the one-time access link sent to you after your listing claim was approved. If your link has
-          expired, ask us to approve a fresh claim to get a new one.
         </p>
       )}
 
       <div className="mt-8 rounded-lg border border-brand/10 bg-white p-5 shadow-sm">
+        <p className="font-medium text-brand-dark">Already set up a password?</p>
+        <p className="mt-1 text-xs text-brand/60">Sign in directly — no need to wait for a fresh link.</p>
+        <div className="mt-3">
+          <OwnerLoginForm />
+        </div>
+      </div>
+
+      <p className="mt-6 text-center text-sm text-brand/70">
+        First time here? Use the one-time access link sent to you after your listing claim was approved. If your
+        link has expired, ask us to approve a fresh claim to get a new one.
+      </p>
+
+      <div className="mt-6 rounded-lg border border-brand/10 bg-white p-5 shadow-sm">
         <p className="font-medium text-brand-dark">How vendor access works</p>
         <ol className="mt-3 space-y-3 text-sm leading-6 text-brand-dark/75">
           <li>
@@ -349,7 +359,7 @@ export default async function OwnerHomePage({ searchParams }: { searchParams: Pr
   // Re-derived from the authenticated session's propertyId only — never from
   // a URL param or client input, so a signed-in owner can only ever see
   // their own property here.
-  const [property, totalEnquiries, newEnquiries, convertedEnquiries, viewCount, leadPartner] = await Promise.all([
+  const [property, ownerAccess, totalEnquiries, newEnquiries, convertedEnquiries, viewCount, leadPartner] = await Promise.all([
     prisma.property.findUnique({
       where: { id: propertyId },
       select: {
@@ -377,6 +387,7 @@ export default async function OwnerHomePage({ searchParams }: { searchParams: Pr
         _count: { select: { facilities: true, venueSpaces: true, images: { where: { kind: "PHOTO" } } } },
       },
     }),
+    prisma.propertyOwnerAccess.findUnique({ where: { propertyId }, select: { email: true } }),
     prisma.enquiry.count({ where: { propertyId } }),
     prisma.enquiry.count({ where: { propertyId, status: "NEW" } }),
     prisma.enquiry.count({ where: { propertyId, status: "CONVERTED" } }),
@@ -458,6 +469,16 @@ export default async function OwnerHomePage({ searchParams }: { searchParams: Pr
       )}
 
       <ListingQualitySection propertyId={property.id} quality={quality} />
+
+      <div className="mt-6 rounded-lg border border-brand/10 bg-white p-4 shadow-sm">
+        <p className="font-medium text-brand-dark">Quick login</p>
+        <p className="mt-1 text-xs text-brand/60">
+          {ownerAccess?.email
+            ? `Set up — sign in anytime with ${ownerAccess.email} and your password, no link needed.`
+            : "Set up an email and password so you can sign in directly next time, without waiting for a new link."}
+        </p>
+        <SetOwnerPasswordForm currentEmail={ownerAccess?.email ?? null} />
+      </div>
 
       <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <DashboardTile

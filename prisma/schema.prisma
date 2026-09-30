@@ -403,6 +403,14 @@ model PropertyOwnerAccess {
   createdAt      DateTime     @default(now())
   consumedAt     DateTime?
   revokedAt      DateTime?
+  /// Optional direct-login credential the owner sets themselves from their
+  /// dashboard (see setOwnerPassword) — never set by an admin or by us on
+  /// their behalf. Lets a returning owner log in with email+password
+  /// instead of needing a fresh one-time link every time their session
+  /// expires. Subject to the exact same evaluateOwnerAccess checks
+  /// (revoked/expired) as the one-time link.
+  email          String?      @unique
+  passwordHash   String?
   sessions       PropertyOwnerSession[]
 
 }
