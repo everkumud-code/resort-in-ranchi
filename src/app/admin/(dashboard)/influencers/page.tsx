@@ -14,7 +14,7 @@ export default async function AdminInfluencersPage() {
   const admin = await requireAdmin();
   const mayManageOwnerAccess = canManageOwnerAccess(admin.role);
 
-  const [influencers, criteria, pendingClaims, reviewedClaims] = await Promise.all([
+  const [influencers, criteria, pendingClaims, reviewedClaims, pendingSubmissionCount] = await Promise.all([
     prisma.influencer.findMany({
       orderBy: [{ featured: "desc" }, { order: "asc" }, { name: "asc" }],
       include: { ratings: { select: { score: true, criterionId: true } } },
@@ -35,6 +35,7 @@ export default async function AdminInfluencersPage() {
       orderBy: { reviewedAt: "desc" },
       take: 15,
     }),
+    prisma.influencerSubmission.count({ where: { status: "PENDING" } }),
   ]);
 
   return (
@@ -47,6 +48,12 @@ export default async function AdminInfluencersPage() {
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-3">
+          <Link href="/admin/influencers/submissions" className="text-sm font-medium text-slate-600 hover:underline">
+            Join submissions
+            {pendingSubmissionCount > 0 && (
+              <span className="ml-1 rounded-full bg-amber-500 px-1.5 py-0.5 text-xs font-semibold text-white">{pendingSubmissionCount}</span>
+            )}
+          </Link>
           <Link href="/admin/influencers/enquiries" className="text-sm font-medium text-slate-600 hover:underline">
             Creator messages
           </Link>

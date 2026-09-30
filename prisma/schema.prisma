@@ -532,6 +532,7 @@ model AdminUser {
   submissionsReviewed PropertySubmission[]
   eventsReviewed      Event[]
   influencerClaimsReviewed InfluencerClaimRequest[]
+  influencerSubmissionsReviewed InfluencerSubmission[]
 }
 
 // ---------------------------------------------------------------------------
@@ -694,6 +695,10 @@ model Influencer {
   ownerAccess   InfluencerOwnerAccess?
   enquiries     InfluencerEnquiry[]
   badges        InfluencerBadge[]
+  // Set only when this profile was created by approving an
+  // InfluencerSubmission — traces it back to the self-submission, never
+  // used for anything else.
+  fromSubmission InfluencerSubmission?
 }
 
 /// A visitor's claim that they are this creator, reviewed the same way a
@@ -909,6 +914,55 @@ model PropertySubmission {
   @@index([status])
   @@index([categoryId])
   @@index([localityId])
+}
+
+enum InfluencerSubmissionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+/// Public "Join as a Creator" self-submission — mirrors PropertySubmission
+/// exactly, for someone who wants to be listed as an influencer/creator but
+/// has no existing profile to claim. Only ever creates a PENDING row here;
+/// an admin must explicitly approve it (see admin/influencers/submissions)
+/// before a real Influencer is created, alongside an already-approved
+/// InfluencerClaimRequest and a one-time InfluencerOwnerAccess — the exact
+/// same outcome an approved claim on an admin-created profile would give.
+model InfluencerSubmission {
+  id           String  @id @default(cuid())
+  name         String
+  category     String?
+  bio          String?
+  instagramUrl String?
+  youtubeUrl   String?
+  websiteUrl   String?
+  photoUrl     String?
+
+  // The person submitting — same shape as InfluencerClaimRequest's
+  // claimantName/email/phone, named distinctly here only because this
+  // submission has no existing profile yet.
+  contactName  String
+  contactEmail String
+  contactPhone String
+
+  status InfluencerSubmissionStatus @default(PENDING)
+
+  // Set when an obvious duplicate (same name) was detected at submission
+  // time — surfaced to the admin, never used to silently reject or merge.
+  duplicateOfInfluencerId String?
+
+  createdAt     DateTime   @default(now())
+  reviewedAt    DateTime?
+  reviewedById  String?
+  reviewedBy    AdminUser? @relation(fields: [reviewedById], references: [id], onDelete: SetNull)
+  rejectionNote String?
+
+  // Set only on approval — the real Influencer this submission became.
+  approvedInfluencerId String?     @unique
+  approvedInfluencer   Influencer? @relation(fields: [approvedInfluencerId], references: [id])
+
+  @@index([status])
 }
 
 // ---------------------------------------------------------------------------

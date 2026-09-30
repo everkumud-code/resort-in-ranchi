@@ -25,6 +25,7 @@ const FOOTER_ABOUT_LINKS = [
   { href: "/influencers", label: "Influencers" },
   { href: "/blog", label: "Blog" },
   { href: "/list-your-business", label: "Add Your Business" },
+  { href: "/join-as-influencer", label: "Join as a Creator" },
   { href: "/contact", label: "Contact" },
   { href: "/privacy", label: "Privacy Policy" },
   { href: "/owner", label: "Vendor Login" },

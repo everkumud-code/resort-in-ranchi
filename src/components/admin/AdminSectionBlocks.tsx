@@ -23,11 +23,13 @@ export default function AdminSectionBlocks({
   pendingSubmissions,
   newEnquiries,
   pendingEvents,
+  pendingInfluencerSubmissions,
 }: {
   pendingClaims: number;
   pendingSubmissions: number;
   newEnquiries: number;
   pendingEvents: number;
+  pendingInfluencerSubmissions: number;
 }) {
   const blocks: SectionBlock[] = [
     {
@@ -174,6 +176,7 @@ export default function AdminSectionBlocks({
       href: "/admin/influencers",
       label: "Influencers",
       gradient: "from-fuchsia-500 to-pink-600",
+      pendingCount: pendingInfluencerSubmissions,
       icon: (
         <svg {...iconProps}>
           <path d="M3 11v3a1 1 0 0 0 1 1h2l4 4V6l-4 4H4a1 1 0 0 0-1 1Z" />

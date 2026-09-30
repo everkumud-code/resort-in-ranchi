@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { listPublishedInfluencers } from "@/lib/influencerQueries";
 import { buildPageMetadata } from "@/lib/public/seo";
 import Breadcrumbs from "@/components/site/Breadcrumbs";
@@ -26,6 +27,11 @@ export default async function InfluencersPage() {
       <Breadcrumbs items={[{ name: "Influencers", path: "/influencers" }]} />
       <h1 className="mt-3 font-serif text-3xl font-semibold text-brand-dark">Ranchi Creators &amp; Influencers</h1>
       <p className="mt-2 max-w-2xl text-sm text-brand-dark/70">Local voices covering stays, food, weddings and events around Ranchi.</p>
+      <p className="mt-2 text-sm font-medium">
+        <Link href="/join-as-influencer" className="text-brand-teal hover:underline">
+          Not listed yet? Join as a Creator →
+        </Link>
+      </p>
 
       {influencers.length === 0 ? (
         <div className="mt-8">

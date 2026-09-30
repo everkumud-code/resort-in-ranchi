@@ -112,6 +112,7 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
     leadPartnerCount,
     totalPartnerLeadCount,
     pendingEventsCount,
+    pendingInfluencerSubmissionsCount,
   ] = await Promise.all([
     prisma.property.count(),
     prisma.property.groupBy({ by: ["verificationStatus"], _count: { _all: true } }),
@@ -144,6 +145,7 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
     prisma.leadPartner.count(),
     prisma.partnerLead.count(),
     prisma.event.count({ where: { status: "PENDING" } }).catch(() => 0),
+    prisma.influencerSubmission.count({ where: { status: "PENDING" } }).catch(() => 0),
   ]);
 
   const countsByStatus = Object.fromEntries(verificationCounts.map((g) => [g.verificationStatus, g._count._all]));
@@ -203,6 +205,7 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
         pendingSubmissions={pendingSubmissionsCount}
         newEnquiries={newEnquiriesCount}
         pendingEvents={pendingEventsCount}
+        pendingInfluencerSubmissions={pendingInfluencerSubmissionsCount}
       />
 
       <div className="flex flex-wrap gap-2">
