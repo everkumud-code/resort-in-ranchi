@@ -7,6 +7,7 @@ import { buildPageMetadata } from "@/lib/public/seo";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/public/structuredData";
 import { SITE_DESCRIPTION, SITE_POSITIONING } from "@/lib/public/site";
 import { CLAIM_VALUE_PROP_COPY } from "@/lib/validation/claim";
+import { CONTACT_EMAIL, CONTACT_PHONE, CONTACT_PHONE_DISPLAY } from "@/lib/public/contact";
 import CategoryCard from "@/components/site/CategoryCard";
 import LocationCard from "@/components/site/LocationCard";
 import PropertyCard from "@/components/site/PropertyCard";
@@ -156,8 +157,12 @@ export default async function HomePage() {
             <p className="mt-4 text-sm leading-6 text-brand-dark/70">ResortInRanchi is an independent Ranchi hospitality and venue discovery directory covering places to stay, eat, celebrate and explore across Ranchi and nearby areas. Business owners can claim an existing profile or submit a new business for review.</p>
             <p className="mt-3 text-sm leading-6 text-brand-dark/70">
               Have a question? Email us at{" "}
-              <a href="mailto:resortinranchi@gmail.com" className="font-medium text-brand-teal hover:underline">
-                resortinranchi@gmail.com
+              <a href={`mailto:${CONTACT_EMAIL}`} className="font-medium text-brand-teal hover:underline">
+                {CONTACT_EMAIL}
+              </a>{" "}
+              or call{" "}
+              <a href={`tel:+91${CONTACT_PHONE}`} className="font-medium text-brand-teal hover:underline">
+                {CONTACT_PHONE_DISPLAY}
               </a>
               .
             </p>

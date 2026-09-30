@@ -1,6 +1,7 @@
 import Link from "next/link";
 import BrandLogo from "./BrandLogo";
 import { SITE_POSITIONING, SITE_TAGLINE } from "@/lib/public/site";
+import { CONTACT_EMAIL, CONTACT_PHONE, CONTACT_PHONE_DISPLAY } from "@/lib/public/contact";
 
 const FOOTER_CATEGORY_LINKS = [
   { href: "/resorts", label: "Resorts" },
@@ -44,6 +45,14 @@ export default function Footer() {
             </Link>
             <p className="mt-3 text-sm text-brand-cream/80">{SITE_POSITIONING}</p>
             <p className="mt-2 font-serif text-sm italic text-brand-gold">{SITE_TAGLINE}</p>
+            <div className="mt-4 space-y-1 text-sm">
+              <a href={`mailto:${CONTACT_EMAIL}`} className="block text-brand-cream/80 hover:text-white hover:underline">
+                {CONTACT_EMAIL}
+              </a>
+              <a href={`tel:+91${CONTACT_PHONE}`} className="block text-brand-cream/80 hover:text-white hover:underline">
+                {CONTACT_PHONE_DISPLAY}
+              </a>
+            </div>
           </div>
           <div>
             <p className="text-sm font-semibold tracking-wide text-white uppercase">Browse categories</p>

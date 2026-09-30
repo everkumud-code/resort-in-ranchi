@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { buildPageMetadata } from "@/lib/public/seo";
 import { SITE_NAME } from "@/lib/public/site";
-import { CONTACT_EMAIL } from "@/lib/public/contact";
+import { CONTACT_EMAIL, CONTACT_PHONE, CONTACT_PHONE_DISPLAY } from "@/lib/public/contact";
 import Breadcrumbs from "@/components/site/Breadcrumbs";
 
 export function generateMetadata(): Metadata {
@@ -24,12 +24,20 @@ export default function ContactPage() {
           For questions about {SITE_NAME} itself — corrections to a listing, general feedback, or anything else
           about the directory — email us directly:
         </p>
-        <a
-          href={`mailto:${CONTACT_EMAIL}`}
-          className="inline-block rounded-md bg-brand-orange px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:brightness-95"
-        >
-          {CONTACT_EMAIL}
-        </a>
+        <div className="flex flex-wrap gap-3">
+          <a
+            href={`mailto:${CONTACT_EMAIL}`}
+            className="inline-block rounded-md bg-brand-orange px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:brightness-95"
+          >
+            {CONTACT_EMAIL}
+          </a>
+          <a
+            href={`tel:+91${CONTACT_PHONE}`}
+            className="inline-block rounded-md border border-brand-orange px-5 py-2.5 text-sm font-semibold text-brand-orange hover:bg-brand-orange/5"
+          >
+            {CONTACT_PHONE_DISPLAY}
+          </a>
+        </div>
 
         <div className="rounded-lg border border-brand/10 bg-white p-4">
           <p className="font-medium text-brand-dark">Looking to reach a specific business instead?</p>
