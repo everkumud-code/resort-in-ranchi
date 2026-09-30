@@ -123,6 +123,58 @@ body {
   }
 }
 
+/* Hero background — the layered hill/wave silhouettes drift gently up and
+ * down, like slow waves, and the sun glow breathes. Each layer has its own
+ * period/phase so the motion reads as organic depth, not one thing sliding.
+ * Disabled entirely for prefers-reduced-motion. */
+@keyframes hero-wave-bob-1 {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes hero-wave-bob-2 {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(8px); }
+}
+@keyframes hero-wave-bob-3 {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes hero-sun-glow {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.06); opacity: 1; }
+}
+
+.hero-wave-1 { animation: hero-wave-bob-1 9s ease-in-out infinite; transform-origin: center; }
+.hero-wave-2 { animation: hero-wave-bob-2 7s ease-in-out infinite 0.5s; transform-origin: center; }
+.hero-wave-3 { animation: hero-wave-bob-3 11s ease-in-out infinite 1s; transform-origin: center; }
+.hero-sun { animation: hero-sun-glow 5s ease-in-out infinite; transform-origin: center; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-wave-1, .hero-wave-2, .hero-wave-3, .hero-sun {
+    animation: none;
+  }
+}
+
+/* Intent tiles on the homepage hero — each icon hops and its ring tints to
+ * a distinct brand color on hover/focus, so the row feels lively rather
+ * than one repeated grey button. */
+@keyframes tile-icon-hop {
+  0%, 100% { transform: translateY(0) scale(1); }
+  40% { transform: translateY(-4px) scale(1.06); }
+}
+
+.intent-tile:hover .intent-tile-icon,
+.intent-tile:focus-visible .intent-tile-icon {
+  animation: tile-icon-hop 0.5s ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intent-tile:hover .intent-tile-icon,
+  .intent-tile:focus-visible .intent-tile-icon {
+    animation: none;
+  }
+}
+
 @media (max-width: 640px) {
   .mx-auto.max-w-4xl > .mt-6:has(> img.aspect-video) {
     grid-template-columns: repeat(2, minmax(0, 1fr));

@@ -47,7 +47,7 @@ export default function SearchBox({ locations }: { locations: SearchBoxLocation[
       </div>
       <button
         type="submit"
-        className="shrink-0 rounded-full bg-brand-orange px-6 py-3 text-sm font-semibold text-white shadow-sm hover:brightness-95 sm:m-0.5"
+        className="shrink-0 rounded-full bg-gradient-to-br from-brand-orange to-[#c8511a] px-6 py-3 text-sm font-semibold text-white shadow-md shadow-brand-orange/30 transition hover:shadow-lg hover:shadow-brand-orange/40 hover:brightness-105 sm:m-0.5"
       >
         Search
       </button>
