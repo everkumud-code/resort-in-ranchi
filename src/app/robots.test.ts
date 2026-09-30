@@ -13,6 +13,10 @@ describe("PHASE 4 — robots.ts disallows every private/utility surface", () => 
     expect(disallow).toContain("/owner");
   });
 
+  it("disallows /creator (creator/influencer dashboard — authentication-gated, same treatment as /owner)", () => {
+    expect(disallow).toContain("/creator");
+  });
+
   it("disallows /search (a filter surface, not unique indexable content)", () => {
     expect(disallow).toContain("/search");
   });
