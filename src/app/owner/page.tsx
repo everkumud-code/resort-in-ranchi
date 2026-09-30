@@ -1,4 +1,5 @@
 import Link from "next/link";
+import DashboardTile from "@/components/site/DashboardTile";
 import { getOwnerAccessPropertyId } from "@/lib/auth/ownerAccess";
 import { logoutOwner } from "./actions";
 import { prisma } from "@/lib/prisma";
@@ -268,39 +269,15 @@ const ERROR_MESSAGES: Record<string, string> = {
   "invalid-token": "That link has already been used, has expired, or is no longer valid. Ask us to approve a fresh claim to get a new one.",
 };
 
-function DashboardCard({
-  href,
-  title,
-  description,
-  badge,
-}: {
-  href: string;
-  title: string;
-  description: string;
-  badge?: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className="flex items-center justify-between gap-3 rounded-lg border border-brand/10 bg-white p-4 shadow-sm transition hover:border-brand-teal/40 hover:shadow"
-    >
-      <div>
-        <p className="font-medium text-brand-dark">{title}</p>
-        <p className="mt-0.5 text-xs text-brand/60">{description}</p>
-      </div>
-      <div className="flex shrink-0 items-center gap-2">
-        {badge && (
-          <span className="rounded-full bg-brand-orange/15 px-2 py-0.5 text-xs font-semibold text-brand-orange">
-            {badge}
-          </span>
-        )}
-        <span aria-hidden="true" className="text-brand/40">
-          &rarr;
-        </span>
-      </div>
-    </Link>
-  );
-}
+const tileIconProps = {
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 1.7,
+  strokeLinecap: "round" as const,
+  strokeLinejoin: "round" as const,
+  className: "h-5 w-5",
+};
 
 /**
  * Unauthenticated view — unchanged from the prior display fix: /owner/access
@@ -482,39 +459,74 @@ export default async function OwnerHomePage({ searchParams }: { searchParams: Pr
 
       <ListingQualitySection propertyId={property.id} quality={quality} />
 
-      <div className="mt-6 space-y-3">
-        <DashboardCard
+      <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <DashboardTile
           href={`/owner/listing/${property.id}`}
           title="Edit listing"
-          description="Update your description, contact details, pricing, and capacity."
+          description="Description, contact, pricing, capacity."
+          gradient="from-blue-500 to-indigo-600"
+          icon={
+            <svg {...tileIconProps}>
+              <path d="M12 20h9" />
+              <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+            </svg>
+          }
         />
-        <DashboardCard
+        <DashboardTile
           href={`/owner/listing/${property.id}#photos`}
           title="Manage photos"
           description="Add or remove photos and your logo."
+          gradient="from-fuchsia-500 to-purple-600"
+          icon={
+            <svg {...tileIconProps}>
+              <rect x="3" y="5" width="18" height="14" rx="2" />
+              <circle cx="9" cy="10" r="2" />
+              <path d="M21 16l-5-5-4 4-3-3-6 6" />
+            </svg>
+          }
         />
-        <DashboardCard
+        <DashboardTile
           href="/owner/enquiries"
           title="View enquiries"
           description={totalEnquiries > 0 ? `${totalEnquiries} received so far.` : "No enquiries yet."}
           badge={newEnquiries > 0 ? `${newEnquiries} new` : undefined}
+          gradient="from-rose-500 to-red-600"
+          icon={
+            <svg {...tileIconProps}>
+              <rect x="3" y="5" width="18" height="14" rx="2" />
+              <path d="M3 7l9 6 9-6" />
+            </svg>
+          }
         />
         {leadPartner && (
-          <DashboardCard
+          <DashboardTile
             href="/owner/referred"
             title="Referred opportunities"
             description={
-              leadPartner.enabled
-                ? "Enquiries shared with you as a partner venue for relevant categories."
-                : "Partner sharing is currently paused by our team."
+              leadPartner.enabled ? "Shared with you as a partner venue." : "Partner sharing is currently paused."
             }
             badge={leadPartner._count.leads > 0 ? `${leadPartner._count.leads}` : undefined}
+            gradient="from-cyan-500 to-sky-600"
+            icon={
+              <svg {...tileIconProps}>
+                <path d="M8 12h8" />
+                <path d="M8 12a4 4 0 1 1 0-8h1" />
+                <path d="M16 12a4 4 0 1 0 0 8h-1" />
+              </svg>
+            }
           />
         )}
-        <DashboardCard
+        <DashboardTile
           href={`/property/${property.slug}`}
           title="View public listing"
           description="See your listing exactly as visitors see it."
+          gradient="from-emerald-500 to-teal-600"
+          icon={
+            <svg {...tileIconProps}>
+              <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          }
         />
       </div>
 

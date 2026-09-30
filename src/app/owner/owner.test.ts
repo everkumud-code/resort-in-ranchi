@@ -248,7 +248,11 @@ describe("owner listing editor — section anchors match the dashboard's Listing
     const listingPageSrc = read("src/app/owner/listing/[id]/page.tsx");
     const detailsFormSrc = read("src/app/owner/listing/[id]/OwnerDetailsForm.tsx");
 
-    const anchorTargets = [...dashboardSrc.matchAll(/^\s*\w+:\s*"([a-z-]+)",?$/gm)].map((m) => m[1]);
+    // Scoped to the QUALITY_ITEM_ANCHOR object specifically — a whole-file
+    // scan would false-positive on any unrelated `key: "lowercase-value"`
+    // line (e.g. an icon prop like `fill: "none"`).
+    const anchorMapSrc = dashboardSrc.match(/const QUALITY_ITEM_ANCHOR[^{]*\{([\s\S]*?)\n\};/)?.[1] ?? "";
+    const anchorTargets = [...anchorMapSrc.matchAll(/^\s*\w+:\s*"([a-z-]+)",?$/gm)].map((m) => m[1]);
     expect(anchorTargets.length).toBeGreaterThan(0);
 
     for (const anchor of anchorTargets) {

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import DashboardTile from "@/components/site/DashboardTile";
 import { getCreatorAccessInfluencerId } from "@/lib/auth/creatorAccess";
 import { prisma } from "@/lib/prisma";
 import { averageInfluencerRating } from "@/lib/influencers";
@@ -110,41 +111,45 @@ export default async function CreatorDashboardPage({ searchParams }: { searchPar
         <ShareButtons url={profileUrl} title={influencer.name} />
       </div>
 
-      <div className="mt-6 space-y-3">
-        <Link
+      <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <DashboardTile
           href="/creator/edit"
-          className="flex items-center justify-between gap-3 rounded-lg border border-brand/10 bg-white p-4 shadow-sm transition hover:border-brand-teal/40 hover:shadow"
-        >
-          <div>
-            <p className="font-medium text-brand-dark">Edit profile</p>
-            <p className="mt-0.5 text-xs text-brand/60">Photo, video, bio, category, social links and contact details.</p>
-          </div>
-          <span aria-hidden="true" className="text-brand/40">&rarr;</span>
-        </Link>
-        <Link
+          title="Edit profile"
+          description="Photo, video, bio, category, social links."
+          gradient="from-blue-500 to-indigo-600"
+          icon={
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+              <path d="M12 20h9" />
+              <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+            </svg>
+          }
+        />
+        <DashboardTile
           href="/creator/enquiries"
-          className="flex items-center justify-between gap-3 rounded-lg border border-brand/10 bg-white p-4 shadow-sm transition hover:border-brand-teal/40 hover:shadow"
-        >
-          <div>
-            <p className="font-medium text-brand-dark">Messages</p>
-            <p className="mt-0.5 text-xs text-brand/60">{totalEnquiries > 0 ? `${totalEnquiries} received so far.` : "No messages yet."}</p>
-          </div>
-          <div className="flex shrink-0 items-center gap-2">
-            {newEnquiries > 0 && <span className="rounded-full bg-brand-orange/15 px-2 py-0.5 text-xs font-semibold text-brand-orange">{newEnquiries} new</span>}
-            <span aria-hidden="true" className="text-brand/40">&rarr;</span>
-          </div>
-        </Link>
+          title="Messages"
+          description={totalEnquiries > 0 ? `${totalEnquiries} received so far.` : "No messages yet."}
+          badge={newEnquiries > 0 ? `${newEnquiries} new` : undefined}
+          gradient="from-rose-500 to-red-600"
+          icon={
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+              <rect x="3" y="5" width="18" height="14" rx="2" />
+              <path d="M3 7l9 6 9-6" />
+            </svg>
+          }
+        />
         {influencer.status === "PUBLISHED" && (
-          <Link
+          <DashboardTile
             href={`/influencers/${influencer.slug}`}
-            className="flex items-center justify-between gap-3 rounded-lg border border-brand/10 bg-white p-4 shadow-sm transition hover:border-brand-teal/40 hover:shadow"
-          >
-            <div>
-              <p className="font-medium text-brand-dark">View public profile</p>
-              <p className="mt-0.5 text-xs text-brand/60">See it exactly as visitors see it.</p>
-            </div>
-            <span aria-hidden="true" className="text-brand/40">&rarr;</span>
-          </Link>
+            title="View public profile"
+            description="See it exactly as visitors see it."
+            gradient="from-emerald-500 to-teal-600"
+            icon={
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            }
+          />
         )}
       </div>
 
