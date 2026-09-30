@@ -4,6 +4,7 @@ import LocalInfoSection from "@/components/site/LocalInfoSection";
 import GoogleAdSlot from "@/components/site/GoogleAdSlot";
 import { CompareProvider } from "@/components/site/CompareProvider";
 import CompareTray from "@/components/site/CompareTray";
+import JoharSplash from "@/components/site/JoharSplash";
 
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
   const topAdSlot = process.env.NEXT_PUBLIC_ADSENSE_TOP_SLOT;
@@ -11,6 +12,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <CompareProvider>
+      <JoharSplash storageKey="johar-splash-site" subtitle="Ranchi's Hospitality, Dining & Events Discovery Platform" />
       {/* Visually hidden until focused — lets keyboard/screen-reader visitors jump past the header nav instead of tabbing through it on every page. */}
       <a
         href="#main-content"

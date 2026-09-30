@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/lib/auth/session";
 import { logout } from "@/lib/auth/actions";
 import AdminHeaderNav from "@/components/admin/AdminHeaderNav";
+import JoharSplash from "@/components/site/JoharSplash";
 
 /**
  * No flat text-link nav here on purpose — every section is a colorful block
@@ -13,6 +14,7 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
 
   return (
     <div className="min-h-screen bg-slate-50">
+      <JoharSplash storageKey="johar-splash-admin" subtitle="Admin control centre" buttonLabel="Enter dashboard" />
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-4">
