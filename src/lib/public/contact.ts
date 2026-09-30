@@ -3,5 +3,5 @@ export const CONTACT_EMAIL = "resortinranchi@gmail.com";
 /** Digits only, for tel: links. */
 export const CONTACT_PHONE = "8699739973";
 /** Human-readable, for display — same number as CONTACT_PHONE. */
-export const CONTACT_PHONE_DISPLAY = "+91 86997 39973";
+export const CONTACT_PHONE_DISPLAY = "86 9973 9973";
 export const SITE_OPERATOR_NAME = "ResortInRanchi";
