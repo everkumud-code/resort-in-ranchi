@@ -66,6 +66,24 @@ export async function exchangeCreatorAccessToken(initialToken: string): Promise<
   });
 }
 
+/**
+ * Establishes a fresh creator browser session for an already-authorized access
+ * row — used after a successful email+password login (see
+ * loginCreatorWithPassword). Mirrors createOwnerSessionForAccess.
+ */
+export async function createCreatorSessionForAccess(ownerAccessId: string): Promise<string> {
+  const sessionToken = generateSessionToken();
+  const now = new Date();
+  await prisma.influencerOwnerSession.create({
+    data: {
+      ownerAccessId,
+      tokenHash: hashToken(sessionToken),
+      expiresAt: new Date(now.getTime() + CREATOR_SESSION_DURATION_MS),
+    },
+  });
+  return sessionToken;
+}
+
 /** Resolves only the separate creator-session cookie, never a URL/form influencer ID. */
 export async function getCreatorAccessInfluencerId(): Promise<string | null> {
   const store = await cookies();

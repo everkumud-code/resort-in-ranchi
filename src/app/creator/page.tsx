@@ -4,6 +4,8 @@ import { getCreatorAccessInfluencerId } from "@/lib/auth/creatorAccess";
 import { prisma } from "@/lib/prisma";
 import { averageInfluencerRating } from "@/lib/influencers";
 import { logoutCreator } from "./actions";
+import CreatorLoginForm from "./CreatorLoginForm";
+import SetCreatorPasswordForm from "./SetCreatorPasswordForm";
 import ShareButtons from "@/components/site/ShareButtons";
 import { absoluteUrl } from "@/lib/public/site";
 
@@ -11,6 +13,7 @@ export const dynamic = "force-dynamic";
 
 interface PageSearchParams {
   error?: string;
+  reset?: string;
 }
 
 const ERROR_MESSAGES: Record<string, string> = {
@@ -18,7 +21,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   "invalid-token": "That link has already been used, has expired, or is no longer valid. Ask us to approve a fresh claim to get a new one.",
 };
 
-function AccessInstructions({ errorMessage }: { errorMessage?: string }) {
+function AccessInstructions({ errorMessage, notice }: { errorMessage?: string; notice?: string }) {
   return (
     <div className="mx-auto max-w-xl px-4 py-16">
       <h1 className="text-center font-serif text-2xl font-semibold text-brand-dark">Creator login</h1>
@@ -31,8 +34,21 @@ function AccessInstructions({ errorMessage }: { errorMessage?: string }) {
           Use the one-time access link sent to you after your creator profile claim was approved.
         </p>
       )}
+      {notice && (
+        <p className="mt-3 rounded-md bg-green-50 px-3 py-2 text-center text-sm text-green-700" role="status">
+          {notice}
+        </p>
+      )}
 
       <div className="mt-8 rounded-lg border border-brand/10 bg-white p-5 shadow-sm">
+        <p className="font-medium text-brand-dark">Already set up a password?</p>
+        <p className="mt-1 text-xs text-brand/60">Sign in directly — no need to wait for a fresh link.</p>
+        <div className="mt-3">
+          <CreatorLoginForm />
+        </div>
+      </div>
+
+      <div className="mt-6 rounded-lg border border-brand/10 bg-white p-5 shadow-sm">
         <p className="font-medium text-brand-dark">How creator access works</p>
         <ol className="mt-3 space-y-3 text-sm leading-6 text-brand-dark/75">
           <li>
@@ -67,15 +83,21 @@ function AccessInstructions({ errorMessage }: { errorMessage?: string }) {
 export default async function CreatorDashboardPage({ searchParams }: { searchParams: Promise<PageSearchParams> }) {
   const influencerId = await getCreatorAccessInfluencerId();
   if (!influencerId) {
-    const { error } = await searchParams;
-    return <AccessInstructions errorMessage={error ? ERROR_MESSAGES[error] : undefined} />;
+    const { error, reset } = await searchParams;
+    return (
+      <AccessInstructions
+        errorMessage={error ? ERROR_MESSAGES[error] : undefined}
+        notice={reset === "1" ? "Your password was changed. Sign in with the new one." : undefined}
+      />
+    );
   }
 
-  const [influencer, totalEnquiries, newEnquiries] = await Promise.all([
+  const [influencer, ownerAccess, totalEnquiries, newEnquiries] = await Promise.all([
     prisma.influencer.findUnique({
       where: { id: influencerId },
       include: { ratings: { select: { score: true, criterionId: true } } },
     }),
+    prisma.influencerOwnerAccess.findUnique({ where: { influencerId }, select: { email: true } }),
     prisma.influencerEnquiry.count({ where: { influencerId } }),
     prisma.influencerEnquiry.count({ where: { influencerId, status: "NEW" } }),
   ]);
@@ -109,6 +131,16 @@ export default async function CreatorDashboardPage({ searchParams }: { searchPar
         <p className="font-medium text-brand-dark">Your public profile</p>
         <p className="mt-1 break-all text-sm text-brand-teal">{profileUrl}</p>
         <ShareButtons url={profileUrl} title={influencer.name} />
+      </div>
+
+      <div className="mt-6 rounded-lg border border-brand/10 bg-white p-4 shadow-sm">
+        <p className="font-medium text-brand-dark">Quick login</p>
+        <p className="mt-1 text-xs text-brand/60">
+          {ownerAccess?.email
+            ? `Set up — sign in anytime with ${ownerAccess.email} and your password, no link needed.`
+            : "Set up an email and password so you can sign in directly next time, without waiting for a new link."}
+        </p>
+        <SetCreatorPasswordForm currentEmail={ownerAccess?.email ?? null} />
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
