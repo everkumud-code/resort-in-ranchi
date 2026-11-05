@@ -33,6 +33,7 @@ import EmptyState from "@/components/site/EmptyState";
 import Pagination from "@/components/site/Pagination";
 import FacilityTrustFilterPanel from "@/components/site/FacilityTrustFilterPanel";
 import JsonLd from "@/components/site/JsonLd";
+import PromoAd from "@/components/site/promo/PromoAd";
 import Link from "next/link";
 
 interface PageParams {
@@ -260,6 +261,8 @@ export default async function CategoryPage({
           )}
         </div>
       </div>
+
+      {items.length > 0 && <PromoAd spot="category" className="mt-10" />}
 
       {relevantLocations.length > 0 && (
         <div className="mt-10 border-t border-brand/10 pt-6">

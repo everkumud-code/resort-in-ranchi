@@ -196,6 +196,17 @@ export default function AdminSectionBlocks({
       ),
     },
     {
+      href: "/admin/promos",
+      label: "Promo Ads",
+      gradient: "from-teal-600 to-cyan-800",
+      icon: (
+        <svg {...iconProps}>
+          <path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1Z" />
+          <path d="M15.5 8.5a5 5 0 0 1 0 7M18 6a8.5 8.5 0 0 1 0 12" />
+        </svg>
+      ),
+    },
+    {
       href: "/admin/settings",
       label: "Settings",
       gradient: "from-zinc-600 to-neutral-800",

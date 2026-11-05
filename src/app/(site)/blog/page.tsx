@@ -5,6 +5,7 @@ import { buildPageMetadata } from "@/lib/public/seo";
 import Breadcrumbs from "@/components/site/Breadcrumbs";
 import BlogPostCard from "@/components/site/BlogPostCard";
 import EmptyState from "@/components/site/EmptyState";
+import PromoAd from "@/components/site/promo/PromoAd";
 
 export const revalidate = 300;
 
@@ -53,6 +54,7 @@ export default async function BlogIndexPage() {
           </div>
         )}
       </div>
+      {posts.length > 0 && <PromoAd spot="blog" className="mt-10" />}
     </div>
   );
 }

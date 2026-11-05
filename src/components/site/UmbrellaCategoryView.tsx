@@ -6,6 +6,7 @@ import { pinListing } from "@/lib/public/pinnedListing";
 import EmptyState from "./EmptyState";
 import Pagination from "./Pagination";
 import JsonLd from "./JsonLd";
+import PromoAd from "./promo/PromoAd";
 import { itemListJsonLd } from "@/lib/public/structuredData";
 import type { UmbrellaCategoryRoute } from "@/lib/public/categoryRoutes";
 import type { UmbrellaCategoryData } from "@/lib/public/umbrellaQueries";
@@ -51,6 +52,8 @@ export default async function UmbrellaCategoryView({
       <div className="mt-8">
         <Pagination basePath={`/${route.slug}`} page={data.page} totalPages={data.totalPages} />
       </div>
+
+      {data.items.length > 0 && <PromoAd spot="umbrella" className="mt-10" />}
     </div>
   );
 }

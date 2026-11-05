@@ -1135,3 +1135,35 @@ model CreatorPasswordResetToken {
 
   @@index([ownerAccessId, createdAt])
 }
+
+/// A sponsored card for one of Next Resource's own services or products,
+/// shown on a few public pages (see PromoPlacement). Every word is editable
+/// in Admin -> Promos. `key` is a stable slug (used in the tracking tag on the
+/// outgoing link); `accent` names one of a few built-in colour looks.
+model PromoAd {
+  id         String           @id @default(cuid())
+  key        String           @unique
+  brand      String
+  tag        String
+  headline   String
+  body       String
+  points     String[]
+  ctaLabel   String
+  href       String
+  accent     String           @default("teal")
+  active     Boolean          @default(true)
+  sortOrder  Int              @default(0)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  placements PromoPlacement[]
+}
+
+/// Which ad sits in which fixed spot of the site. One row per spot, so a spot
+/// can never hold two ads. Rows are never deleted (adId is just cleared), so
+/// "no rows at all" reliably means the starter set has not been saved yet.
+model PromoPlacement {
+  slot      String   @id
+  adId      String?
+  ad        PromoAd? @relation(fields: [adId], references: [id], onDelete: SetNull)
+  updatedAt DateTime @updatedAt
+}
