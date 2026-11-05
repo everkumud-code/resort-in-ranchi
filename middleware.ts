@@ -18,5 +18,6 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin", "/admin/((?!login).*)"],
+  // The sign-in, forgot-password and reset-password pages are public (a locked-out admin must reach them).
+  matcher: ["/admin", "/admin/((?!login|forgot-password|reset-password).*)"],
 };

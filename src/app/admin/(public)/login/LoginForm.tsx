@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { login, type LoginState } from "@/lib/auth/actions";
 
@@ -36,6 +37,11 @@ export default function LoginForm() {
           autoComplete="current-password"
           className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
         />
+        <p className="mt-1 text-right text-xs">
+          <Link href="/admin/forgot-password" className="text-slate-600 underline hover:text-slate-900">
+            Forgot password?
+          </Link>
+        </p>
       </div>
 
       {state.error && (

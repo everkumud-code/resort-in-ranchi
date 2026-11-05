@@ -86,6 +86,31 @@ npm run test         # vitest run (single pass)
 npm run test:watch   # vitest, watch mode
 ```
 
+## 7. Admin "Forgot password" (e-mail with a Gmail app password)
+
+The admin sign-in page has a **Forgot password?** link (`/admin/forgot-password`). The admin enters their e-mail
+and gets a one-time link (`/admin/reset-password?token=...`) that works once, expires after one hour, and signs the
+admin out everywhere when it is used. The page answers the same way whether or not the e-mail is an admin, and at most
+3 links are sent per admin per hour.
+
+The e-mail goes out through a Gmail account using an **app password** (not the normal Gmail password):
+
+1. In that Google account turn on **2-Step Verification**.
+2. Google Account > Security > **App passwords** > create one (16 letters; the spaces do not matter).
+3. Put these in `.env` (and in the production environment), see `.env.example`:
+
+```
+SMTP_USER=the.gmail.address@gmail.com
+SMTP_APP_PASSWORD=abcd efgh ijkl mnop
+SMTP_FROM_NAME=ResortInRanchi        # optional
+NEXT_PUBLIC_SITE_URL=https://www.your-domain.com   # the e-mailed link is built from this
+```
+
+Without `SMTP_USER` / `SMTP_APP_PASSWORD` no e-mail is sent (in local development the reset link is printed in the
+terminal instead, so the flow can still be tried). The `PasswordResetToken` table comes from the migration
+`20261105120000_add_password_reset_token`, which `npm start` applies automatically. If every admin is locked out and
+mail is not set up yet, `npm run admin:bootstrap` still resets the bootstrap admin's password from `.env`.
+
 ## Database schema
 
 Defined in `prisma/schema.prisma`, implementing the entities from the product
