@@ -7,6 +7,7 @@ import EmptyState from "@/components/site/EmptyState";
 import JsonLd from "@/components/site/JsonLd";
 import { itemListJsonLd } from "@/lib/public/structuredData";
 import InfluencerAvatarCard from "@/components/site/InfluencerAvatarCard";
+import PromoAd from "@/components/site/promo/PromoAd";
 
 export const revalidate = 300;
 
@@ -44,6 +45,7 @@ export default async function InfluencersPage() {
           ))}
         </div>
       )}
+      {influencers.length > 0 && <PromoAd spot="influencers" className="mt-10" />}
     </div>
   );
 }

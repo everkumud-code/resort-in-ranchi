@@ -3,6 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { buildPageMetadata } from "@/lib/public/seo";
 import Breadcrumbs from "@/components/site/Breadcrumbs";
+import PromoAd from "@/components/site/promo/PromoAd";
 import AddYourPropertyForm from "./AddYourPropertyForm";
 
 export function generateMetadata(): Metadata {
@@ -51,6 +52,8 @@ export default async function ListYourBusinessPage({
           <AddYourPropertyForm categories={categories} locations={locations} facilities={facilities} />
         </div>
       )}
+
+      <PromoAd spot="list-business" className="mt-8" />
 
       <p className="mt-6 text-xs text-brand/50">
         Already listed and want to manage it instead?{" "}

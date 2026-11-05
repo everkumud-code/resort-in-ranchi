@@ -6,6 +6,7 @@ import Breadcrumbs from "@/components/site/Breadcrumbs";
 import EventCard from "@/components/site/EventCard";
 import EmptyState from "@/components/site/EmptyState";
 import JsonLd from "@/components/site/JsonLd";
+import PromoAd from "@/components/site/promo/PromoAd";
 import { itemListJsonLd } from "@/lib/public/structuredData";
 
 export const revalidate = 300;
@@ -85,6 +86,7 @@ export default async function EventsPage() {
           )}
         </div>
       )}
+      {total > 0 && <PromoAd spot="events" className="mt-10" />}
     </div>
   );
 }

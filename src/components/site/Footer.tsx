@@ -3,6 +3,8 @@ import BrandLogo from "./BrandLogo";
 import { SITE_POSITIONING, SITE_TAGLINE } from "@/lib/public/site";
 import { CONTACT_EMAIL, CONTACT_PHONE, CONTACT_PHONE_DISPLAY } from "@/lib/public/contact";
 
+const NEXT_RESOURCE_URL = "https://www.nextresource.in";
+
 const FOOTER_CATEGORY_LINKS = [
   { href: "/resorts", label: "Resorts" },
   { href: "/hotels", label: "Hotels" },
@@ -92,10 +94,24 @@ export default function Footer() {
             </ul>
           </div>
         </div>
-        <p className="mt-10 border-t border-brand-cream/15 pt-6 text-xs text-brand-cream/60">
-          Listings are compiled from public research and are being progressively verified. Information shown is only
-          what has been confirmed — if a detail isn&apos;t listed, it isn&apos;t known yet.
-        </p>
+        <div className="mt-10 space-y-3 border-t border-brand-cream/15 pt-6 text-xs text-brand-cream/60">
+          <p>
+            Listings are compiled from public research and are being progressively verified. Information shown is only
+            what has been confirmed — if a detail isn&apos;t listed, it isn&apos;t known yet.
+          </p>
+          <p>
+            A{" "}
+            <a
+              href={NEXT_RESOURCE_URL}
+              target="_blank"
+              rel="noopener"
+              className="font-semibold text-brand-gold hover:text-white hover:underline"
+            >
+              Next Resource
+            </a>{" "}
+            initiative
+          </p>
+        </div>
       </div>
     </footer>
   );

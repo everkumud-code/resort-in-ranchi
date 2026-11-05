@@ -22,6 +22,7 @@ import HomepageEventSections from "@/components/site/HomepageEventSections";
 import InfluencerAlbum from "@/components/site/InfluencerAlbum";
 import RanchiClockWeather from "@/components/site/RanchiClockWeather";
 import TravelInfoSection from "@/components/site/TravelInfoSection";
+import PromoAd from "@/components/site/promo/PromoAd";
 
 export const dynamic = "force-dynamic";
 
@@ -107,6 +108,8 @@ export default async function HomePage() {
           {featured.length === 0 ? <div className="mt-4"><EmptyState title="No featured listings yet" description="Listings are being verified before publishing. Check back soon." /></div> : <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">{featured.map((p) => <PropertyCard key={p.id} property={p} />)}</div>}
         </div>
       </section>
+
+      <PromoAd spot="home" className="mx-auto max-w-6xl px-4 py-10" />
 
       <InfluencerAlbum />
 
