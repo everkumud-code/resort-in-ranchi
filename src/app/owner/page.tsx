@@ -264,6 +264,7 @@ function CommercialStatusSection({
 
 interface PageSearchParams {
   error?: string;
+  reset?: string;
 }
 
 const ERROR_MESSAGES: Record<string, string> = {
@@ -286,13 +287,18 @@ const tileIconProps = {
  * already redirects here with ?error=missing-token / ?error=invalid-token,
  * mapped to a specific message rather than a generic one.
  */
-function AccessInstructions({ errorMessage }: { errorMessage?: string }) {
+function AccessInstructions({ errorMessage, notice }: { errorMessage?: string; notice?: string }) {
   return (
     <div className="mx-auto max-w-xl px-4 py-16">
       <h1 className="text-center font-serif text-2xl font-semibold text-brand-dark">Vendor login</h1>
       {errorMessage && (
         <p className="mt-3 rounded-md bg-amber-50 px-3 py-2 text-center text-sm text-amber-800" role="alert">
           {errorMessage}
+        </p>
+      )}
+      {notice && (
+        <p className="mt-3 rounded-md bg-green-50 px-3 py-2 text-center text-sm text-green-700" role="status">
+          {notice}
         </p>
       )}
 
@@ -352,8 +358,13 @@ function AccessInstructions({ errorMessage }: { errorMessage?: string }) {
 export default async function OwnerHomePage({ searchParams }: { searchParams: Promise<PageSearchParams> }) {
   const propertyId = await getOwnerAccessPropertyId();
   if (!propertyId) {
-    const { error } = await searchParams;
-    return <AccessInstructions errorMessage={error ? ERROR_MESSAGES[error] : undefined} />;
+    const { error, reset } = await searchParams;
+    return (
+      <AccessInstructions
+        errorMessage={error ? ERROR_MESSAGES[error] : undefined}
+        notice={reset === "1" ? "Your password was changed. Sign in with the new one." : undefined}
+      />
+    );
   }
 
   // Re-derived from the authenticated session's propertyId only — never from

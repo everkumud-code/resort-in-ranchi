@@ -58,6 +58,20 @@ describe("evaluateResetToken", () => {
   });
 });
 
+describe("isResetRequestThrottled with a configured limit", () => {
+  it("uses the limit it is given instead of the default", () => {
+    expect(isResetRequestThrottled(4, 5)).toBe(false);
+    expect(isResetRequestThrottled(5, 5)).toBe(true);
+    expect(isResetRequestThrottled(1, 1)).toBe(true);
+  });
+
+  it("states the configured link lifetime in the e-mail", () => {
+    const mail = buildResetEmail({ name: "Kumud", url: "https://example.com/x", ttlMinutes: 15 });
+    expect(mail.text).toContain("expires in 15 minutes");
+    expect(mail.html).toContain("expires in 15 minutes");
+  });
+});
+
 describe("isResetRequestThrottled", () => {
   it("allows a few requests an hour and stops after that", () => {
     expect(isResetRequestThrottled(0)).toBe(false);
@@ -80,6 +94,11 @@ describe("buildResetUrl", () => {
     expect(buildResetUrl(undefined, "abc", "development")).toBe("http://localhost:3000/admin/reset-password?token=abc");
   });
 
+  it("can point at the vendor reset page", () => {
+    expect(buildResetUrl("https://x.test/", "abc", "production", "/owner/reset-password")).toBe("https://x.test/owner/reset-password?token=abc");
+    expect(buildResetUrl(undefined, "abc", "development", "/owner/reset-password")).toBe("http://localhost:3000/owner/reset-password?token=abc");
+  });
+
   it("encodes the token", () => {
     expect(buildResetUrl("https://x.test", "a b&c", "production")).toBe("https://x.test/admin/reset-password?token=a%20b%26c");
   });
@@ -95,6 +114,16 @@ describe("buildResetEmail", () => {
     expect(mail.text).toContain("60 minutes");
     expect(mail.text).toContain("ignore this e-mail");
     expect(mail.html).toContain(`href="${url}"`);
+  });
+
+  it("says 'vendor login' in the owner version and 'admin account' in the admin one", () => {
+    const owner = buildResetEmail({ name: "Hotel Kumud", url, audience: "owner" });
+    expect(owner.subject).toContain("vendor");
+    expect(owner.text).toContain("vendor login");
+    expect(owner.html).toContain("vendor login");
+    const admin = buildResetEmail({ name: "Kumud", url });
+    expect(admin.subject).toContain("admin");
+    expect(admin.text).toContain("admin account");
   });
 
   it("escapes a name that contains markup", () => {

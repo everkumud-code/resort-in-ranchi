@@ -111,6 +111,38 @@ terminal instead, so the flow can still be tried). The `PasswordResetToken` tabl
 `20261105120000_add_password_reset_token`, which `npm start` applies automatically. If every admin is locked out and
 mail is not set up yet, `npm run admin:bootstrap` still resets the bootstrap admin's password from `.env`.
 
+The same flow exists for **vendors** (property owners who set an e-mail + password on their dashboard):
+`/owner/forgot-password` and `/owner/reset-password`. It only works while the vendor's access is valid and the listing
+is published, never re-opens revoked or expired access, and uses the `OwnerPasswordResetToken` table (migration
+`20261105140000_add_owner_password_reset_token`). Creators have no password (they sign in with a one-time link), so
+there is nothing for them to reset.
+
+## 8. Admin Settings console (`/admin/settings`)
+
+Admins and Super admins get a **Settings** block on the dashboard with five tabs:
+
+- **Overview**: health check (e-mail, site address, encryption key, team size) and a "recent changes" history.
+- **E-mail**: the Gmail address, **app password** (write-only, never shown again), and sender name, with a
+  *Send a test e-mail* button and a *Remove saved account* button. Values saved here win over `SMTP_*` in `.env`;
+  removing them falls back to `.env`.
+- **Site & security**: the website address used in e-mailed links, how long reset links last (10 to 1440 minutes) and
+  how many reset e-mails one person can ask for per hour (1 to 10).
+- **Team**: add people, change role (Super admin / Admin / Editor), switch accounts off, e-mail a reset link, sign
+  someone out everywhere. Admins can only manage Editors; nobody can lock themselves out and the last active Super
+  admin cannot be removed.
+- **My account** (also for Editors): change name, change password, sign out other devices.
+
+The app password is stored **encrypted** (AES-256-GCM). Set a key once in `.env` / the production environment:
+
+```
+SETTINGS_ENCRYPTION_KEY=<64 hex characters>   # node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+Keep a private copy of the key: if it is lost or changed, saved secrets can no longer be read and are simply typed in
+again (the page says so). Without the key the app password can still be supplied through `SMTP_APP_PASSWORD`. The change
+history records who changed what, never the values. New tables come from migration `20261105160000_add_site_settings`,
+which `npm start` applies automatically.
+
 ## Database schema
 
 Defined in `prisma/schema.prisma`, implementing the entities from the product

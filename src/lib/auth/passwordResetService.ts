@@ -1,9 +1,9 @@
 import { prisma } from "@/lib/prisma";
-import { getMailConfig, sendMail } from "@/lib/email/mailer";
+import { isMailConfigured, sendMail } from "@/lib/email/mailer";
+import { resolveEmailLinkBase, resolveResetRules } from "@/lib/settings/store";
 import { hashPassword } from "./password";
 import { hashToken } from "./session";
 import {
-  RESET_TOKEN_TTL_MS,
   buildResetEmail,
   buildResetUrl,
   evaluateResetToken,
@@ -22,9 +22,10 @@ export async function issueResetEmail(email: string): Promise<void> {
   const admin = await prisma.adminUser.findUnique({ where: { email } });
   if (!admin || !admin.active) return;
 
+  const rules = await resolveResetRules();
   const since = new Date(Date.now() - 60 * 60 * 1000);
   const recent = await prisma.passwordResetToken.count({ where: { adminUserId: admin.id, createdAt: { gte: since } } });
-  if (isResetRequestThrottled(recent)) {
+  if (isResetRequestThrottled(recent, rules.requestsPerHour)) {
     console.info("[password-reset] too many requests this hour for one admin; no new e-mail sent");
     return;
   }
@@ -35,17 +36,18 @@ export async function issueResetEmail(email: string): Promise<void> {
     // Only the newest link works: older unused ones are retired.
     prisma.passwordResetToken.updateMany({ where: { adminUserId: admin.id, usedAt: null }, data: { usedAt: now } }),
     prisma.passwordResetToken.create({
-      data: { tokenHash: hashToken(token), adminUserId: admin.id, expiresAt: new Date(now.getTime() + RESET_TOKEN_TTL_MS) },
+      data: { tokenHash: hashToken(token), adminUserId: admin.id, expiresAt: new Date(now.getTime() + rules.linkMinutes * 60_000) },
     }),
   ]);
 
-  const url = buildResetUrl(process.env.NEXT_PUBLIC_SITE_URL, token, process.env.NODE_ENV);
+  const base = await resolveEmailLinkBase();
+  const url = buildResetUrl(base.value, token, process.env.NODE_ENV);
   if (!url) {
-    console.error("[password-reset] NEXT_PUBLIC_SITE_URL is not set, so no reset link was made.");
+    console.error("[password-reset] no website address is set (Settings > Site & security, or NEXT_PUBLIC_SITE_URL), so no reset link was made.");
     return;
   }
 
-  if (!getMailConfig()) {
+  if (!(await isMailConfigured())) {
     if (process.env.NODE_ENV === "production") {
       console.error("[password-reset] SMTP_USER / SMTP_APP_PASSWORD are not set, so no e-mail was sent.");
     } else {
@@ -55,7 +57,7 @@ export async function issueResetEmail(email: string): Promise<void> {
     return;
   }
 
-  const mail = buildResetEmail({ name: admin.name, url });
+  const mail = buildResetEmail({ name: admin.name, url, ttlMinutes: rules.linkMinutes });
   await sendMail({ to: admin.email, ...mail });
 }
 

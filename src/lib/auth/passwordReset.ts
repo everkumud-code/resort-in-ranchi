@@ -37,8 +37,8 @@ export function evaluateResetToken(
   return { valid: true };
 }
 
-export function isResetRequestThrottled(requestsInLastHour: number): boolean {
-  return requestsInLastHour >= MAX_RESET_REQUESTS_PER_HOUR;
+export function isResetRequestThrottled(requestsInLastHour: number, maxPerHour: number = MAX_RESET_REQUESTS_PER_HOUR): boolean {
+  return requestsInLastHour >= maxPerHour;
 }
 
 /**
@@ -47,13 +47,18 @@ export function isResetRequestThrottled(requestsInLastHour: number): boolean {
  * e-mailed link at someone else's server). In production a missing
  * NEXT_PUBLIC_SITE_URL means no link is made at all.
  */
-export function buildResetUrl(siteUrl: string | undefined, token: string, nodeEnv: string | undefined): string | null {
+export function buildResetUrl(
+  siteUrl: string | undefined,
+  token: string,
+  nodeEnv: string | undefined,
+  path: string = "/admin/reset-password"
+): string | null {
   const base = siteUrl?.trim().replace(/\/+$/, "");
   if (!base) {
     if (nodeEnv === "production") return null;
-    return `http://localhost:3000/admin/reset-password?token=${encodeURIComponent(token)}`;
+    return `http://localhost:3000${path}?token=${encodeURIComponent(token)}`;
   }
-  return `${base}/admin/reset-password?token=${encodeURIComponent(token)}`;
+  return `${base}${path}?token=${encodeURIComponent(token)}`;
 }
 
 function escapeHtml(value: string): string {
@@ -71,14 +76,15 @@ export interface ResetEmail {
   html: string;
 }
 
-export function buildResetEmail(input: { name: string; url: string }): ResetEmail {
-  const minutes = Math.round(RESET_TOKEN_TTL_MS / 60000);
+export function buildResetEmail(input: { name: string; url: string; audience?: "admin" | "owner"; ttlMinutes?: number }): ResetEmail {
+  const minutes = input.ttlMinutes ?? Math.round(RESET_TOKEN_TTL_MS / 60000);
   const name = input.name.trim() || "there";
-  const subject = "Reset your ResortInRanchi admin password";
+  const account = input.audience === "owner" ? "ResortInRanchi vendor login" : "ResortInRanchi admin account";
+  const subject = input.audience === "owner" ? "Reset your ResortInRanchi vendor password" : "Reset your ResortInRanchi admin password";
   const text = [
     `Hello ${name},`,
     "",
-    "Someone asked to reset the password of your ResortInRanchi admin account.",
+    `Someone asked to reset the password of your ${account}.`,
     `Open this link to choose a new password (it works once and expires in ${minutes} minutes):`,
     "",
     input.url,
@@ -87,7 +93,7 @@ export function buildResetEmail(input: { name: string; url: string }): ResetEmai
   ].join("\n");
   const html = [
     `<p>Hello ${escapeHtml(name)},</p>`,
-    "<p>Someone asked to reset the password of your ResortInRanchi admin account.</p>",
+    `<p>Someone asked to reset the password of your ${account}.</p>`,
     `<p><a href="${escapeHtml(input.url)}">Choose a new password</a><br>`,
     `The link works once and expires in ${minutes} minutes.</p>`,
     "<p>If you did not ask for this, ignore this e-mail: your password stays as it is.</p>",
