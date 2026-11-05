@@ -2,10 +2,23 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { destroyCreatorSessionByToken, getCreatorAccessInfluencerId, CREATOR_SESSION_COOKIE_NAME } from "@/lib/auth/creatorAccess";
+import {
+  createCreatorSessionForAccess,
+  destroyCreatorSessionByToken,
+  evaluateCreatorAccess,
+  getCreatorAccessInfluencerId,
+  influencerEligibleForOwnerAccess,
+  CREATOR_SESSION_COOKIE_NAME,
+  CREATOR_SESSION_DURATION_MS,
+} from "@/lib/auth/creatorAccess";
+import { hashPassword, verifyPassword } from "@/lib/auth/password";
+import { consumeCreatorResetToken, issueCreatorResetEmail } from "@/lib/auth/creatorPasswordResetService";
 import { creatorProfileSchema } from "@/lib/validation/creatorProfile";
+import { ownerLoginSchema, ownerSetPasswordSchema } from "@/lib/validation/ownerPassword";
+import { forgotPasswordSchema, resetPasswordSchema } from "@/lib/validation/auth";
 
 export interface CreatorActionState {
   error?: string;
@@ -89,4 +102,117 @@ export async function logoutCreator(): Promise<void> {
   if (token) await destroyCreatorSessionByToken(token);
   store.delete({ name: CREATOR_SESSION_COOKIE_NAME, path: "/creator" });
   redirect("/creator");
+}
+
+export interface CreatorPasswordFormState {
+  error?: string;
+  success?: boolean;
+}
+
+/**
+ * Sets (or changes) this creator's own direct-login email+password — only
+ * callable while already signed in, so it is always the creator acting on
+ * their own access, never set on their behalf. Mirrors setOwnerPassword.
+ */
+export async function setCreatorPassword(_prevState: CreatorPasswordFormState, formData: FormData): Promise<CreatorPasswordFormState> {
+  const influencerId = await getCreatorAccessInfluencerId();
+  if (!influencerId) return { error: "Your session has expired. Please sign in again." };
+
+  const parsed = ownerSetPasswordSchema.safeParse({
+    email: formData.get("email"),
+    password: formData.get("password"),
+    confirmPassword: formData.get("confirmPassword"),
+  });
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Please check your details." };
+
+  const emailOwner = await prisma.influencerOwnerAccess.findUnique({ where: { email: parsed.data.email } });
+  if (emailOwner && emailOwner.influencerId !== influencerId) {
+    return { error: "That email is already used for another creator profile's login." };
+  }
+
+  const passwordHash = await hashPassword(parsed.data.password);
+  await prisma.influencerOwnerAccess.update({
+    where: { influencerId },
+    data: { email: parsed.data.email, passwordHash },
+  });
+  return { success: true };
+}
+
+export interface CreatorLoginFormState {
+  error?: string;
+}
+
+const GENERIC_LOGIN_ERROR = "Invalid email or password.";
+
+/** Public — email+password login for a creator who has already set one up from their dashboard. */
+export async function loginCreatorWithPassword(_prevState: CreatorLoginFormState, formData: FormData): Promise<CreatorLoginFormState> {
+  const parsed = ownerLoginSchema.safeParse({ email: formData.get("email"), password: formData.get("password") });
+  if (!parsed.success) return { error: GENERIC_LOGIN_ERROR };
+
+  // Never reveal whether the email exists — same generic error either way.
+  const access = await prisma.influencerOwnerAccess.findUnique({
+    where: { email: parsed.data.email },
+    include: { influencer: { select: { id: true, status: true } } },
+  });
+  if (!access || !access.passwordHash) return { error: GENERIC_LOGIN_ERROR };
+  if (!evaluateCreatorAccess(access).authorized) return { error: GENERIC_LOGIN_ERROR };
+  if (!influencerEligibleForOwnerAccess(access.influencer)) return { error: GENERIC_LOGIN_ERROR };
+
+  const validPassword = await verifyPassword(parsed.data.password, access.passwordHash);
+  if (!validPassword) return { error: GENERIC_LOGIN_ERROR };
+
+  const sessionToken = await createCreatorSessionForAccess(access.id);
+  const store = await cookies();
+  store.set(CREATOR_SESSION_COOKIE_NAME, sessionToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/creator",
+    maxAge: CREATOR_SESSION_DURATION_MS / 1000,
+  });
+
+  redirect("/creator");
+}
+
+export interface CreatorForgotPasswordState {
+  error?: string;
+  sent?: boolean;
+}
+
+/**
+ * Public "forgot password" for a creator who set up an email + password. The
+ * answer is the same whether or not the e-mail is one of ours, and the lookup
+ * and mailing run after the response so the reply takes the same time either way.
+ */
+export async function requestCreatorPasswordReset(_prevState: CreatorForgotPasswordState, formData: FormData): Promise<CreatorForgotPasswordState> {
+  const parsed = forgotPasswordSchema.safeParse({ email: formData.get("email") });
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Enter a valid email." };
+
+  const { email } = parsed.data;
+  after(async () => {
+    try {
+      await issueCreatorResetEmail(email);
+    } catch (error) {
+      console.error("[creator-password-reset] could not issue a reset e-mail:", error instanceof Error ? error.message : "unknown error");
+    }
+  });
+  return { sent: true };
+}
+
+export interface CreatorResetPasswordState {
+  error?: string;
+}
+
+export async function resetCreatorPassword(_prevState: CreatorResetPasswordState, formData: FormData): Promise<CreatorResetPasswordState> {
+  const parsed = resetPasswordSchema.safeParse({
+    token: formData.get("token"),
+    newPassword: formData.get("newPassword"),
+    confirmPassword: formData.get("confirmPassword"),
+  });
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
+
+  const result = await consumeCreatorResetToken(parsed.data.token, parsed.data.newPassword);
+  if (!result.ok) return { error: "This reset link is invalid or has expired. Request a new one." };
+
+  redirect("/creator?reset=1");
 }

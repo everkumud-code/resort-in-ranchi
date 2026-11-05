@@ -114,8 +114,13 @@ mail is not set up yet, `npm run admin:bootstrap` still resets the bootstrap adm
 The same flow exists for **vendors** (property owners who set an e-mail + password on their dashboard):
 `/owner/forgot-password` and `/owner/reset-password`. It only works while the vendor's access is valid and the listing
 is published, never re-opens revoked or expired access, and uses the `OwnerPasswordResetToken` table (migration
-`20261105140000_add_owner_password_reset_token`). Creators have no password (they sign in with a one-time link), so
-there is nothing for them to reset.
+`20261105140000_add_owner_password_reset_token`).
+
+**Creators** work the same way: they first sign in with the one-time link, then set an optional e-mail + password in
+the "Quick login" card on their dashboard. After that they can sign in at `/creator` with the password, and use
+`/creator/forgot-password` and `/creator/reset-password` (table `CreatorPasswordResetToken`, migration
+`20261105180000_add_creator_password_login`). Same rules as vendors: only while the access is valid and the profile is
+published, revoked or expired access is never re-opened, and a reset ends every creator session.
 
 ## 8. Admin Settings console (`/admin/settings`)
 

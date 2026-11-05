@@ -126,6 +126,15 @@ describe("buildResetEmail", () => {
     expect(admin.text).toContain("admin account");
   });
 
+  it("says 'creator login' in the creator version", () => {
+    const creator = buildResetEmail({ name: "Asha", url, audience: "creator" });
+    expect(creator.subject).toContain("creator");
+    expect(creator.text).toContain("creator login");
+    expect(creator.html).toContain("creator login");
+    expect(creator.text).not.toContain("vendor");
+    expect(creator.text).not.toContain("admin account");
+  });
+
   it("escapes a name that contains markup", () => {
     const mail = buildResetEmail({ name: `<script>alert("x")</script>`, url });
     expect(mail.html).not.toContain("<script>");

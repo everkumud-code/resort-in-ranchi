@@ -76,11 +76,15 @@ export interface ResetEmail {
   html: string;
 }
 
-export function buildResetEmail(input: { name: string; url: string; audience?: "admin" | "owner"; ttlMinutes?: number }): ResetEmail {
+export function buildResetEmail(input: { name: string; url: string; audience?: "admin" | "owner" | "creator"; ttlMinutes?: number }): ResetEmail {
   const minutes = input.ttlMinutes ?? Math.round(RESET_TOKEN_TTL_MS / 60000);
   const name = input.name.trim() || "there";
-  const account = input.audience === "owner" ? "ResortInRanchi vendor login" : "ResortInRanchi admin account";
-  const subject = input.audience === "owner" ? "Reset your ResortInRanchi vendor password" : "Reset your ResortInRanchi admin password";
+  const labels = {
+    admin: { account: "ResortInRanchi admin account", subject: "Reset your ResortInRanchi admin password" },
+    owner: { account: "ResortInRanchi vendor login", subject: "Reset your ResortInRanchi vendor password" },
+    creator: { account: "ResortInRanchi creator login", subject: "Reset your ResortInRanchi creator password" },
+  }[input.audience ?? "admin"];
+  const { account, subject } = labels;
   const text = [
     `Hello ${name},`,
     "",

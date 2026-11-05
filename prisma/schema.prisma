@@ -741,7 +741,14 @@ model InfluencerOwnerAccess {
   createdAt      DateTime                @default(now())
   consumedAt     DateTime?
   revokedAt      DateTime?
+  /// Optional direct-login credential the creator sets themselves from their
+  /// dashboard (see setCreatorPassword) — mirrors PropertyOwnerAccess. Never
+  /// set by an admin or by us on their behalf, and subject to the exact same
+  /// evaluateCreatorAccess checks (revoked/expired) as the one-time link.
+  email          String?                 @unique
+  passwordHash   String?
   sessions       InfluencerOwnerSession[]
+  passwordResetTokens CreatorPasswordResetToken[]
 }
 
 /// A browser session established after a valid initial creator-access token
@@ -1111,4 +1118,20 @@ model SettingChange {
   createdAt  DateTime @default(now())
 
   @@index([createdAt])
+}
+
+/// A one-time "forgot password" link for a creator who set up an e-mail +
+/// password. Mirrors OwnerPasswordResetToken: only the SHA-256 hash of the
+/// random token is stored, it expires, works once (usedAt), and using it ends
+/// every creator session of that access row.
+model CreatorPasswordResetToken {
+  id            String                @id @default(cuid())
+  tokenHash     String                @unique
+  ownerAccessId String
+  ownerAccess   InfluencerOwnerAccess @relation(fields: [ownerAccessId], references: [id], onDelete: Cascade)
+  expiresAt     DateTime
+  usedAt        DateTime?
+  createdAt     DateTime              @default(now())
+
+  @@index([ownerAccessId, createdAt])
 }
