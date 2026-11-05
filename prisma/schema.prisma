@@ -412,6 +412,7 @@ model PropertyOwnerAccess {
   email          String?      @unique
   passwordHash   String?
   sessions       PropertyOwnerSession[]
+  passwordResetTokens OwnerPasswordResetToken[]
 
 }
 
@@ -819,6 +820,22 @@ model PasswordResetToken {
   @@index([adminUserId, createdAt])
 }
 
+/// The owner (vendor) version of PasswordResetToken: a one-time "forgot
+/// password" link for an owner who set up an email + password login. Same
+/// rules: only the token's SHA-256 hash is stored, one hour, works once, and
+/// using it ends every session of that owner access.
+model OwnerPasswordResetToken {
+  id            String              @id @default(cuid())
+  tokenHash     String              @unique
+  ownerAccessId String
+  ownerAccess   PropertyOwnerAccess @relation(fields: [ownerAccessId], references: [id], onDelete: Cascade)
+  expiresAt     DateTime
+  usedAt        DateTime?
+  createdAt     DateTime            @default(now())
+
+  @@index([ownerAccessId, createdAt])
+}
+
 // ---------------------------------------------------------------------------
 // Import data-quality tracking
 // ---------------------------------------------------------------------------
@@ -1068,4 +1085,30 @@ model PartnerLead {
   @@unique([partnerId, sourceEnquiryId])
   @@index([partnerId])
   @@index([sourceEnquiryId])
+}
+
+/// One editable setting of the admin Settings console (e-mail account, site
+/// address for e-mailed links, password-reset rules). Secrets (the Gmail app
+/// password) are stored encrypted (AES-256-GCM, key from SETTINGS_ENCRYPTION_KEY)
+/// and are never sent back to the browser. A value saved here overrides the
+/// matching server environment variable; clearing it falls back to that variable.
+model SiteSetting {
+  key         String   @id
+  value       String
+  secret      Boolean  @default(false)
+  updatedById String?
+  updatedAt   DateTime @updatedAt
+}
+
+/// Who changed what in Settings and the team list, newest first on screen.
+/// Values are never stored here (only a short plain-words summary), so a
+/// secret can never leak through the history.
+model SettingChange {
+  id         String   @id @default(cuid())
+  area       String
+  summary    String
+  adminEmail String
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
 }

@@ -2,9 +2,12 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import { ownerLoginSchema, ownerSetPasswordSchema } from "@/lib/validation/ownerPassword";
+import { forgotPasswordSchema, resetPasswordSchema } from "@/lib/validation/auth";
+import { consumeOwnerResetToken, issueOwnerResetEmail } from "@/lib/auth/ownerPasswordResetService";
 import {
   createOwnerSessionForAccess,
   destroyOwnerSessionByToken,
@@ -100,4 +103,54 @@ export async function loginOwnerWithPassword(_prevState: OwnerLoginFormState, fo
   });
 
   redirect("/owner");
+}
+
+export interface OwnerForgotPasswordState {
+  error?: string;
+  sent?: boolean;
+}
+
+/**
+ * Public "forgot password" for an owner who set up an email + password. The
+ * answer is the same whether or not the e-mail is one of ours, and the lookup
+ * and mailing run after the response so the reply takes the same time either way.
+ */
+export async function requestOwnerPasswordReset(_prevState: OwnerForgotPasswordState, formData: FormData): Promise<OwnerForgotPasswordState> {
+  const parsed = forgotPasswordSchema.safeParse({ email: formData.get("email") });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Enter a valid email." };
+  }
+
+  const { email } = parsed.data;
+  after(async () => {
+    try {
+      await issueOwnerResetEmail(email);
+    } catch (error) {
+      console.error("[owner-password-reset] could not issue a reset e-mail:", error instanceof Error ? error.message : "unknown error");
+    }
+  });
+
+  return { sent: true };
+}
+
+export interface OwnerResetPasswordState {
+  error?: string;
+}
+
+export async function resetOwnerPassword(_prevState: OwnerResetPasswordState, formData: FormData): Promise<OwnerResetPasswordState> {
+  const parsed = resetPasswordSchema.safeParse({
+    token: formData.get("token"),
+    newPassword: formData.get("newPassword"),
+    confirmPassword: formData.get("confirmPassword"),
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
+  }
+
+  const result = await consumeOwnerResetToken(parsed.data.token, parsed.data.newPassword);
+  if (!result.ok) {
+    return { error: "This reset link is invalid or has expired. Request a new one." };
+  }
+
+  redirect("/owner?reset=1");
 }

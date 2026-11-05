@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { loginOwnerWithPassword, type OwnerLoginFormState } from "./actions";
 
@@ -29,6 +30,11 @@ export default function OwnerLoginForm() {
           Password
         </label>
         <input id="owner-login-password" name="password" type="password" required autoComplete="current-password" className={inputClass} />
+        <p className="mt-1 text-right text-xs">
+          <Link href="/owner/forgot-password" className="text-brand-teal hover:underline">
+            Forgot password?
+          </Link>
+        </p>
       </div>
       <button
         type="submit"
