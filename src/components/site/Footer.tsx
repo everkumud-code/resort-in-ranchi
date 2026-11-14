@@ -4,6 +4,8 @@ import { SITE_POSITIONING, SITE_TAGLINE } from "@/lib/public/site";
 import { CONTACT_EMAIL, CONTACT_PHONE, CONTACT_PHONE_DISPLAY } from "@/lib/public/contact";
 
 const NEXT_RESOURCE_URL = "https://www.nextresource.in";
+// One team page for the whole Next group, the same on every Next website.
+const BE_THE_NEXT_URL = "https://www.nextresource.in/be-the-next";
 
 const FOOTER_CATEGORY_LINKS = [
   { href: "/resorts", label: "Resorts" },
@@ -110,6 +112,17 @@ export default function Footer() {
               Next Resource
             </a>{" "}
             initiative
+          </p>
+          <p>
+            <a
+              href={BE_THE_NEXT_URL}
+              target="_blank"
+              rel="noopener"
+              className="font-semibold text-brand-gold hover:text-white hover:underline"
+            >
+              Be the Next
+            </a>{" "}
+            · People First, Humanity Always.
           </p>
         </div>
       </div>
